@@ -63,12 +63,12 @@ void Lua::debugRun(std::string code)
             double runtime = vm.opCounts[i].delta;
             std::string name = ByteCode::toString(Op(static_cast<int>(i)));
 
-            std::cout << std::format("{} : {} {}", name , opCount, runtime) << "\n";
+            std::cout << std::format("{} : {} {:.9f}", name , opCount, runtime) << "\n";
             totalOpCount += opCount;
         }
 
         double opPerSecond = static_cast<double>(totalOpCount) / elapsed.count();
         std::cout << std::format("Op/s: {:.14g} OpCount: {}", opPerSecond, totalOpCount) << "\n";
-        std::cout << std::format("VM runtime: {} seconds", elapsed.count()) << "\n";
+        std::cout << std::format("VM runtime: {:.9f} seconds", elapsed.count()) << "\n";
     }
 }
