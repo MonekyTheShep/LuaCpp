@@ -90,11 +90,18 @@ class VMRuntimeError : public std::exception
         std::string error;
 };
 
+
+struct OpDebugInfo 
+{
+    size_t opCount;
+    double delta;
+};
+
 class VM
 {
     public:
         VM(Lua &lua)
-        : opcount(0)
+        : opCounts({})
         , globals(std::make_shared<LuaTable>())
         , lua(lua)
         , sp(0)
@@ -106,7 +113,7 @@ class VM
 
         void execute(const FunctionHandle &code);
     public:
-        int opcount;
+        std::array<OpDebugInfo, numOfOps> opCounts;
     public: 
         friend CallVisitor;
         friend VMRuntimeError;

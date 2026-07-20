@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -592,7 +593,6 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
 
 void VM::execute(const FunctionHandle &code)
 {
-    opcount = 0;
     auto closure = std::make_shared<Closure>(Closure{code});
     size_t calleeIndex = push(closure);
     callValue(calleeIndex, 0, CallType::LUA);
@@ -632,8 +632,13 @@ void VM::run()
 {
     for(;;)
     {
-        auto op = Op(readByte()); opcount++;
+        using Time = std::chrono::high_resolution_clock;
+        using Seconds = std::chrono::duration<double>;
+
+        auto op = Op(readByte()); 
         
+        auto begin = Time::now();
+
         switch (op)
         {
             case Op::LOAD_CONST:
@@ -1085,6 +1090,12 @@ void VM::run()
             default:
                 return;
         }
+
+        auto end = Time::now(); 
+        Seconds elapsed = end - begin;
+
+        opCounts[static_cast<size_t>(op)].opCount++;
+        opCounts[static_cast<size_t>(op)].delta += elapsed.count();
     }
 }
 

@@ -1,11 +1,13 @@
 #include "lua.h"
 
+#include <cstddef>
 #include <iostream>
 #include <format>
 #include <chrono>
 #include <string>
 #include <utility>
 
+#include "bytecode.h"
 #include "parser.h"
 #include "compiler.h"
 #include "value.h"
@@ -50,8 +52,23 @@ void Lua::debugRun(std::string code)
     {
         std::cout << "========= VM PERFORMANCE  ==========" << "\n";
         Seconds elapsed = end - begin;
-        double opPerSecond = vm.opcount / elapsed.count();
-        std::cout << std::format("Op/s: {:.14g} OpCount: {}", opPerSecond, vm.opcount) << "\n";
+
+        size_t totalOpCount = 0;
+
+        for (size_t i = 0; i < vm.opCounts.size(); i++)
+        {
+            size_t opCount = vm.opCounts[i].opCount;
+            if (opCount == 0) continue;
+
+            double runtime = vm.opCounts[i].delta;
+            std::string name = ByteCode::toString(Op(static_cast<int>(i)));
+
+            std::cout << std::format("{} : {} {}", name , opCount, runtime) << "\n";
+            totalOpCount += opCount;
+        }
+
+        double opPerSecond = static_cast<double>(totalOpCount) / elapsed.count();
+        std::cout << std::format("Op/s: {:.14g} OpCount: {}", opPerSecond, totalOpCount) << "\n";
         std::cout << std::format("VM runtime: {} seconds", elapsed.count()) << "\n";
     }
 }
