@@ -57,13 +57,11 @@ void Lua::debugRun(std::string code)
 
         for (size_t i = 0; i < vm.opCounts.size(); i++)
         {
-            size_t opCount = vm.opCounts[i].opCount;
+            size_t opCount = vm.opCounts[i];
             if (opCount == 0) continue;
-
-            double runtime = vm.opCounts[i].delta;
             std::string name = ByteCode::toString(Op(static_cast<int>(i)));
 
-            std::cout << std::format("{} : {} {:.9f}", name , opCount, runtime) << "\n";
+            std::cout << std::format("{} : {}", name , opCount) << "\n";
             totalOpCount += opCount;
         }
 

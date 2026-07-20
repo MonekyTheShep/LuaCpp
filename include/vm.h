@@ -90,13 +90,6 @@ class VMRuntimeError : public std::exception
         std::string error;
 };
 
-
-struct OpDebugInfo 
-{
-    size_t opCount;
-    double delta;
-};
-
 class VM
 {
     public:
@@ -113,7 +106,7 @@ class VM
 
         void execute(const FunctionHandle &code);
     public:
-        std::array<OpDebugInfo, numOfOps> opCounts;
+        std::array<size_t, numOfOps> opCounts;
     public: 
         friend CallVisitor;
         friend VMRuntimeError;

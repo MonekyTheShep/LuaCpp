@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -632,12 +631,8 @@ void VM::run()
 {
     for(;;)
     {
-        using Time = std::chrono::high_resolution_clock;
-        using Seconds = std::chrono::duration<double>;
-
         auto op = Op(readByte()); 
-        
-        auto begin = Time::now();
+        opCounts[static_cast<size_t>(op)]++;
 
         switch (op)
         {
@@ -1090,12 +1085,6 @@ void VM::run()
             default:
                 return;
         }
-
-        auto end = Time::now(); 
-        Seconds elapsed = end - begin;
-
-        opCounts[static_cast<size_t>(op)].opCount++;
-        opCounts[static_cast<size_t>(op)].delta += elapsed.count();
     }
 }
 
