@@ -7,7 +7,7 @@
 enum class Op : uint8_t 
 {
     // STACK OP
-    LOAD_CONST,
+    LOAD_CONST = 0,
     STORE_GLOBAL,
     LOAD_GLOBAL,
     STORE_LOCAL,
@@ -86,7 +86,7 @@ enum class Op : uint8_t
     COUNT
 };
 
-constexpr size_t numOfOps = static_cast<size_t>(Op::COUNT);
+inline constexpr size_t numOfOps = static_cast<size_t>(Op::COUNT);
 
 namespace ByteCode
 {
