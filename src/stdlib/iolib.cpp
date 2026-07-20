@@ -1,0 +1,31 @@
+#include "stdlib/iolib.h"
+
+#include <array>
+#include <iostream>
+#include <memory>
+#include <span>
+#include <string>
+
+#include "stdlib/library.h"
+#include "value.h"
+#include "vm.h"
+
+int IoLib::read(VM &vm, std::span<Value>)
+{
+    std::string input;
+    std::getline(std::cin, input);
+    vm.push(input);
+    return 1;
+}
+
+std::array<LibraryMethod, 1> IoLib::methods
+{{
+    {"read",  &read},
+}};
+
+LuaTableHandle IoLib::openLibrary(VM &vm) 
+{
+    LuaTableHandle luaTable = std::make_shared<LuaTable>();
+    setLibraryFunctions(vm, methods, luaTable);
+    return luaTable;
+}
