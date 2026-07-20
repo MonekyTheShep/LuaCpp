@@ -125,8 +125,10 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
         // Insert true infront of returns
         {
             Value *start = &vm.stack[calleeIndex];
+            Value *end = &vm.stack[vm.sp];
+
             vm.checkStack(vm.sp, 1);
-            Value *end = &vm.stack[vm.sp++];
+            vm.sp++;
 
             std::move_backward(start, end, end + 1);
 
