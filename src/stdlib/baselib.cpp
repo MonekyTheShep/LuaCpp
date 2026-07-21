@@ -114,13 +114,12 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
 {
     vm.argCheckAny(args, 0);
 
+    ErrorHandler handler = vm.makeErrorHandler();
+
     try 
     {
-        vm.pushErrorHandler(vm.sp);
-
         size_t calleeIndex = vm.sp - args.size();
         vm.callValue(calleeIndex, -1, CallType::CPP);
-        vm.popErrorHandler();
 
         // Insert true infront of returns
         {
@@ -141,7 +140,7 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
     } 
     catch (const VMRuntimeError& error)
     {
-        vm.recoverVM(); 
+        vm.recoverVM(handler); 
         vm.push(false);
         vm.push(error.getObj());
         return 2;
