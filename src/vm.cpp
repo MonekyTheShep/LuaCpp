@@ -459,19 +459,14 @@ void VM::handleBitWise(Op op, MetaMethod method)
     if ((lhs = ValueHelper::toNumber(a)) && 
     (rhs = ValueHelper::toNumber(b))) 
     {
-        auto validRange = [](double num) 
+        auto toInt = [this](double num) -> int32_t
         {
-            return (num > INT64_MAX) || (num < INT64_MIN);
-        };
+            const bool integerLike = floor(num) == num;
+            const bool fitsInInteger = (num > INT32_MAX) || (num < INT32_MIN);
 
-        const bool integerLike = floor(*lhs) == *lhs || floor(*rhs) == *rhs;
-        const bool fitsInInteger = validRange(*lhs) && validRange(*rhs);
+            if (!integerLike && !fitsInInteger) 
+                runtimeError("Number has no integer representation!"); 
 
-        if (!integerLike && !fitsInInteger) 
-            runtimeError("Number has no integer representation!"); 
-
-        auto toInt = [](double num) -> int32_t
-        {
             if (!std::isfinite(num)) return 0;
 
             return static_cast<int32_t>(static_cast<int64_t>(num) & UINT32_MAX);
