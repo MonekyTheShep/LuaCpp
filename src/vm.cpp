@@ -92,7 +92,7 @@ struct CallVisitor
     {
         std::optional<Value> function = vm.resolveMetaMethod(table, MetaMethod::CALL);
 
-        if (!function) vm.runtimeError(std::format("Attempt to call a table value!"));
+        if (!function) vm.runtimeError("Attempt to call a table value!");
 
         if (++depth >= 100) vm.runtimeError("Potential infinite loop within `__call`!");
     
@@ -426,13 +426,14 @@ void VM::handleEquality()
     push(a == b);
 }
 
-constexpr int NBITS = sizeof(int64_t) * 8;
 
-#define BIT_OP(op, lhs, rhs) static_cast<int64_t>(static_cast<uint64_t>(lhs) op static_cast<uint64_t>(rhs))
+#define BIT_OP(op, lhs, rhs) static_cast<int32_t>(static_cast<uint32_t>(lhs) op static_cast<uint32_t>(rhs))
 
 namespace 
 {
-    int64_t bitShiftLeft(int64_t x, int64_t y) 
+    constexpr int NBITS = sizeof(int32_t) * 8;
+
+    int32_t bitShiftLeft(int32_t x, int32_t y) 
     // https://www.lua.org/source/5.3/lvm.c.html#luaV_shiftl
     {
         if (y < 0) 
@@ -461,19 +462,23 @@ void VM::handleBitWise(Op op, MetaMethod method)
         if (floor(*lhs) != *lhs || floor(*rhs) != *rhs) 
             runtimeError("Number has no integer representation!"); // Both operands have to be integer like.
 
-        auto lhsInt = static_cast<int64_t>(*lhs);
-        auto rhsInt = static_cast<int64_t>(*rhs);
-        int64_t result = 0.0;
+        auto toInt = [](double num)
+        {
+            return static_cast<int32_t>(static_cast<uint64_t>(num) & INT32_MAX);
+        };
+
+        auto lhsInt = toInt(*lhs);
+        auto rhsInt = toInt(*rhs);
+
+        int32_t result = 0.0;
 
         switch (op)
         {
             case Op::BIT_AND: result = BIT_OP(&, lhsInt, rhsInt); break;
             case Op::BIT_OR: result =  BIT_OP(|, lhsInt, rhsInt); break;
             case Op::BIT_XOR: result = BIT_OP(^, lhsInt, rhsInt); break;
-            case Op::BITSHIFT_LEFT: 
-                result = bitShiftLeft(lhsInt, rhsInt); break;
-            case Op::BITSHIFT_RIGHT:
-                result = bitShiftLeft(lhsInt, -rhsInt); break;
+            case Op::BITSHIFT_LEFT:  result = bitShiftLeft(lhsInt, rhsInt); break;
+            case Op::BITSHIFT_RIGHT: result = bitShiftLeft(lhsInt, -rhsInt); break;
             default:
                 assert(false); // Unreachable
         }
