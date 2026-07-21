@@ -453,8 +453,8 @@ int32_t VM::doubleToInt(double num)
 {
     const bool notValidInteger = 
         !std::isfinite(num) 
-        && (floor(num) != num) 
-        && ((num > INT32_MAX) || (num < INT32_MIN));
+        || (floor(num) != num) 
+        || ((num > INT32_MAX) || (num < INT32_MIN));
 
     if (notValidInteger)
         runtimeError("Number has no integer representation!"); 
