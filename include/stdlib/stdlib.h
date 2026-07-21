@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <string>
 
@@ -17,5 +18,5 @@ class StdLib
     public:
         static void initLibraries(VM &vm);
     private:
-        static Lib libraries[];
+        static std::array<Lib, 4> libraries;
 };

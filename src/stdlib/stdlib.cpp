@@ -1,5 +1,6 @@
 #include "stdlib/stdlib.h"
 
+#include <array>
 #include <memory>
 
 #include "stdlib/library.h"
@@ -12,13 +13,13 @@
 #include "value.h"
 #include "vm.h"
 
-Lib StdLib::libraries[] 
-{
+std::array<Lib, 4> StdLib::libraries =
+{{
     {"_G", std::make_unique<BaseLib>()},
     {"table", std::make_unique<TableLib>()},
     {"string", std::make_unique<StringLib>()},
     {"io", std::make_unique<IoLib>()},
-};
+}};
 
 void StdLib::initLibraries(VM &vm)
 {
