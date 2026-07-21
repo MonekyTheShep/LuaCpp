@@ -27,8 +27,13 @@ inline constexpr size_t MAX_FRAMES = 128;
 inline constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
 inline constexpr int RETURN_ALL = -1;
 
-inline constexpr size_t NUM_OF_PRIMITIVE = 1;
-inline constexpr size_t STRING = 0;
+enum class Primitives : uint8_t 
+{
+    STRING,
+    COUNT
+};
+
+inline constexpr size_t NUM_OF_PRIMITIIVES = static_cast<size_t>(Primitives::COUNT);
 
 struct CallVisitor;
 
@@ -126,7 +131,7 @@ class VM
         std::vector<size_t> callees; // Temporary solution to a bigger problem
         std::vector<size_t> tables; // Temporary solution to a bigger problem
   
-        std::array<LuaTableHandle, NUM_OF_PRIMITIVE> primitiveMt; // Stores references to meta tables for primites
+        std::array<LuaTableHandle, NUM_OF_PRIMITIIVES> primitiveMt; // Stores references to meta tables for primites
 
         LuaTableHandle globals;
 

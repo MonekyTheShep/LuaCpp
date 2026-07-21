@@ -106,7 +106,7 @@ int BaseLib::rawget(VM &vm, std::span<Value> args)
     auto table = vm.argEnsure<LuaTableHandle>(args, 0, "table value");
     Value field = vm.argCheckAny(args, 1);
 
-    vm.push( table->get(vm, field));
+    vm.push(table->get(vm, field));
     return 1;
 }
 
