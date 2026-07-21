@@ -451,16 +451,13 @@ namespace
 
 int32_t VM::doubleToInt(double num)
 {
-    constexpr const char *error = "Number has no integer representation!";
+    const bool notValidInteger = 
+        !std::isfinite(num) 
+        && (floor(num) != num) 
+        && ((num > INT32_MAX) || (num < INT32_MIN));
 
-    if (!std::isfinite(num))
-        runtimeError(error); 
-
-    const bool notIntegerLike = floor(num) != num;
-    const bool notInRange = (num > INT32_MAX) || (num < INT32_MIN);
-
-    if (notIntegerLike || notInRange)
-        runtimeError(error); 
+    if (notValidInteger)
+        runtimeError("Number has no integer representation!"); 
 
     return static_cast<int32_t>(num);
 }
