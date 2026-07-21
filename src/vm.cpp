@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <format>
+#include <functional>
 #include <initializer_list>
 #include <iostream>
 #include <memory>
@@ -461,11 +462,16 @@ void VM::handleBitWise(Op op, MetaMethod method)
     {
         auto toInt = [this](double num) -> int32_t
         {
+            const char *error = "Number has no integer representation!";
+
+            if (!std::isfinite(num))
+                runtimeError(error); 
+
             const bool notIntegerLike = floor(num) != num;
             const bool notInRange = (num > INT32_MAX) || (num < INT32_MIN);
 
-            if (notIntegerLike || notInRange || !std::isfinite(num)) 
-                runtimeError("Number has no integer representation!"); 
+            if (notIntegerLike || notInRange)
+                runtimeError(error); 
 
             return static_cast<int32_t>(num);
         };
