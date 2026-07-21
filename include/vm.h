@@ -106,6 +106,8 @@ class VM
         , runDepth(0)
         {
             callFrames.reserve(MAX_FRAMES);
+            stack.reserve(STACK_SIZE);
+            
             callees.reserve(20); // Vectors likely to grow
             tables.reserve(20); 
             errorHandlers.reserve(5); 
@@ -127,7 +129,7 @@ class VM
         friend BaseLib;
         friend StdLib;     
     private:
-        std::array<Value, STACK_SIZE> stack;
+        std::vector<Value> stack;
 
         std::vector<CallFrame> callFrames;
         std::vector<ErrorHandler> errorHandlers;

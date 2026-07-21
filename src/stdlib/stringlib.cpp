@@ -7,6 +7,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <utility>
 
 #include "stdlib/library.h"
 #include "value.h"
@@ -23,7 +24,7 @@ int StringLib::upper(VM &vm, std::span<Value> args)
         ::toupper
     );
     
-    vm.push(string);
+    vm.push(std::move(string));
 
     return 1;
 }
