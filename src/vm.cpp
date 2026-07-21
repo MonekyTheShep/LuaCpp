@@ -462,7 +462,7 @@ void VM::handleBitWise(Op op, MetaMethod method)
     {
         auto toInt = [this](double num) -> int32_t
         {
-            const char *error = "Number has no integer representation!";
+            constexpr const char *error = "Number has no integer representation!";
 
             if (!std::isfinite(num))
                 runtimeError(error); 
