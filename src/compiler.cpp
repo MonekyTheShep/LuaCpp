@@ -170,10 +170,10 @@ void Compiler::patchJumpAt(size_t jumpPos, size_t target)
 {
 	int jump = static_cast<int>(target) - static_cast<int>(jumpPos) - 2;
 
-    if (jump < INT16_MIN) compilerError("Too much code to jump over");
-	if (jump > INT16_MAX) compilerError("Too much code to jump over");
+    if (jump > INT16_MAX || jump < INT16_MIN) 
+        compilerError("Too much code to jump over");
 
-	chunk.code[jumpPos] = static_cast<uint8_t>(jump >> 8);
+    chunk.code[jumpPos] = static_cast<uint8_t>(jump >> 8);
 	chunk.code[jumpPos + 1] = static_cast<uint8_t>(jump);
 }
 
