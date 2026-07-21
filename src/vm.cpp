@@ -462,15 +462,15 @@ void VM::handleBitWise(Op op, MetaMethod method)
         if (floor(*lhs) != *lhs || floor(*rhs) != *rhs) 
             runtimeError("Number has no integer representation!"); // Both operands have to be integer like.
 
-        auto toInt = [](double num)
+        auto toInt = [](double num) -> int32_t
         {
             if (!std::isnan(num)) return 0;
-            
+
             return static_cast<int32_t>(static_cast<uint64_t>(num) & 0xFFFFFFFF);
         };
 
-        auto lhsInt = toInt(*lhs);
-        auto rhsInt = toInt(*rhs);
+        int32_t lhsInt = toInt(*lhs);
+        int32_t rhsInt = toInt(*rhs);
 
         int32_t result = 0.0;
 
