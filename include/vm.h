@@ -106,6 +106,10 @@ class VM
         , runDepth(0)
         {
             callFrames.reserve(MAX_FRAMES);
+            callees.reserve(20); // Vectors likely to grow
+            tables.reserve(20); 
+            errorHandlers.reserve(5); 
+
             StdLib::initLibraries(*this);
         }
 

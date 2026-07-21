@@ -74,7 +74,7 @@ class Parser
             return ((check(types)) || ...);
         }
 
-        bool isEof() { return (peek().type == TokenType::TEOF); }
+        bool isEof() { return (check(TokenType::TEOF)); }
 
         bool isEndBlock(bool withUntil = true) // Until doesnt close the scope since it can contain an expression
         {
