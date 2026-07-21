@@ -469,7 +469,7 @@ void VM::handleBitWise(Op op, MetaMethod method)
 
             if (!std::isfinite(num)) return 0;
 
-            return static_cast<int32_t>(static_cast<int64_t>(num) & UINT32_MAX);
+            return static_cast<int32_t>(num);
         };
 
         int32_t lhsInt = toInt(*lhs);
