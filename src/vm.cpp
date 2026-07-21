@@ -464,7 +464,9 @@ void VM::handleBitWise(Op op, MetaMethod method)
 
         auto toInt = [](double num)
         {
-            return static_cast<int32_t>(static_cast<uint64_t>(num) & INT32_MAX);
+            if (!std::isnan(num)) return 0;
+            
+            return static_cast<int32_t>(static_cast<uint64_t>(num) & 0xFFFFFFFF);
         };
 
         auto lhsInt = toInt(*lhs);
