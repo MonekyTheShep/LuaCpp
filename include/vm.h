@@ -29,7 +29,7 @@ inline constexpr int RETURN_ALL = -1;
 
 enum class Primitives : uint8_t 
 {
-    STRING,
+    STRING = 0,
     COUNT
 };
 
