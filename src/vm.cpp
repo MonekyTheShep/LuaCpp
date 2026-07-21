@@ -125,21 +125,29 @@ void VM::callValue(size_t calleeIndex, int expectedReturn, CallType type)
     std::visit(CallVisitor(calleeIndex, expectedReturn, type, *this), stack[calleeIndex]);
 }
 
-ErrorHandler VM::makeErrorHandler() 
+void VM::pushErrorHandler(size_t returnSp) 
 {
-    return 
-    {
-        sp,
-        callFrames.size(),
-        runDepth
-    };
+    errorHandlers.emplace_back(returnSp, callFrames.size(), runDepth);
 }
 
-void VM::recoverVM(const ErrorHandler &handler) 
+void VM::popErrorHandler() 
 {
+    assert(!errorHandlers.empty());
+    errorHandlers.pop_back();
+}
+
+void VM::recoverVM() 
+{
+    assert(!callFrames.empty());
+    assert(!errorHandlers.empty());
+
+    auto &handler = errorHandlers.back();
+
     callFrames.resize(handler.frame);
-    sp = handler.sp;
+    sp = handler.sp; // Recover sp to before frames
     runDepth = handler.runDepth;
+    
+    errorHandlers.pop_back(); // Make sure to remove the error handler
 }
 
 void VM::runtimeError(const Value &error) 

@@ -107,9 +107,10 @@ class VM
         {
             callFrames.reserve(MAX_FRAMES);
             stack.reserve(STACK_SIZE);
-
+            
             callees.reserve(20); // Vectors likely to grow
             tables.reserve(20); 
+            errorHandlers.reserve(5); 
 
             StdLib::initLibraries(*this);
         }
@@ -131,6 +132,7 @@ class VM
         std::vector<Value> stack;
 
         std::vector<CallFrame> callFrames;
+        std::vector<ErrorHandler> errorHandlers;
 
         std::vector<size_t> callees; // Temporary solution to a bigger problem
         std::vector<size_t> tables; // Temporary solution to a bigger problem
@@ -209,8 +211,9 @@ class VM
         // -------------------------
         // Error Handling Functions
         // -------------------------
-        ErrorHandler makeErrorHandler();
-        void recoverVM(const ErrorHandler &handler);
+        void pushErrorHandler(size_t returnSp);
+        void popErrorHandler();
+        void recoverVM();
         [[noreturn]] void runtimeError(const Value &error);
 
         // -------------------------
