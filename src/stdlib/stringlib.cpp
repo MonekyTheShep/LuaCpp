@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstddef>
 #include <memory>
 #include <span>
 #include <string>
@@ -38,6 +39,6 @@ LuaTableHandle StringLib::openLibrary(VM &vm)
     setLibraryFunctions(vm, methods, luaTable);
     LuaTableHandle metaTable = std::make_shared<LuaTable>();
     metaTable->set(vm, "__index", luaTable);
-    vm.primitiveMt[STRING] = metaTable;
+    vm.primitiveMt[static_cast<size_t>(Primitives::STRING)] = metaTable;
     return luaTable;
 }

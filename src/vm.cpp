@@ -269,7 +269,7 @@ LuaTableHandle VM::getMetaTable(const Value &value)
     {
         [this](const std::string &) -> LuaTableHandle 
         {
-            return primitiveMt[STRING];
+            return primitiveMt[static_cast<size_t>(Primitives::STRING)];
         },
         [](const LuaTableHandle &table) -> LuaTableHandle 
         {
