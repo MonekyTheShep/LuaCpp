@@ -7,7 +7,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <format>
-#include <functional>
 #include <initializer_list>
 #include <iostream>
 #include <memory>
@@ -450,6 +449,22 @@ namespace
     }  
 }
 
+int32_t VM::doubleToInt(double num)
+{
+    constexpr const char *error = "Number has no integer representation!";
+
+    if (!std::isfinite(num))
+        runtimeError(error); 
+
+    const bool notIntegerLike = floor(num) != num;
+    const bool notInRange = (num > INT32_MAX) || (num < INT32_MIN);
+
+    if (notIntegerLike || notInRange)
+        runtimeError(error); 
+
+    return static_cast<int32_t>(num);
+}
+
 void VM::handleBitWise(Op op, MetaMethod method)
 {
     Value b = pop();
@@ -460,24 +475,9 @@ void VM::handleBitWise(Op op, MetaMethod method)
     if ((lhs = ValueHelper::toNumber(a)) && 
     (rhs = ValueHelper::toNumber(b))) 
     {
-        auto toInt = [this](double num) -> int32_t
-        {
-            constexpr const char *error = "Number has no integer representation!";
 
-            if (!std::isfinite(num))
-                runtimeError(error); 
-
-            const bool notIntegerLike = floor(num) != num;
-            const bool notInRange = (num > INT32_MAX) || (num < INT32_MIN);
-
-            if (notIntegerLike || notInRange)
-                runtimeError(error); 
-
-            return static_cast<int32_t>(num);
-        };
-
-        int32_t lhsInt = toInt(*lhs);
-        int32_t rhsInt = toInt(*rhs);
+        int32_t lhsInt = doubleToInt(*lhs);
+        int32_t rhsInt = doubleToInt(*rhs);
 
         int32_t result = 0.0;
 
@@ -807,8 +807,7 @@ void VM::run()
                 std::optional<double> num;
                 if ((num = ValueHelper::toNumber(value))) 
                 {
-                    if (floor(*num) != *num) runtimeError("Number has no integer representation!"); // Operand has to be integer like.
-                    auto numInt = static_cast<int64_t>(*num);
+                    auto numInt = doubleToInt(*num);
                     push(static_cast<double>(~numInt));
                 }
                 else if (!tryMetaMethod({value}, MetaMethod::BNOT, CallType::LUA)) 

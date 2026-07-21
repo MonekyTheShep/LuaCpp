@@ -237,6 +237,7 @@ class VM
         void pushCompare(Op op, const T &a, const T &b);
         void handleCompare(Op op, MetaMethod method);
         void handleEquality();
+        int32_t doubleToInt(double num);
         void handleBitWise(Op op, MetaMethod method);
         void handleConcat();
         void handleArithmetic(Op op, MetaMethod method);
