@@ -466,7 +466,7 @@ void VM::handleBitWise(Op op, MetaMethod method)
         {
             if (std::isnan(num)) return 0;
 
-            return static_cast<int32_t>(static_cast<uint64_t>(num) & 0xFFFFFFFF);
+            return static_cast<int32_t>(static_cast<uint64_t>(num) & UINT32_MAX);
         };
 
         int32_t lhsInt = toInt(*lhs);
