@@ -86,7 +86,7 @@ enum class Op : uint8_t
     COUNT
 };
 
-inline constexpr size_t numOfOps = static_cast<size_t>(Op::COUNT);
+inline constexpr size_t NUM_OF_OPS = static_cast<size_t>(Op::COUNT);
 
 namespace ByteCode
 {

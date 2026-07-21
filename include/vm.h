@@ -111,7 +111,7 @@ class VM
 
         void execute(const FunctionHandle &code);
     public:
-        std::array<size_t, numOfOps> opCounts;
+        std::array<size_t, NUM_OF_OPS> opCounts;
     public: 
         friend CallVisitor;
         friend VMRuntimeError;
