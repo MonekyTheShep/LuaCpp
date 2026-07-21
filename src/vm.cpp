@@ -464,10 +464,8 @@ void VM::handleBitWise(Op op, MetaMethod method)
             const bool integerLike = floor(num) == num;
             const bool fitsInInteger = (num > INT32_MAX) || (num < INT32_MIN);
 
-            if (!integerLike && !fitsInInteger) 
+            if (!integerLike || !fitsInInteger || !std::isfinite(num)) 
                 runtimeError("Number has no integer representation!"); 
-
-            if (!std::isfinite(num)) return 0;
 
             return static_cast<int32_t>(num);
         };
