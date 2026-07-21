@@ -453,12 +453,12 @@ int32_t VM::doubleToInt(double num)
 {
     bool validRange, integerLike;
 
-    const bool notValidInteger = 
-        !std::isfinite(num) 
-        || (integerLike = floor(num) != num) 
-        || (validRange = (num > INT32_MAX) || (num < INT32_MIN));
+    const bool validInteger = 
+        std::isfinite(num) 
+        && (integerLike = floor(num) == num) 
+        && (validRange = (num <= INT32_MAX) || (num >= INT32_MIN));
 
-    if (notValidInteger)
+    if (!validInteger)
         runtimeError("Number has no integer representation!"); 
 
     return static_cast<int32_t>(num);
