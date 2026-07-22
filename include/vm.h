@@ -35,6 +35,7 @@ class StdLib;
 
 inline constexpr size_t MAX_FRAMES = 128;
 inline constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
+
 inline constexpr int RETURN_ALL = -1;
 
 enum class Primitives : uint8_t 
@@ -76,7 +77,7 @@ struct ErrorHandler
     int runDepth;
 };
 
-struct ErrHandlerInfo
+struct ErrorPosInfo
 {
     std::string funcName;
     int line;
@@ -85,13 +86,13 @@ struct ErrHandlerInfo
 class VMRuntimeError : public std::exception 
 {
     public:
-        VMRuntimeError(VM &vm, const Value &object, std::optional<ErrHandlerInfo> posInfo);
+        VMRuntimeError(VM &vm, const Value &object, std::optional<ErrorPosInfo> posInfo);
 
         const char* what() const noexcept;
         Value getObj() const noexcept;
 
     private:
-        std::optional<ErrHandlerInfo> posInfo;
+        std::optional<ErrorPosInfo> posInfo;
         Value value;
         std::string error;
 };
