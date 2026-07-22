@@ -51,7 +51,7 @@ struct LabelContext
 
 class Compiler;
 
-struct ExprCompiler 
+class ExprCompiler 
 {
     public:
         ExprCompiler(int expectedReturn, bool isTailCall, Compiler &context) 
