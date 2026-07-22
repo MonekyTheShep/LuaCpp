@@ -24,6 +24,7 @@
 #include "stdlib/stdlib.h"
 
 struct CallVisitor;
+
 class Lua;
 
 class BaseLib;
@@ -118,16 +119,6 @@ class VM
         void execute(const FunctionHandle &code);
     public:
         std::array<size_t, NUM_OF_OPS> opCounts;
-    public: 
-        friend CallVisitor;
-        friend VMRuntimeError;
-        friend LuaTable;
-
-        friend TableLib; 
-        friend IoLib;
-        friend StringLib;
-        friend BaseLib;
-        friend StdLib;     
     private:
         std::vector<Value> stack;
 
@@ -307,5 +298,16 @@ class VM
                 callFrames.back().ip += static_cast<size_t>(offset);
             }
         }
+        
+    private:
+        friend CallVisitor;
+        friend VMRuntimeError;
+        friend LuaTable;
+
+        friend TableLib; 
+        friend IoLib;
+        friend StringLib;
+        friend BaseLib;
+        friend StdLib;     
 };
  
