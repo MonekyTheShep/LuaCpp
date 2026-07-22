@@ -160,7 +160,7 @@ void VM::runtimeError(const Value &error)
         int line = function->chunk.lines[frame.ip - 1];
         std::string name = function->name;
 
-        throw VMRuntimeError(*this, error, ErrHandlerInfo{line, name});
+        throw VMRuntimeError(*this, error, ErrHandlerInfo{name, line});
     }
 
     for (auto i = callFrames.size(); i-- > 0; ) 

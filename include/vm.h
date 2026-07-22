@@ -23,6 +23,15 @@
 
 #include "stdlib/stdlib.h"
 
+struct CallVisitor;
+class Lua;
+
+class BaseLib;
+class TableLib;
+class IoLib;
+class StringLib;
+class StdLib;
+
 inline constexpr size_t MAX_FRAMES = 128;
 inline constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
 inline constexpr int RETURN_ALL = -1;
@@ -34,15 +43,6 @@ enum class Primitives : uint8_t
 };
 
 inline constexpr size_t NUM_OF_PRIMITIIVES = static_cast<size_t>(Primitives::COUNT);
-
-struct CallVisitor;
-
-class BaseLib;
-class TableLib;
-class IoLib;
-class StringLib;
-class StdLib;
-class Lua;
 
 enum class CallType : uint8_t
 {
@@ -77,8 +77,8 @@ struct ErrorHandler
 
 struct ErrHandlerInfo
 {
-    int line;
     std::string funcName;
+    int line;
 };
 
 class VMRuntimeError : public std::exception 
@@ -106,7 +106,7 @@ class VM
         , runDepth(0)
         {
             callFrames.reserve(MAX_FRAMES);
-            stack.reserve(STACK_SIZE);
+            stack.resize(STACK_SIZE);
             
             callees.reserve(20); // Vectors likely to grow
             tables.reserve(20); 
