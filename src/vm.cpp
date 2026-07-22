@@ -808,7 +808,7 @@ void VM::run()
                 if ((num = ValueHelper::toNumber(value))) 
                 {
                     auto numInt = doubleToInt(*num);
-                    push(static_cast<double>(~numInt));
+                    push(static_cast<double>(static_cast<int32_t>(~static_cast<uint32_t>(numInt))));
                 }
                 else if (!tryMetaMethod({value}, MetaMethod::BNOT, CallType::LUA)) 
                     runtimeError(std::format("Attempt to perform binary operation a {} value", type(value)));
