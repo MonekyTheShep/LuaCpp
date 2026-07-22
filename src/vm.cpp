@@ -479,7 +479,7 @@ void VM::handleBitWise(Op op, MetaMethod method)
         int32_t lhsInt = doubleToInt(*lhs);
         int32_t rhsInt = doubleToInt(*rhs);
 
-        int32_t result = 0.0;
+        int32_t result = 0;
 
         switch (op)
         {
