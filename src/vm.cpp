@@ -26,7 +26,7 @@
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-VMRuntimeError::VMRuntimeError(VM &vm, const Value &object, std::optional<ErrHandlerInfo> posInfo) 
+VMRuntimeError::VMRuntimeError(VM &vm, const Value &object, std::optional<ErrorPosInfo> posInfo) 
     : posInfo(std::move(posInfo))
     , value(object)
 {
@@ -163,7 +163,7 @@ void VM::runtimeError(const Value &error)
         int line = function->chunk.lines[frame.ip - 1];
         std::string name = function->name;
 
-        throw VMRuntimeError(*this, error, ErrHandlerInfo{name, line});
+        throw VMRuntimeError(*this, error, ErrorPosInfo{name, line});
     }
 
     for (auto i = callFrames.size(); i-- > 0; ) 
@@ -428,7 +428,6 @@ void VM::handleEquality()
     
     push(a == b);
 }
-
 
 #define BIT_OP(op, lhs, rhs) static_cast<int32_t>(static_cast<uint32_t>(lhs) op static_cast<uint32_t>(rhs))
 
