@@ -146,6 +146,10 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
         vm.push(error.getObj());
         return 2;
     }
+    catch(...)
+    {
+        vm.runtimeError("Unrecoverable error occured!");
+    }
 }
 
 std::array<LibraryMethod, 9> BaseLib::methods
