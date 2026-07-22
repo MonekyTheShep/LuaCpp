@@ -202,7 +202,7 @@ class VM
         // -------------------------
         // Error Handling Functions
         // -------------------------
-        void pushErrorHandler(size_t returnSp);
+        void pushErrorHandler(size_t sp);
         void popErrorHandler();
         void recoverVM();
         [[noreturn]] void runtimeError(const Value &error);

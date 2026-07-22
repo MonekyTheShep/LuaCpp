@@ -125,9 +125,9 @@ void VM::callValue(size_t calleeIndex, int expectedReturn, CallType type)
     std::visit(CallVisitor(calleeIndex, expectedReturn, type, *this), stack[calleeIndex]);
 }
 
-void VM::pushErrorHandler(size_t returnSp) 
+void VM::pushErrorHandler(size_t sp) 
 {
-    errorHandlers.emplace_back(returnSp, callFrames.size(), runDepth);
+    errorHandlers.emplace_back(sp, callFrames.size(), runDepth);
 }
 
 void VM::popErrorHandler() 
