@@ -436,7 +436,7 @@ namespace
 {
     constexpr int NBITS = sizeof(int32_t) * 8;
 
-    int32_t bitShiftLeft(int32_t x, int32_t y) 
+    int32_t bitShift(int32_t x, int32_t y) 
     // https://www.lua.org/source/5.3/lvm.c.html#luaV_shiftl
     {
         if (y < 0) 
@@ -486,8 +486,8 @@ void VM::handleBitWise(Op op, MetaMethod method)
             case Op::BIT_AND: result = BIT_OP(&, lhsInt, rhsInt); break;
             case Op::BIT_OR: result =  BIT_OP(|, lhsInt, rhsInt); break;
             case Op::BIT_XOR: result = BIT_OP(^, lhsInt, rhsInt); break;
-            case Op::BITSHIFT_LEFT:  result = bitShiftLeft(lhsInt, rhsInt); break;
-            case Op::BITSHIFT_RIGHT: result = bitShiftLeft(lhsInt, -rhsInt); break;
+            case Op::BITSHIFT_LEFT:  result = bitShift(lhsInt, rhsInt); break;
+            case Op::BITSHIFT_RIGHT: result = bitShift(lhsInt, -rhsInt); break;
             default:
                 assert(false); // Unreachable
         }
