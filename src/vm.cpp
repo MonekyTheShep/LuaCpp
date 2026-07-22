@@ -143,6 +143,8 @@ void VM::recoverVM()
 
     auto &handler = errorHandlers.back();
 
+    closeUpValues(&stack[handler.sp]);
+
     callFrames.resize(handler.frame);
     sp = handler.sp; // Recover sp to before frames
     runDepth = handler.runDepth;

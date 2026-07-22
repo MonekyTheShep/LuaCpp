@@ -43,7 +43,7 @@ enum class Primitives : uint8_t
     COUNT
 };
 
-inline constexpr size_t NUM_OF_PRIMITIIVES = static_cast<size_t>(Primitives::COUNT);
+inline constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
 
 enum class CallType : uint8_t
 {
@@ -128,7 +128,7 @@ class VM
         std::vector<size_t> callees; // Temporary solution to a bigger problem
         std::vector<size_t> tables; // Temporary solution to a bigger problem
   
-        std::array<LuaTableHandle, NUM_OF_PRIMITIIVES> primitiveMt; // Stores references to meta tables for primites
+        std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
 
         LuaTableHandle globals;
 
