@@ -153,13 +153,11 @@ void VM::recoverVM()
 
     assert(handler.callees <= callees.size());
 
-    callees.erase(callees.begin() + 
-        static_cast<ptrdiff_t>(handler.callees), callees.end());
+    callees.resize(handler.callees);
 
     assert(handler.tables <= tables.size());
 
-    tables.erase(tables.begin() + 
-        static_cast<ptrdiff_t>(handler.tables), tables.end());
+    tables.resize(handler.tables);
 
     runDepth = handler.runDepth;
     
