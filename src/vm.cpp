@@ -386,6 +386,9 @@ template <typename T>
 void VM::handleBinaryError(std::string_view msg, const Value &a, const Value &b, const std::optional<T> &lhs, const std::optional<T> &rhs)
 {
     std::string typeStr;
+    
+    assert(!lhs || !rhs);
+
     if (!lhs) typeStr = type(a);
     else if (!rhs) typeStr = type(b);
 
