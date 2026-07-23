@@ -970,7 +970,7 @@ void VM::run()
                 callFrames.pop_back();
 
                 assert(calleeIndex < sp);
-                assert(frameBase <= calleeIndex);
+                assert(frameBase < calleeIndex);
                 Value *start = &stack[calleeIndex];
                 Value *top = &stack[sp];
 
