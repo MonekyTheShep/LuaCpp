@@ -121,8 +121,6 @@ class Compiler
 
         FunctionHandle compile(const Ast &stmts);
         static Compiler makeTopLevel() { return Compiler(nullptr, "<main>", 0, true); };
-    public:
-        friend ExprCompiler;
     private:
         static const std::unordered_map<UnaryExpr::UnaryOperator, Op> unaryOp;
         static const std::unordered_map<BinaryExpr::BinaryOperator, Op> binaryOp;
@@ -230,5 +228,7 @@ class Compiler
         void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
 
         void compileBlock(const Ast &stmts);
+    private:
+        friend ExprCompiler;
 };
 
