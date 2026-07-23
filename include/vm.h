@@ -71,7 +71,9 @@ struct CallFrame
 struct ErrorHandler 
 { 
     size_t sp;
-    size_t frame;
+    size_t frames;
+    size_t callees;
+    size_t tables;
     int runDepth;
 };
 

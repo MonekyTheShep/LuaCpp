@@ -116,9 +116,9 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
 
     try 
     {
-        vm.pushErrorHandler(vm.sp);
-
         size_t calleeIndex = vm.sp - args.size();
+
+        vm.pushErrorHandler(vm.sp);
         vm.callValue(calleeIndex, -1, CallType::CPP);
         vm.popErrorHandler();
 

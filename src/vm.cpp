@@ -127,7 +127,7 @@ void VM::callValue(size_t calleeIndex, int expectedReturn, CallType type)
 
 void VM::pushErrorHandler(size_t sp) 
 {
-    errorHandlers.emplace_back(sp, callFrames.size(), runDepth);
+    errorHandlers.emplace_back(sp, callFrames.size(), callees.size(), tables.size(), runDepth);
 }
 
 void VM::popErrorHandler() 
@@ -146,10 +146,20 @@ void VM::recoverVM()
     closeUpValues(&stack[handler.sp]);
     sp = handler.sp;
 
-    assert(handler.frame < callFrames.size());
+    assert(handler.frames <= callFrames.size());
 
     callFrames.erase(callFrames.begin() + 
-        static_cast<std::ptrdiff_t>(handler.frame), callFrames.end());
+        static_cast<std::ptrdiff_t>(handler.frames), callFrames.end());
+
+    assert(handler.callees <= callees.size());
+
+    callees.erase(callees.begin() + 
+        static_cast<std::ptrdiff_t>(handler.callees), callees.end());
+
+    assert(handler.tables <= tables.size());
+
+    tables.erase(tables.begin() + 
+        static_cast<std::ptrdiff_t>(handler.tables), tables.end());
 
     runDepth = handler.runDepth;
     
@@ -185,7 +195,8 @@ void VM::runtimeError(const Value &error)
 
 void VM::nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeIndex, int expectedReturn)
 {
-    assert(calleeIndex <= sp);
+    assert(calleeIndex < sp);
+
     size_t argStart = calleeIndex + 1;
     size_t argEnd = sp;
 
@@ -958,7 +969,7 @@ void VM::run()
                 closeUpValues(&stack[frameBase]); 
                 callFrames.pop_back();
 
-                assert(calleeIndex <= sp);
+                assert(calleeIndex < sp);
                 assert(frameBase <= calleeIndex);
                 Value *start = &stack[calleeIndex];
                 Value *top = &stack[sp];
