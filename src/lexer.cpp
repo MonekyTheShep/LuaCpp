@@ -90,39 +90,6 @@ std::string Lexer::getTokenTypeName(const TokenType &type)
     return it == tokenNames.end() ? "UNKNOWN" : std::string(it->second);
 }
 
-std::optional<TokenType> Lexer::resolveKeyword(std::string_view lexeme)
-{
-    if (lexeme == "local") return TokenType::LOCAL;
-    if (lexeme == "goto") return TokenType::GOTO;
-    if (lexeme == "function") return TokenType::FUNCTION;
-    if (lexeme == "then") return TokenType::THEN;
-    if (lexeme == "end") return TokenType::END;
-    if (lexeme == "in") return TokenType::IN;
-
-    if (lexeme == "nil") return TokenType::NIL;
-    if (lexeme == "false") return TokenType::FALSE;
-    if (lexeme == "true") return TokenType::TRUE;
-
-    if (lexeme == "if") return TokenType::IF;
-    if (lexeme == "else") return TokenType::ELSE;
-    if (lexeme == "elseif") return TokenType::ELSE_IF;
-
-    if (lexeme == "for") return TokenType::FOR;
-    if (lexeme == "while") return TokenType::WHILE;
-    if (lexeme == "repeat") return TokenType::REPEAT;
-    if (lexeme == "until") return TokenType::UNTIL;
-    if (lexeme == "do") return TokenType::DO;
-
-    if (lexeme == "and") return TokenType::AND;
-    if (lexeme == "or") return TokenType::OR;
-    if (lexeme == "not") return TokenType::NOT;
-
-    if (lexeme == "return") return TokenType::RETURN;
-    if (lexeme == "break") return TokenType::BREAK;
-
-    return std::nullopt;
-}
-
 TokenWithPos Lexer::nextToken()
 {
     if (lookAhead) 
@@ -220,6 +187,39 @@ TokenValue Lexer::readComment()
     }
 
     return {TokenType::COMMENT, std::string_view(query).substr(start, pos - start)};
+}
+
+std::optional<TokenType> Lexer::resolveKeyword(std::string_view lexeme)
+{
+    if (lexeme == "local") return TokenType::LOCAL;
+    if (lexeme == "goto") return TokenType::GOTO;
+    if (lexeme == "function") return TokenType::FUNCTION;
+    if (lexeme == "then") return TokenType::THEN;
+    if (lexeme == "end") return TokenType::END;
+    if (lexeme == "in") return TokenType::IN;
+
+    if (lexeme == "nil") return TokenType::NIL;
+    if (lexeme == "false") return TokenType::FALSE;
+    if (lexeme == "true") return TokenType::TRUE;
+
+    if (lexeme == "if") return TokenType::IF;
+    if (lexeme == "else") return TokenType::ELSE;
+    if (lexeme == "elseif") return TokenType::ELSE_IF;
+
+    if (lexeme == "for") return TokenType::FOR;
+    if (lexeme == "while") return TokenType::WHILE;
+    if (lexeme == "repeat") return TokenType::REPEAT;
+    if (lexeme == "until") return TokenType::UNTIL;
+    if (lexeme == "do") return TokenType::DO;
+
+    if (lexeme == "and") return TokenType::AND;
+    if (lexeme == "or") return TokenType::OR;
+    if (lexeme == "not") return TokenType::NOT;
+
+    if (lexeme == "return") return TokenType::RETURN;
+    if (lexeme == "break") return TokenType::BREAK;
+
+    return std::nullopt;
 }
 
 TokenValue Lexer::readIdentifier()

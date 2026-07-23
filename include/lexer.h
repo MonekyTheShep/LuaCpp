@@ -45,6 +45,7 @@ class Lexer
 
         TokenValue readComment();
         
+        std::optional<TokenType> resolveKeyword(std::string_view lexeme);
         TokenValue readIdentifier();
 
         int isLongStringSequence();
@@ -83,8 +84,6 @@ class Lexer
 
             return false;
         }
-
-        std::optional<TokenType> resolveKeyword(std::string_view lexeme);
 
         // -----------------------------
         // Traversal Functions
