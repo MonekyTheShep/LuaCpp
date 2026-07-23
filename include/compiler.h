@@ -141,10 +141,13 @@ class Compiler
         static std::optional<Value> tryFoldConstant(const ExprHandle &expression);
 
         // --------------------
-        // Helper Functions
+        // Error Function
         // --------------------
         void compilerError(std::string_view error) { throw std::runtime_error(std::format("[Line {}] {}!", currentLine, error)); }
         
+        // --------------------
+        // Compiling Exprs
+        // --------------------
         class ExprVisitor 
         {
             public:
@@ -187,6 +190,9 @@ class Compiler
 
         void compileExpression(const ExprHandle &expression, int expectedReturn, bool isTailCall);
 
+        // --------------------
+        // Compiling Stmts
+        // --------------------
         class StmtVisitor
         {
             public:
@@ -212,6 +218,8 @@ class Compiler
                 Compiler &compiler;
         };
 
+        void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
+
         void compileStmt(const StatementHandle &stmt)
         {
             std::visit(StmtVisitor{*this}, *stmt);
@@ -226,11 +234,12 @@ class Compiler
             }
         }
 
+        void compileBlock(const Ast &stmts);
+
+        // --------------------
+        // Helper Functions
+        // --------------------
         static bool isCallable(const ExprHandle &expr) { return std::holds_alternative<CallExpr>(*expr) || std::holds_alternative<MethodAccessExpr>(*expr); };
 
         static bool isMultiReturn(const ExprHandle &expr) { return isCallable(expr) || std::holds_alternative<VarArgExpr>(*expr); }
-
-        void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
-
-        void compileBlock(const Ast &stmts);
 };

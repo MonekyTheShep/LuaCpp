@@ -50,38 +50,11 @@ class Parser
         TokenWithPos previousToken;
     private:
         // -----------------------------
-        // Helper Functions
+        // Error Functions
         // -----------------------------
         [[noreturn]] void parserError(std::string_view error, const TokenWithPos &token) 
         { 
             throw ParserError(std::format("[Line {}, Col {}] {}!", token.line, token.col, error)); 
-        }
-
-        bool check(TokenType type) { return peek().type == type; }
-
-        bool checkNext(TokenType type) { return peekNext().type == type; }
-
-        template<typename... Args>
-        requires (std::same_as<Args, TokenType> && ...)
-        bool checkAny(Args... types)
-        {
-            return ((check(types)) || ...);
-        }
-
-        bool isEof() { return (check(TokenType::TEOF)); }
-
-        bool isEndBlock(bool withUntil = true) // Until doesnt close the scope since it can contain an expression
-        {
-            switch (peek().type)
-            {
-                case TokenType::END: case TokenType::ELSE: 
-                case TokenType::ELSE_IF: case TokenType::TEOF:
-                    return true;
-                case TokenType::UNTIL: 
-                    return withUntil;
-                default:
-                    return false;
-            }
         }
 
         std::string makeContextError(std::initializer_list<TokenType> tokens, TokenType failedToken, const char *context)
@@ -110,6 +83,35 @@ class Parser
             parserError(makeContextError(tokens, peek().type, context), peek());
         }
 
+        // -----------------------------
+        // Helper Function
+        // -----------------------------
+        bool check(TokenType type) { return peek().type == type; }
+
+        bool checkNext(TokenType type) { return peekNext().type == type; }
+
+        template<typename... Args>
+        requires (std::same_as<Args, TokenType> && ...)
+        bool checkAny(Args... types)
+        {
+            return ((check(types)) || ...);
+        }
+
+        bool isEof() { return (check(TokenType::TEOF)); }
+
+        bool isEndBlock(bool withUntil = true) // Until doesnt close the scope since it can contain an expression
+        {
+            switch (peek().type)
+            {
+                case TokenType::END: case TokenType::ELSE: 
+                case TokenType::ELSE_IF: case TokenType::TEOF:
+                    return true;
+                case TokenType::UNTIL: 
+                    return withUntil;
+                default:
+                    return false;
+            }
+        }
         // -----------------------------
         // Traversal Functions
         // -----------------------------
