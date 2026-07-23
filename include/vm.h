@@ -76,17 +76,17 @@ struct CallVisitor;
 class VM
 {
     public:
-        static constexpr size_t MAX_FRAMES = 128;
-        static constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
-
-        static constexpr int RETURN_ALL = -1;
-    public:
         VM(Lua &lua);
 
         void execute(const FunctionHandle &code);
     public:
         std::array<size_t, NUM_OF_OPS> opCounts;
     private:
+        static constexpr size_t MAX_FRAMES = 128;
+        static constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
+
+        static constexpr int RETURN_ALL = -1;
+
         std::vector<Value> stack;
 
         std::vector<CallFrame> callFrames;
