@@ -146,7 +146,10 @@ void VM::recoverVM()
     closeUpValues(&stack[handler.sp]);
     sp = handler.sp;
 
-    callFrames.resize(handler.frame);
+    assert(handler.frame < callFrames.size());
+
+    callFrames.erase(callFrames.begin() + 
+        static_cast<std::ptrdiff_t>(handler.frame), callFrames.end());
 
     runDepth = handler.runDepth;
     
