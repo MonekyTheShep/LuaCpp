@@ -62,20 +62,11 @@ class VMRuntimeError : public std::exception
         std::string error;
 };
 
-class BaseLib;
-class TableLib;
-class IoLib;
-class StringLib;
-class StdLib;
-
-class LuaTable;
-class Lua;
-
-struct CallVisitor;
-
 class VM
 {
     public:
+        class Lua;
+
         VM(Lua &lua);
 
         void execute(const FunctionHandle &code);
