@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -5,7 +6,7 @@
 #include <string>
 #include <utility>
 
-enum class FileStatus 
+enum class FileStatus : uint8_t
 {
     FILE_ERROR,
     FILE_SUCCESS

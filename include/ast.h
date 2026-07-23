@@ -2,6 +2,7 @@
 
 #include <csetjmp>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -92,7 +93,7 @@ struct FunctionExpr
 
 struct UnaryExpr 
 {
-    enum class UnaryOperator 
+    enum class UnaryOperator : uint8_t
     {
         NEGATE,
         LENGTH,
@@ -106,7 +107,7 @@ struct UnaryExpr
 
 struct BinaryExpr 
 {
-    enum class BinaryOperator
+    enum class BinaryOperator : uint8_t
     {
         ADD,
         SUB,
@@ -141,7 +142,7 @@ struct BinaryExpr
 
 struct TableExpr 
 {
-    enum class Kind
+    enum class Kind : uint8_t
     {
         List, // expr
         Record, // identifier = expr

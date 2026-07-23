@@ -33,7 +33,7 @@ class LuaTable
             return storage.contains(field); 
         }
 
-        double length(VM &vm);
+        double length(VM &) { return static_cast<double>(array.size()); }
 
         void reserve(size_t amount)
         {

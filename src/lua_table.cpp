@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <cstddef>
-#include <string>
 #include <utility>
 #include <variant>
 
@@ -63,5 +62,3 @@ Value LuaTable::get(VM &vm, const Value &key)
     if (it == storage.end()) return LUA_NIL_VALUE;
     return it->second;
 }
-
-double LuaTable::length(VM &) { return static_cast<double>(array.size()); } 

@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 
-enum class TokenType 
+enum class TokenType : uint8_t
 {
     // KEYWORDS
     LOCAL,
