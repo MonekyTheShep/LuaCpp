@@ -62,11 +62,11 @@ class VMRuntimeError : public std::exception
         std::string error;
 };
 
+class Lua;
+
 class VM
 {
     public:
-        class Lua;
-
         VM(Lua &lua);
 
         void execute(const FunctionHandle &code);
