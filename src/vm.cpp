@@ -63,6 +63,24 @@ Value VMRuntimeError::getObj() const noexcept
     }, value);
 }
 
+VM::VM(Lua &lua)
+    : opCounts({})
+    , globals(std::make_shared<LuaTable>())
+    , lua(lua)
+    , sp(0)
+    ,
+    runDepth(0) 
+    {
+        callFrames.reserve(MAX_FRAMES);
+        stack.resize(STACK_SIZE);
+
+        callees.reserve(20); // Vectors likely to grow
+        tables.reserve(20);
+        errorHandlers.reserve(5);
+
+        StdLib::initLibraries(*this);
+}
+
 struct CallVisitor 
 {
     VM& vm;
@@ -618,24 +636,6 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
     }
 
     return luaTableGet(*meta, key, depth + 1);
-}
-
-VM::VM(Lua &lua)
-    : opCounts({})
-    , globals(std::make_shared<LuaTable>())
-    , lua(lua)
-    , sp(0)
-    ,
-    runDepth(0) 
-    {
-        callFrames.reserve(MAX_FRAMES);
-        stack.resize(STACK_SIZE);
-
-        callees.reserve(20); // Vectors likely to grow
-        tables.reserve(20);
-        errorHandlers.reserve(5);
-
-        StdLib::initLibraries(*this);
 }
 
 void VM::execute(const FunctionHandle &code)
