@@ -214,28 +214,28 @@ void Compiler::emit(uint8_t arg)
 
 void Compiler::ExprVisitor::operator()(const NumberLiteralExpr &node)
 {
-    context.emitConstant(node.value);
+    compiler.emitConstant(node.value);
 }
 
 void Compiler::ExprVisitor::operator()(const StringLiteralExpr &node)
 {
-    context.emitConstant(node.value);
+    compiler.emitConstant(node.value);
 }
 
 void Compiler::ExprVisitor::operator()(const BoolLiteralExpr &node)
 {
-    context.emit(node.value ? Op::LOAD_TRUE : Op::LOAD_FALSE);
+    compiler.emit(node.value ? Op::LOAD_TRUE : Op::LOAD_FALSE);
 }
 
 void Compiler::ExprVisitor::operator()(const NilExpr &)
 {
-    context.emit(Op::LOAD_NULL);
+    compiler.emit(Op::LOAD_NULL);
 }
 
 void Compiler::ExprVisitor::operator()(const VarArgExpr &)
 {
-    if (!context.function->isVarArg) context.compilerError("Can't use `...` outside a vararg function");
-    context.emitWithArg(Op::VARARG, static_cast<uint8_t>(expectedReturn));
+    if (!compiler.function->isVarArg) compiler.compilerError("Can't use `...` outside a vararg function");
+    compiler.emitWithArg(Op::VARARG, static_cast<uint8_t>(expectedReturn));
 }
 
 void Compiler::ExprVisitor::compileTableExpr(const TableExpr &node, double &arrayIndex)
@@ -244,7 +244,7 @@ void Compiler::ExprVisitor::compileTableExpr(const TableExpr &node, double &arra
     {
         case TableExpr::Kind::List:
         {
-            context.emitConstant(arrayIndex++);
+            compiler.emitConstant(arrayIndex++);
             compileExpression(node.value, 1);
             break;
         }
@@ -259,9 +259,9 @@ void Compiler::ExprVisitor::compileTableExpr(const TableExpr &node, double &arra
 
 void Compiler::ExprVisitor::operator()(const TableExprDef &node)
 {
-    if (node.fields.size() > UINT8_MAX) context.compilerError("Can't have more than 255 fields in table constructor");
+    if (node.fields.size() > UINT8_MAX) compiler.compilerError("Can't have more than 255 fields in table constructor");
 
-    if (node.fields.empty()) return context.emitWithArg(Op::MAKE_TABLE, 0); // No point in compiling fields
+    if (node.fields.empty()) return compiler.emitWithArg(Op::MAKE_TABLE, 0); // No point in compiling fields
 
     uint8_t fieldsMinusOne = static_cast<uint8_t>(node.fields.size()) - 1;
     double arrayIndex = 1.0;
@@ -277,16 +277,16 @@ void Compiler::ExprVisitor::operator()(const TableExprDef &node)
 
     if (expandable)
     {
-        context.emitWithArg(Op::MAKE_TABLE,fieldsMinusOne); 
-        context.emit(Op::STORE_TABLE);
+        compiler.emitWithArg(Op::MAKE_TABLE,fieldsMinusOne); 
+        compiler.emit(Op::STORE_TABLE);
         compileExpression(lastField.value, -1);
-        if (arrayIndex > UINT8_MAX) context.compilerError("Constructor too long!");
-        context.emitWithArg(Op::SET_LIST, static_cast<uint8_t>(arrayIndex));
+        if (arrayIndex > UINT8_MAX) compiler.compilerError("Constructor too long!");
+        compiler.emitWithArg(Op::SET_LIST, static_cast<uint8_t>(arrayIndex));
     }
     else 
     {
         compileTableExpr(lastField, arrayIndex);
-        context.emitWithArg(Op::MAKE_TABLE,++fieldsMinusOne); 
+        compiler.emitWithArg(Op::MAKE_TABLE,++fieldsMinusOne); 
     }
 }
 
@@ -306,12 +306,12 @@ void Compiler::ExprVisitor::compileArgs(const std::vector<ExprHandle> &args)
 void Compiler::ExprVisitor::operator()(const CallExpr &node)
 {
     compileExpression(node.callee, 1);
-    context.emit(Op::STORE_CALLEE);
+    compiler.emit(Op::STORE_CALLEE);
             
-    if (node.args.size() > UINT8_MAX) context.compilerError("Can't have more than 255 arguments inside of function call");
+    if (node.args.size() > UINT8_MAX) compiler.compilerError("Can't have more than 255 arguments inside of function call");
     compileArgs(node.args);
    
-    context.emitWithArg2 (
+    compiler.emitWithArg2 (
         isTailCall ? Op::TAIL_CALL : Op::CALL, 
         static_cast<uint8_t>(node.args.size()), 
         static_cast<uint8_t>(expectedReturn)
@@ -320,14 +320,14 @@ void Compiler::ExprVisitor::operator()(const CallExpr &node)
 
 void Compiler::ExprVisitor::operator()(const MethodAccessExpr &node) 
 {
-    context.emitConstant(node.field);
+    compiler.emitConstant(node.field);
     compileExpression(node.object, 1);
-    context.emit(Op::GET_METHOD);
+    compiler.emit(Op::GET_METHOD);
 
-    if (node.args.size() > UINT8_MAX) context.compilerError("Can't have more than 255 arguments inside of method call");
+    if (node.args.size() > UINT8_MAX) compiler.compilerError("Can't have more than 255 arguments inside of method call");
     compileArgs(node.args);
    
-    context.emitWithArg2 (
+    compiler.emitWithArg2 (
         isTailCall ? Op::TAIL_CALL : Op::CALL, 
         static_cast<uint8_t>(node.args.size()), 
         static_cast<uint8_t>(expectedReturn)
@@ -336,10 +336,10 @@ void Compiler::ExprVisitor::operator()(const MethodAccessExpr &node)
 
 void Compiler::ExprVisitor::operator()(const FieldAccessExpr &node)
 {
-    context.emitConstant(node.field);
+    compiler.emitConstant(node.field);
     compileExpression(node.expr, 1);
 
-    context.emit(Op::GET_FIELD);
+    compiler.emit(Op::GET_FIELD);
 }
 
 void Compiler::ExprVisitor::operator()(const IndexExpr &node)
@@ -347,12 +347,12 @@ void Compiler::ExprVisitor::operator()(const IndexExpr &node)
     compileExpression(node.index, 1);
     compileExpression(node.expr, 1);
     
-    context.emit(Op::GET_FIELD);
+    compiler.emit(Op::GET_FIELD);
 }
 
 void Compiler::ExprVisitor::operator()(const FunctionExpr &node)
 {
-    context.compileFunction("<anonymous>", node.isVarArg, node.args, node.body);
+    compiler.compileFunction("<anonymous>", node.isVarArg, node.args, node.body);
 }
 
 FunctionHandle Compiler::makeFunction()
@@ -527,7 +527,7 @@ std::optional<Value> Compiler::tryFoldConstant(const ExprHandle &expression)
 
 void Compiler::ExprVisitor::operator()(const VariableExpr &node)
 {  
-    context.namedVariable(node.ident, false);
+    compiler.namedVariable(node.ident, false);
 }
 
 const std::unordered_map<UnaryExpr::UnaryOperator, Op> Compiler::unaryOp 
@@ -543,8 +543,8 @@ void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
     compileExpression(node.expr, 1);
 
     auto it = Compiler::unaryOp.find(node.op);
-    if (it != Compiler::unaryOp.end()) context.emit(it->second);
-    else context.compilerError("Unexpected unary operator!");
+    if (it != Compiler::unaryOp.end()) compiler.emit(it->second);
+    else compiler.compilerError("Unexpected unary operator!");
 }
 
 const std::unordered_map<BinaryExpr::BinaryOperator, Op> Compiler::binaryOp 
@@ -575,11 +575,11 @@ const std::unordered_map<BinaryExpr::BinaryOperator, Op> Compiler::binaryOp
 void Compiler::ExprVisitor::compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHandle &rhs)
 {
     compileExpression(lhs, 1);
-    context.emit(Op::DUP);
-	size_t skip = context.emitJump(op);
-	context.emit(Op::POP);
+    compiler.emit(Op::DUP);
+	size_t skip = compiler.emitJump(op);
+	compiler.emit(Op::POP);
 	compileExpression(rhs, 1);
-	context.patchJump(skip);
+	compiler.patchJump(skip);
 }
 
 void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
@@ -603,79 +603,79 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
                 compileExpression(flipOperand ? node.rhs : node.lhs, 1);
                 compileExpression(flipOperand ? node.lhs : node.rhs, 1);
 
-                context.emit(it->second);
-                if (node.op == BinaryExpr::BinaryOperator::NEQ) context.emit(Op::NOT);
+                compiler.emit(it->second);
+                if (node.op == BinaryExpr::BinaryOperator::NEQ) compiler.emit(Op::NOT);
             }
-            else context.compilerError("Unexpected binary operator");
+            else compiler.compilerError("Unexpected binary operator");
         }
     }  
 }
 
 void Compiler::ExprVisitor::compileExpression(const ExprHandle &expression, int expectedReturn)
 {
-    context.compileExpression(expression, expectedReturn, false);
+    compiler.compileExpression(expression, expectedReturn, false);
 }
 
 void Compiler::StmtVisitor::operator()(const WhileStmt &node)
 {
-    size_t loopStart = context.chunk.code.size();
+    size_t loopStart = compiler.chunk.code.size();
 
-    context.compileExpression(node.condExpr, 1, false);
-    size_t jumpToEnd = context.emitJump(Op::JUMP_IF_FALSE);
+    compiler.compileExpression(node.condExpr, 1, false);
+    size_t jumpToEnd = compiler.emitJump(Op::JUMP_IF_FALSE);
 
-    context.loopStack.emplace_back(std::vector<size_t>{}, context.scopeDepth);
-    context.compileBlock(node.whileStmts);
+    compiler.loopStack.emplace_back(std::vector<size_t>{}, compiler.scopeDepth);
+    compiler.compileBlock(node.whileStmts);
 
-    context.emitLoop(Op::LOOP, loopStart);
-    context.patchJump(jumpToEnd);
+    compiler.emitLoop(Op::LOOP, loopStart);
+    compiler.patchJump(jumpToEnd);
 
-    size_t endLoop = context.chunk.code.size();
+    size_t endLoop = compiler.chunk.code.size();
 
-    for (size_t breakStmt : context.loopStack.back().breaks)
+    for (size_t breakStmt : compiler.loopStack.back().breaks)
     {
-        context.patchJumpAt(breakStmt, endLoop);
+        compiler.patchJumpAt(breakStmt, endLoop);
     }
 
-    context.loopStack.pop_back();
+    compiler.loopStack.pop_back();
 }
 
 void Compiler::StmtVisitor::operator()(const ForRangeStmt &node)
 {
-    context.loopStack.emplace_back(std::vector<size_t>{}, context.scopeDepth);
+    compiler.loopStack.emplace_back(std::vector<size_t>{}, compiler.scopeDepth);
 
-    context.beginScope();
+    compiler.beginScope();
 
-    context.compileExpression(node.start, 1, false);
-    context.addLocal(node.variable);
+    compiler.compileExpression(node.start, 1, false);
+    compiler.addLocal(node.variable);
 
-    context.compileExpression(node.start, 1, false);
-    context.addLocal("(start)");
+    compiler.compileExpression(node.start, 1, false);
+    compiler.addLocal("(start)");
 
-    context.compileExpression(node.stop, 1, false);
-    context.addLocal("(stop)");
+    compiler.compileExpression(node.stop, 1, false);
+    compiler.addLocal("(stop)");
 
-    if (node.step != nullptr) context.compileExpression(node.step, 1, false);
-    else context.emitConstant(1.0);
-    context.addLocal("(step)");
+    if (node.step != nullptr) compiler.compileExpression(node.step, 1, false);
+    else compiler.emitConstant(1.0);
+    compiler.addLocal("(step)");
 
-    size_t forPrepJump = context.emitJump(Op::FOR_PREP);
-    size_t loopStart = context.chunk.code.size();
+    size_t forPrepJump = compiler.emitJump(Op::FOR_PREP);
+    size_t loopStart = compiler.chunk.code.size();
 
-    context.compileBlock(node.forStmts);
+    compiler.compileBlock(node.forStmts);
 
-    context.emitLoop(Op::FOR_LOOP, loopStart);
-    context.patchJump(forPrepJump);
+    compiler.emitLoop(Op::FOR_LOOP, loopStart);
+    compiler.patchJump(forPrepJump);
 
-    context.endScope();
+    compiler.endScope();
 
-    size_t endLoop = context.chunk.code.size();
+    size_t endLoop = compiler.chunk.code.size();
 
-    for (size_t breakStmt : context.loopStack.back().breaks)
+    for (size_t breakStmt : compiler.loopStack.back().breaks)
     {
-        context.patchJumpAt(breakStmt, endLoop);
+        compiler.patchJumpAt(breakStmt, endLoop);
     }
     
-    context.loopStack.pop_back();
+    compiler.loopStack.pop_back();
 }
 
 void Compiler::StmtVisitor::operator()([[maybe_unused]] const ForIteratorStmt &node)
@@ -685,46 +685,46 @@ void Compiler::StmtVisitor::operator()([[maybe_unused]] const ForIteratorStmt &n
 
 void Compiler::StmtVisitor::operator()(const RepeatStmt &node)
 {
-    size_t loopStart = context.chunk.code.size();
-    context.loopStack.emplace_back(std::vector<size_t>{}, context.scopeDepth);
+    size_t loopStart = compiler.chunk.code.size();
+    compiler.loopStack.emplace_back(std::vector<size_t>{}, compiler.scopeDepth);
 
-    context.compileBlock(node.repeatStmts);
+    compiler.compileBlock(node.repeatStmts);
 
-    context.compileExpression(node.condExpr, 1, false);
+    compiler.compileExpression(node.condExpr, 1, false);
     
-    size_t jumpToEnd = context.emitJump(Op::JUMP_IF_TRUE);
-    context.emitLoop(Op::LOOP, loopStart);
-    context.patchJump(jumpToEnd);
+    size_t jumpToEnd = compiler.emitJump(Op::JUMP_IF_TRUE);
+    compiler.emitLoop(Op::LOOP, loopStart);
+    compiler.patchJump(jumpToEnd);
 
-    size_t endLoop = context.chunk.code.size();
+    size_t endLoop = compiler.chunk.code.size();
 
-    for (size_t breakStmt : context.loopStack.back().breaks)
+    for (size_t breakStmt : compiler.loopStack.back().breaks)
     {
-        context.patchJumpAt(breakStmt, endLoop);
+        compiler.patchJumpAt(breakStmt, endLoop);
     }
 
-    context.loopStack.pop_back();
+    compiler.loopStack.pop_back();
 }
 
 void Compiler::StmtVisitor::operator()(const IfStmt &node)
 {
-    context.compileExpression(node.condExpr, 1, false);
-    size_t jumpToElse = context.emitJump(Op::JUMP_IF_FALSE);
+    compiler.compileExpression(node.condExpr, 1, false);
+    size_t jumpToElse = compiler.emitJump(Op::JUMP_IF_FALSE);
 
-    context.compileBlock(node.ifStmts);
+    compiler.compileBlock(node.ifStmts);
 
     if (!node.elseStmts.empty())
     {
-        size_t jumpToEnd = context.emitJump(Op::JUMP);
-        context.patchJump(jumpToElse);
+        size_t jumpToEnd = compiler.emitJump(Op::JUMP);
+        compiler.patchJump(jumpToElse);
 
-        context.compileBlock(node.elseStmts);
+        compiler.compileBlock(node.elseStmts);
 
-        context.patchJump(jumpToEnd);
+        compiler.patchJump(jumpToEnd);
     }
     else
     {
-        context.patchJump(jumpToElse);
+        compiler.patchJump(jumpToElse);
     }
 }
 
@@ -759,17 +759,17 @@ void Compiler::compileAssignment(size_t numOfTargets, const std::vector<ExprHand
 
 void Compiler::StmtVisitor::operator()(const LocalAssignmentStmt &node)
 {
-    context.compileAssignment(node.ident.size(), node.value);
+    compiler.compileAssignment(node.ident.size(), node.value);
     
     for (const auto &i : node.ident)
     {
-        context.addLocal(i);
+        compiler.addLocal(i);
     }
 }
 
 void Compiler::StmtVisitor::operator()(const AssignmentStmt &node)
 {
-    context.compileAssignment(node.target.size(), node.value);
+    compiler.compileAssignment(node.target.size(), node.value);
 
     for (auto i = node.target.size(); i-- > 0; ) 
     {
@@ -777,24 +777,24 @@ void Compiler::StmtVisitor::operator()(const AssignmentStmt &node)
         {
             [this](const FieldAccessExpr &node)
             { 
-                context.emitConstant(node.field);
-                context.compileExpression(node.expr, 1, false);
-                context.emit(Op::SET_FIELD);
+                compiler.emitConstant(node.field);
+                compiler.compileExpression(node.expr, 1, false);
+                compiler.emit(Op::SET_FIELD);
             },
             [this](const IndexExpr &node)
             { 
-                context.compileExpression(node.index, 1, false);
-                context.compileExpression(node.expr, 1, false);
+                compiler.compileExpression(node.index, 1, false);
+                compiler.compileExpression(node.expr, 1, false);
 
-                context.emit(Op::SET_FIELD);
+                compiler.emit(Op::SET_FIELD);
             },
             [this](const VariableExpr &node)
             {
-                context.namedVariable(node.ident, true);
+                compiler.namedVariable(node.ident, true);
             },
             [this](const auto &)
             {
-                context.compilerError("Unexpected assignment target");
+                compiler.compilerError("Unexpected assignment target");
             }
         }, *node.target[i]);
     }
@@ -802,8 +802,8 @@ void Compiler::StmtVisitor::operator()(const AssignmentStmt &node)
 
 void Compiler::StmtVisitor::operator()(const LocalFunctionAssignmentStmt &node)
 {
-    context.addLocal(node.name);
-    context.compileFunction(node.name, node.isVarArg, node.args, node.body);
+    compiler.addLocal(node.name);
+    compiler.compileFunction(node.name, node.isVarArg, node.args, node.body);
 }
 
 void Compiler::StmtVisitor::operator()(const FunctionAssignmentStmt &node)
@@ -812,17 +812,17 @@ void Compiler::StmtVisitor::operator()(const FunctionAssignmentStmt &node)
     {
         [this, &node](const FieldAccessExpr &fieldAccessExpr) 
         { 
-            context.compileFunction(fieldAccessExpr.field, node.isVarArg, node.args, node.body);
+            compiler.compileFunction(fieldAccessExpr.field, node.isVarArg, node.args, node.body);
 
-            context.emitConstant(fieldAccessExpr.field);
-            context.compileExpression(fieldAccessExpr.expr, 1, false);
-            context.emit(Op::SET_FIELD);
+            compiler.emitConstant(fieldAccessExpr.field);
+            compiler.compileExpression(fieldAccessExpr.expr, 1, false);
+            compiler.emit(Op::SET_FIELD);
         },
         [this, &node](const VariableExpr &variableExpr)
         {
-            context.compileFunction(variableExpr.ident, node.isVarArg, node.args, node.body);
+            compiler.compileFunction(variableExpr.ident, node.isVarArg, node.args, node.body);
 
-            context.namedVariable(variableExpr.ident, true);
+            compiler.namedVariable(variableExpr.ident, true);
         },
         [](const auto&)
         {
@@ -835,104 +835,104 @@ void Compiler::StmtVisitor::operator()(const ExprStmt &node)
 {
     if (isCallable(node.expr))
     {
-        context.compileExpression(node.expr, 0, false);
+        compiler.compileExpression(node.expr, 0, false);
     }
-    else context.compilerError("Unexpected expression statement expected callable expression");
+    else compiler.compilerError("Unexpected expression statement expected callable expression");
 }
 
 void Compiler::StmtVisitor::operator()(const ReturnStmt &node)
 {
-    if (node.values.size() > UINT8_MAX) context.compilerError("Can't have more than 255 return values");
+    if (node.values.size() > UINT8_MAX) compiler.compilerError("Can't have more than 255 return values");
 
     if (node.values.size() == 1 && isCallable(node.values.back()))
     {
-        return context.compileExpression(node.values.back(), -1, true);
+        return compiler.compileExpression(node.values.back(), -1, true);
     }
     
     for (size_t i = 0; i + 1 < node.values.size(); i++)
     {
-        context.compileExpression(node.values[i], 1, false);
+        compiler.compileExpression(node.values[i], 1, false);
     }
 
     if (!node.values.empty())
     {
-        context.compileExpression(node.values.back(), -1, false);
+        compiler.compileExpression(node.values.back(), -1, false);
     }
     
-    context.emitWithArg(Op::RETURN, static_cast<uint8_t>(context.locals.size()));
+    compiler.emitWithArg(Op::RETURN, static_cast<uint8_t>(compiler.locals.size()));
 }
 
 void Compiler::StmtVisitor::operator()(const BreakStmt &)
 {
-    if (context.loopStack.empty()) context.compilerError("Break statement outside of loop");
+    if (compiler.loopStack.empty()) compiler.compilerError("Break statement outside of loop");
 
-    auto &locals = context.locals;
+    auto &locals = compiler.locals;
 
     for (auto i = locals.size(); i-- > 0 
-    && locals[i].depth > context.loopStack.back().loopDepth;) // Remove all locals added before the break statement
+    && locals[i].depth > compiler.loopStack.back().loopDepth;) // Remove all locals added before the break statement
     {
-        context.emit(locals.back().isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+        compiler.emit(locals.back().isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
     }
 
-    context.loopStack.back().breaks.emplace_back(context.emitJump(Op::JUMP));
+    compiler.loopStack.back().breaks.emplace_back(compiler.emitJump(Op::JUMP));
 }
 
 void Compiler::StmtVisitor::operator()(const GoToStmt &node) 
 {
-    for (size_t i = context.labels.size(); i-- > 0;) // Resolve backward jumps
+    for (size_t i = compiler.labels.size(); i-- > 0;) // Resolve backward jumps
     {
-        const auto &lb = context.labels[i];
+        const auto &lb = compiler.labels[i];
         if (node.label == lb.name)
         {
-            for (size_t i = context.locals.size(); i-- > lb.currentLocals;) 
+            for (size_t i = compiler.locals.size(); i-- > lb.currentLocals;) 
             {
-                context.emit(context.locals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+                compiler.emit(compiler.locals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
             }
 
-            context.patchJumpAt(context.emitJump(Op::JUMP), lb.pos);
+            compiler.patchJumpAt(compiler.emitJump(Op::JUMP), lb.pos);
             return;
         }
     }
    
-    context.unresolvedGoto.emplace_back(context.locals, node.label, context.emitJump(Op::JUMP), context.locals.size(), context.scopeDepth);
+    compiler.unresolvedGoto.emplace_back(compiler.locals, node.label, compiler.emitJump(Op::JUMP), compiler.locals.size(), compiler.scopeDepth);
 }
 
 void Compiler::StmtVisitor::operator()(const LabelStmt &node)
 {
-    for (const auto &label : context.labels)
+    for (const auto &label : compiler.labels)
     {
         if (node.label == label.name)
         {
-            context.compilerError(std::format("Label `{}` already defined in scope", node.label));
+            compiler.compilerError(std::format("Label `{}` already defined in scope", node.label));
         }
     }
 
-    context.labels.emplace_back(std::nullopt, node.label, context.chunk.code.size(), context.locals.size(), context.scopeDepth);
+    compiler.labels.emplace_back(std::nullopt, node.label, compiler.chunk.code.size(), compiler.locals.size(), compiler.scopeDepth);
 
-    for (size_t i = context.unresolvedGoto.size(); i-- > 0 && context.unresolvedGoto[i].currentScope >= context.scopeDepth;) // Resolve forward jumps
+    for (size_t i = compiler.unresolvedGoto.size(); i-- > 0 && compiler.unresolvedGoto[i].currentScope >= compiler.scopeDepth;) // Resolve forward jumps
     {
-        const auto &gt = context.unresolvedGoto[i];
+        const auto &gt = compiler.unresolvedGoto[i];
         if (gt.name == node.label)
         {
-            if (node.isLastStmt) context.locals.resize(gt.currentLocals); // Those locals after the goto dont exist
+            if (node.isLastStmt) compiler.locals.resize(gt.currentLocals); // Those locals after the goto dont exist
 
-            if (context.locals.size() > gt.currentLocals)
+            if (compiler.locals.size() > gt.currentLocals)
             {
-                context.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, context.locals.back().name));
+                compiler.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, compiler.locals.back().name));
             }
 
-            size_t fallthrough = context.emitJump(Op::JUMP);
-            context.patchJumpAt(gt.pos, context.chunk.code.size());
+            size_t fallthrough = compiler.emitJump(Op::JUMP);
+            compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
 
             auto &gtLocals = gt.locals.value();
-            for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > context.scopeDepth;)
+            for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > compiler.scopeDepth;)
             {
-                context.emit(gtLocals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+                compiler.emit(gtLocals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
             }
            
-            context.patchJump(fallthrough);
+            compiler.patchJump(fallthrough);
 
-            context.unresolvedGoto.erase(context.unresolvedGoto.begin() + 
+            compiler.unresolvedGoto.erase(compiler.unresolvedGoto.begin() + 
             static_cast<std::ptrdiff_t>(i));
         }
     }
@@ -940,7 +940,7 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
 
 void Compiler::StmtVisitor::operator()(const BlockStmt &node)
 {
-    context.compileBlock(node.stmt);
+    compiler.compileBlock(node.stmt);
 }
 
 void Compiler::compileExpression(const ExprHandle &expression, int expectedReturn, bool isTailCall)

@@ -149,7 +149,7 @@ class Compiler
         {
             public:
                 ExprVisitor(int expectedReturn, bool isTailCall, Compiler &context) 
-                : context(context)
+                : compiler(context)
                 , expectedReturn(expectedReturn)
                 , isTailCall(isTailCall) 
                 {
@@ -180,7 +180,7 @@ class Compiler
 
                 void compileExpression(const ExprHandle &expression, int expectedReturn);
             private:
-                Compiler &context;
+                Compiler &compiler;
                 const int expectedReturn;
                 const bool isTailCall;
         };
@@ -191,7 +191,7 @@ class Compiler
         {
             public:
                 StmtVisitor(Compiler &context) 
-                : context(context) {}
+                : compiler(context) {}
 
                 void operator()(const WhileStmt &node);
                 void operator()(const ForRangeStmt &node);
@@ -209,7 +209,7 @@ class Compiler
                 void operator()(const LabelStmt &node);
                 void operator()(const BlockStmt &node);
             private:
-                Compiler &context;
+                Compiler &compiler;
         };
 
         void compileStmt(const StatementHandle &stmt)
