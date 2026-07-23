@@ -468,12 +468,12 @@ namespace
 
 int32_t VM::doubleToInt(double num)
 {
-    const bool validInteger = 
+    const bool valid = 
         std::isfinite(num) 
         && (floor(num) == num) 
         && ((num <= INT32_MAX) && (num >= INT32_MIN));
 
-    if (!validInteger)
+    if (!valid)
         runtimeError("Number has no integer representation!"); 
 
     return static_cast<int32_t>(num);
@@ -490,18 +490,18 @@ void VM::handleBitWise(Op op, MetaMethod method)
     (rhs = ValueHelper::toNumber(b))) 
     {
 
-        int32_t lhsInt = doubleToInt(*lhs);
-        int32_t rhsInt = doubleToInt(*rhs);
+        int32_t iLhs = doubleToInt(*lhs);
+        int32_t iRhs = doubleToInt(*rhs);
 
         int32_t result = 0;
 
         switch (op)
         {
-            case Op::BIT_AND: result = BIT_OP(&, lhsInt, rhsInt); break;
-            case Op::BIT_OR: result =  BIT_OP(|, lhsInt, rhsInt); break;
-            case Op::BIT_XOR: result = BIT_OP(^, lhsInt, rhsInt); break;
-            case Op::BITSHIFT_LEFT:  result = bitShift(lhsInt, rhsInt); break;
-            case Op::BITSHIFT_RIGHT: result = bitShift(lhsInt, -rhsInt); break;
+            case Op::BIT_AND: result = BIT_OP(&, iLhs, iRhs); break;
+            case Op::BIT_OR: result =  BIT_OP(|, iLhs, iRhs); break;
+            case Op::BIT_XOR: result = BIT_OP(^, iLhs, iRhs); break;
+            case Op::BITSHIFT_LEFT:  result = bitShift(iLhs, iRhs); break;
+            case Op::BITSHIFT_RIGHT: result = bitShift(iLhs, -iRhs); break;
             default:
                 assert(false); // Unreachable
         }
