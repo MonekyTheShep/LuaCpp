@@ -55,7 +55,7 @@ class ExprCompiler
         , expectedReturn(expectedReturn)
         , isTailCall(isTailCall) 
         {
-            assert(expectedReturn < INT8_MAX);
+            assert(expectedReturn <= INT8_MAX);
         }
 
         void operator()(const NumberLiteralExpr &node);
