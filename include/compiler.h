@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <variant>
 #include <vector>
 #include <format>
@@ -33,9 +32,6 @@ struct Upvalue
 
 struct LoopContext 
 {
-    LoopContext(std::vector<size_t> breaks, int loopDepth)
-      : breaks(std::move(breaks)), loopDepth(loopDepth) {}
-
     std::vector<size_t> breaks;
     int loopDepth;
 };
