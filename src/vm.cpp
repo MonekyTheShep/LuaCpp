@@ -98,7 +98,7 @@ struct CallVisitor
     
         // Insert table in front of args
         {
-            Value *start = &vm.stack[calleeIndex];
+            Value *start = &vm.stack[calleeIndex + 1];
             Value *end = &vm.stack[vm.sp];
 
             vm.checkStack(vm.sp, 1);
