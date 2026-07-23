@@ -149,17 +149,17 @@ void VM::recoverVM()
     assert(handler.frames <= callFrames.size());
 
     callFrames.erase(callFrames.begin() + 
-        static_cast<std::ptrdiff_t>(handler.frames), callFrames.end());
+        static_cast<ptrdiff_t>(handler.frames), callFrames.end());
 
     assert(handler.callees <= callees.size());
 
     callees.erase(callees.begin() + 
-        static_cast<std::ptrdiff_t>(handler.callees), callees.end());
+        static_cast<ptrdiff_t>(handler.callees), callees.end());
 
     assert(handler.tables <= tables.size());
 
     tables.erase(tables.begin() + 
-        static_cast<std::ptrdiff_t>(handler.tables), tables.end());
+        static_cast<ptrdiff_t>(handler.tables), tables.end());
 
     runDepth = handler.runDepth;
     
