@@ -91,12 +91,12 @@ std::string PrintExprVisitor::operator()(const FunctionExpr &node) const
     }
     result += ")\n";
 
-    visitor.incrementIndentation();
+    visitor.indentLevel++;
     for (size_t i = 0; i < node.body.size(); i++)
     {
         result += visitor.visitStmt(node.body[i].stmt) + "\n";
     }
-    visitor.decrementIndentation();
+    visitor.indentLevel--;
 
     result += visitor.addIndentation();
     result += "end";

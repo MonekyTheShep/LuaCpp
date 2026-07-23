@@ -300,13 +300,11 @@ struct PrintExprVisitor
     public:
         explicit PrintExprVisitor(int indentLevel) : indentLevel(indentLevel) {}
        
-
         std::string operator()(const NumberLiteralExpr &node) const;
         std::string operator()(const StringLiteralExpr &node) const;
         std::string operator()(const BoolLiteralExpr &node) const;
         std::string operator()(const NilExpr &node) const;
         std::string operator()(const VarArgExpr &node) const;
-        std::string visitTableExpr(const TableExpr &tableExpr) const;
         std::string operator()(const TableExprDef &node) const;
         std::string operator()(const CallExpr &node) const;
         std::string operator()(const MethodAccessExpr &node) const;
@@ -317,6 +315,7 @@ struct PrintExprVisitor
         std::string operator()(const UnaryExpr &node) const;
         std::string operator()(const BinaryExpr &node) const;
 
+        std::string visitTableExpr(const TableExpr &tableExpr) const;
         static std::string unaryOpToString(UnaryExpr::UnaryOperator op);
         static std::string binaryOpToString(BinaryExpr::BinaryOperator op);
 
@@ -351,8 +350,6 @@ struct PrintStmtVisitor
 
         [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
         
-        void incrementIndentation() { indentLevel++; }
-        void decrementIndentation() { indentLevel--; }
         public:
             int indentLevel;
 };
