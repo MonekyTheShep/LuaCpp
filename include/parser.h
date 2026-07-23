@@ -16,12 +16,6 @@
 #include "ast.h"
 #include "lexer.h"
 
-struct ParsedParams 
-{
-    std::vector<std::string> args;
-    bool isVarArg;
-};
-
 class ParserError : public std::exception 
 {
     public:
@@ -208,6 +202,12 @@ class Parser
         std::vector<TableExpr> parseTable();
         std::vector<ExprHandle> parseArgs();
         std::vector<ExprHandle> parseArgumentList();
+
+        struct ParsedParams 
+        {   
+            std::vector<std::string> args;
+            bool isVarArg;
+        };
 
         ParsedParams parseParams();
 };

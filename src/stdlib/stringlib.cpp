@@ -40,6 +40,6 @@ LuaTableHandle StringLib::openLibrary(VM &vm)
     setLibraryFunctions(vm, methods, luaTable);
     LuaTableHandle metaTable = std::make_shared<LuaTable>();
     metaTable->set(vm, "__index", luaTable);
-    vm.primitiveMt[static_cast<size_t>(Primitives::STRING)] = metaTable;
+    vm.primitiveMt[static_cast<size_t>(VM::Primitives::STRING)] = metaTable;
     return luaTable;
 }

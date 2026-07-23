@@ -7,7 +7,6 @@
 #include <exception>
 #include <format>
 #include <initializer_list>
-#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -17,43 +16,18 @@
 #include <vector>
 
 #include "bytecode.h"
-#include "lua_table.h"
 #include "metamethod.h"
 #include "value.h"
-
 #include "stdlib/stdlib.h"
-
-struct CallVisitor;
-
-class Lua;
-
-class BaseLib;
-class TableLib;
-class IoLib;
-class StringLib;
-class StdLib;
-
-inline constexpr size_t MAX_FRAMES = 128;
-inline constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
-
-inline constexpr int RETURN_ALL = -1;
-
-enum class Primitives : uint8_t 
-{
-    STRING = 0,
-    COUNT
-};
-
-inline constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
-
-enum class CallType : uint8_t
-{
-    LUA,
-    CPP 
-};
 
 struct CallFrame
 {
+    enum class CallType : uint8_t
+    {
+        LUA,
+        CPP 
+    };
+
     CallFrame(std::vector<Value> varArg, ClosureHandle closure, size_t ip,
             size_t frameBase, int expectedReturn, CallType callType)
       : varArg(std::move(varArg)), closure(std::move(closure)), ip(ip),
@@ -68,24 +42,15 @@ struct CallFrame
     CallType callType;
 };
 
-struct ErrorHandler 
-{ 
-    size_t sp;
-    size_t frames;
-    size_t callees;
-    size_t tables;
-    int runDepth;
-};
-
-struct ErrorPosInfo
-{
-    std::string funcName;
-    int line;
-};
-
 class VMRuntimeError : public std::exception 
 {
     public:
+        struct ErrorPosInfo
+        {
+            std::string funcName;
+            int line;
+        };
+
         VMRuntimeError(VM &vm, const Value &object, std::optional<ErrorPosInfo> posInfo);
 
         const char* what() const noexcept;
@@ -97,25 +62,26 @@ class VMRuntimeError : public std::exception
         std::string error;
 };
 
+class BaseLib;
+class TableLib;
+class IoLib;
+class StringLib;
+class StdLib;
+
+class LuaTable;
+class Lua;
+
+struct CallVisitor;
+
 class VM
 {
     public:
-        VM(Lua &lua)
-        : opCounts({})
-        , globals(std::make_shared<LuaTable>())
-        , lua(lua)
-        , sp(0)
-        , runDepth(0)
-        {
-            callFrames.reserve(MAX_FRAMES);
-            stack.resize(STACK_SIZE);
-            
-            callees.reserve(20); // Vectors likely to grow
-            tables.reserve(20); 
-            errorHandlers.reserve(5); 
+        static constexpr size_t MAX_FRAMES = 128;
+        static constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
 
-            StdLib::initLibraries(*this);
-        }
+        static constexpr int RETURN_ALL = -1;
+    public:
+        VM(Lua &lua);
 
         void execute(const FunctionHandle &code);
     public:
@@ -124,11 +90,29 @@ class VM
         std::vector<Value> stack;
 
         std::vector<CallFrame> callFrames;
+
+        struct ErrorHandler 
+        { 
+            size_t sp;
+            size_t frames;
+            size_t callees;
+            size_t tables;
+            int runDepth;
+        };
+
         std::vector<ErrorHandler> errorHandlers;
 
         std::vector<size_t> callees; // Temporary solution to a bigger problem
         std::vector<size_t> tables; // Temporary solution to a bigger problem
   
+        enum class Primitives : uint8_t 
+        {
+            STRING = 0,
+            COUNT
+        };
+
+        static constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
+
         std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
 
         LuaTableHandle globals;
@@ -196,8 +180,8 @@ class VM
         // Call Functions
         // -------------------------
         void nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeIndex, int expectedReturn);
-        void call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallType type);
-        void callValue(size_t calleeIndex, int expectedReturn, CallType type);
+        void call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallFrame::CallType type);
+        void callValue(size_t calleeIndex, int expectedReturn, CallFrame::CallType type);
         void moveReturns(size_t firstResult, size_t frameBase, int expectedReturn);
 
         // -------------------------
@@ -214,7 +198,7 @@ class VM
         LuaTableHandle getMetaTable(const Value &value);
         std::optional<Value> resolveMetaMethod(const LuaTableHandle &metatable, MetaMethod method);
         std::optional<Value> resolveValueMetaMethod(const Value &value, MetaMethod method);
-        bool tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallType callType);
+        bool tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallFrame::CallType callType);
 
         // -------------------------
         // Upvalue Functions
@@ -301,14 +285,15 @@ class VM
         }
         
     private:
-        friend CallVisitor;
-        friend VMRuntimeError;
-        friend LuaTable;
+        friend struct CallVisitor;
 
-        friend TableLib; 
-        friend IoLib;
-        friend StringLib;
-        friend BaseLib;
-        friend StdLib;     
+        friend class VMRuntimeError;
+        friend class LuaTable;
+
+        friend class TableLib; 
+        friend class IoLib;
+        friend class StringLib;
+        friend class BaseLib;
+        friend class StdLib;     
 };
  

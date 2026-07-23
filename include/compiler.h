@@ -17,76 +17,6 @@
 #include "bytecode.h"
 #include "ast.h"
 
-struct Local 
-{
-    std::string name;
-    int depth;
-    bool isCaptured;
-};
-
-struct Upvalue 
-{
-    uint8_t index;
-    bool isLocal;
-};
-
-struct LoopContext 
-{
-    std::vector<size_t> breaks;
-    int loopDepth;
-};
-
-struct LabelContext 
-{
-    std::optional<std::vector<Local>> locals;
-    std::string name;
-    size_t pos;
-    size_t currentLocals;
-    int currentScope;
-};
-
-class Compiler;
-
-class ExprCompiler 
-{
-    public:
-        ExprCompiler(int expectedReturn, bool isTailCall, Compiler &context) 
-        : context(context)
-        , expectedReturn(expectedReturn)
-        , isTailCall(isTailCall) 
-        {
-            assert(expectedReturn <= INT8_MAX);
-        }
-
-        void operator()(const NumberLiteralExpr &node);
-        void operator()(const StringLiteralExpr &node);
-        void operator()(const BoolLiteralExpr &node);
-        void operator()(const NilExpr &node);
-        void operator()(const VarArgExpr &node);
-
-        void compileTableExpr(const TableExpr &node, double &arrayIndex);
-        void operator()(const TableExprDef &node);
-
-        void compileArgs(const std::vector<ExprHandle> &args);
-        void operator()(const CallExpr &node);
-        void operator()(const MethodAccessExpr &node);
-
-        void operator()(const FieldAccessExpr &node);
-        void operator()(const IndexExpr &node);
-        void operator()(const FunctionExpr &node);
-        void operator()(const VariableExpr &node);
-        void operator()(const UnaryExpr &node);
-
-        void compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHandle &rhs);
-        void operator()(const BinaryExpr &node);
-
-        void compileExpression(const ExprHandle &expression, int expectedReturn);
-    private:
-        Compiler &context;
-        const int expectedReturn;
-        const bool isTailCall;
-};
-
 class Compiler 
 {
     public:
@@ -100,35 +30,45 @@ class Compiler
             addLocal(""); // Reserved for the callee
         }
 
-        // --------------------
-        // Compiling Stmts
-        // --------------------
-        void operator()(const WhileStmt &node);
-        void operator()(const ForRangeStmt &node);
-        void operator()(const ForIteratorStmt &node);
-        void operator()(const RepeatStmt &node);
-        void operator()(const IfStmt &node);
-        void operator()(const LocalAssignmentStmt &node);
-        void operator()(const AssignmentStmt &node);
-        void operator()(const LocalFunctionAssignmentStmt &node);
-        void operator()(const FunctionAssignmentStmt &node);
-        void operator()(const ExprStmt &node);
-        void operator()(const ReturnStmt &node);
-        void operator()(const BreakStmt &node);
-        void operator()(const GoToStmt &node);
-        void operator()(const LabelStmt &node);
-        void operator()(const BlockStmt &node);
-
         FunctionHandle compile(const Ast &stmts);
         static Compiler makeTopLevel() { return Compiler(nullptr, "<main>", 0, true); };
     private:
         static const std::unordered_map<UnaryExpr::UnaryOperator, Op> unaryOp;
         static const std::unordered_map<BinaryExpr::BinaryOperator, Op> binaryOp;
 
+        struct Local 
+        {
+            std::string name;
+            int depth;
+            bool isCaptured;
+        };
+
         std::vector<Local> locals;
+
+        struct Upvalue 
+        {
+            uint8_t index;
+            bool isLocal;
+        };
+
         std::vector<Upvalue> upvalues;
 
+        struct LoopContext 
+        {
+            std::vector<size_t> breaks;
+            int loopDepth;
+        };
+
         std::vector<LoopContext> loopStack;
+
+        struct LabelContext 
+        {
+            std::optional<std::vector<Local>> locals;
+            std::string name;
+            size_t pos;
+            size_t currentLocals;
+            int currentScope;
+        };
 
         std::vector<LabelContext> unresolvedGoto;
         std::vector<LabelContext> labels;
@@ -204,12 +144,77 @@ class Compiler
         // Helper Functions
         // --------------------
         void compilerError(std::string_view error) { throw std::runtime_error(std::format("[Line {}] {}!", currentLine, error)); }
-                
+        
+        class ExprVisitor 
+        {
+            public:
+                ExprVisitor(int expectedReturn, bool isTailCall, Compiler &context) 
+                : context(context)
+                , expectedReturn(expectedReturn)
+                , isTailCall(isTailCall) 
+                {
+                    assert(expectedReturn <= INT8_MAX);
+                }
+
+                void operator()(const NumberLiteralExpr &node);
+                void operator()(const StringLiteralExpr &node);
+                void operator()(const BoolLiteralExpr &node);
+                void operator()(const NilExpr &node);
+                void operator()(const VarArgExpr &node);
+
+                void compileTableExpr(const TableExpr &node, double &arrayIndex);
+                void operator()(const TableExprDef &node);
+
+                void compileArgs(const std::vector<ExprHandle> &args);
+                void operator()(const CallExpr &node);
+                void operator()(const MethodAccessExpr &node);
+
+                void operator()(const FieldAccessExpr &node);
+                void operator()(const IndexExpr &node);
+                void operator()(const FunctionExpr &node);
+                void operator()(const VariableExpr &node);
+                void operator()(const UnaryExpr &node);
+
+                void compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHandle &rhs);
+                void operator()(const BinaryExpr &node);
+
+                void compileExpression(const ExprHandle &expression, int expectedReturn);
+            private:
+                Compiler &context;
+                const int expectedReturn;
+                const bool isTailCall;
+        };
+
         void compileExpression(const ExprHandle &expression, int expectedReturn, bool isTailCall);
+
+        class StmtVisitor
+        {
+            public:
+                StmtVisitor(Compiler &context) 
+                : context(context) {}
+
+                void operator()(const WhileStmt &node);
+                void operator()(const ForRangeStmt &node);
+                void operator()(const ForIteratorStmt &node);
+                void operator()(const RepeatStmt &node);
+                void operator()(const IfStmt &node);
+                void operator()(const LocalAssignmentStmt &node);
+                void operator()(const AssignmentStmt &node);
+                void operator()(const LocalFunctionAssignmentStmt &node);
+                void operator()(const FunctionAssignmentStmt &node);
+                void operator()(const ExprStmt &node);
+                void operator()(const ReturnStmt &node);
+                void operator()(const BreakStmt &node);
+                void operator()(const GoToStmt &node);
+                void operator()(const LabelStmt &node);
+                void operator()(const BlockStmt &node);
+            private:
+                Compiler &context;
+        };
 
         void compileStmt(const StatementHandle &stmt)
         {
-            std::visit(*this, *stmt);
+            std::visit(StmtVisitor{*this}, *stmt);
         }
 
         void compileStmts(const std::vector<StmtWithPos> &stmts)
@@ -228,7 +233,4 @@ class Compiler
         void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
 
         void compileBlock(const Ast &stmts);
-    private:
-        friend ExprCompiler;
 };
-

@@ -212,33 +212,33 @@ void Compiler::emit(uint8_t arg)
     chunk.write(arg, currentLine);
 }
 
-void ExprCompiler::operator()(const NumberLiteralExpr &node)
+void Compiler::ExprVisitor::operator()(const NumberLiteralExpr &node)
 {
     context.emitConstant(node.value);
 }
 
-void ExprCompiler::operator()(const StringLiteralExpr &node)
+void Compiler::ExprVisitor::operator()(const StringLiteralExpr &node)
 {
     context.emitConstant(node.value);
 }
 
-void ExprCompiler::operator()(const BoolLiteralExpr &node)
+void Compiler::ExprVisitor::operator()(const BoolLiteralExpr &node)
 {
     context.emit(node.value ? Op::LOAD_TRUE : Op::LOAD_FALSE);
 }
 
-void ExprCompiler::operator()(const NilExpr &)
+void Compiler::ExprVisitor::operator()(const NilExpr &)
 {
     context.emit(Op::LOAD_NULL);
 }
 
-void ExprCompiler::operator()(const VarArgExpr &)
+void Compiler::ExprVisitor::operator()(const VarArgExpr &)
 {
     if (!context.function->isVarArg) context.compilerError("Can't use `...` outside a vararg function");
     context.emitWithArg(Op::VARARG, static_cast<uint8_t>(expectedReturn));
 }
 
-void ExprCompiler::compileTableExpr(const TableExpr &node, double &arrayIndex)
+void Compiler::ExprVisitor::compileTableExpr(const TableExpr &node, double &arrayIndex)
 {
     switch (node.kind) 
     {
@@ -257,7 +257,7 @@ void ExprCompiler::compileTableExpr(const TableExpr &node, double &arrayIndex)
     }
 }
 
-void ExprCompiler::operator()(const TableExprDef &node)
+void Compiler::ExprVisitor::operator()(const TableExprDef &node)
 {
     if (node.fields.size() > UINT8_MAX) context.compilerError("Can't have more than 255 fields in table constructor");
 
@@ -290,7 +290,7 @@ void ExprCompiler::operator()(const TableExprDef &node)
     }
 }
 
-void ExprCompiler::compileArgs(const std::vector<ExprHandle> &args) 
+void Compiler::ExprVisitor::compileArgs(const std::vector<ExprHandle> &args) 
 {
     for (size_t i = 0; i + 1 < args.size(); i++) 
     {
@@ -303,7 +303,7 @@ void ExprCompiler::compileArgs(const std::vector<ExprHandle> &args)
     }
 }
 
-void ExprCompiler::operator()(const CallExpr &node)
+void Compiler::ExprVisitor::operator()(const CallExpr &node)
 {
     compileExpression(node.callee, 1);
     context.emit(Op::STORE_CALLEE);
@@ -318,7 +318,7 @@ void ExprCompiler::operator()(const CallExpr &node)
     );
 }
 
-void ExprCompiler::operator()(const MethodAccessExpr &node) 
+void Compiler::ExprVisitor::operator()(const MethodAccessExpr &node) 
 {
     context.emitConstant(node.field);
     compileExpression(node.object, 1);
@@ -334,7 +334,7 @@ void ExprCompiler::operator()(const MethodAccessExpr &node)
     );
 }
 
-void ExprCompiler::operator()(const FieldAccessExpr &node)
+void Compiler::ExprVisitor::operator()(const FieldAccessExpr &node)
 {
     context.emitConstant(node.field);
     compileExpression(node.expr, 1);
@@ -342,7 +342,7 @@ void ExprCompiler::operator()(const FieldAccessExpr &node)
     context.emit(Op::GET_FIELD);
 }
 
-void ExprCompiler::operator()(const IndexExpr &node)
+void Compiler::ExprVisitor::operator()(const IndexExpr &node)
 {
     compileExpression(node.index, 1);
     compileExpression(node.expr, 1);
@@ -350,7 +350,7 @@ void ExprCompiler::operator()(const IndexExpr &node)
     context.emit(Op::GET_FIELD);
 }
 
-void ExprCompiler::operator()(const FunctionExpr &node)
+void Compiler::ExprVisitor::operator()(const FunctionExpr &node)
 {
     context.compileFunction("<anonymous>", node.isVarArg, node.args, node.body);
 }
@@ -525,7 +525,7 @@ std::optional<Value> Compiler::tryFoldConstant(const ExprHandle &expression)
     *expression);
 }
 
-void ExprCompiler::operator()(const VariableExpr &node)
+void Compiler::ExprVisitor::operator()(const VariableExpr &node)
 {  
     context.namedVariable(node.ident, false);
 }
@@ -538,7 +538,7 @@ const std::unordered_map<UnaryExpr::UnaryOperator, Op> Compiler::unaryOp
     {UnaryExpr::UnaryOperator::BIT_NOT, Op::BIT_NOT}
 };
 
-void ExprCompiler::operator()(const UnaryExpr &node)
+void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
 {
     compileExpression(node.expr, 1);
 
@@ -572,7 +572,7 @@ const std::unordered_map<BinaryExpr::BinaryOperator, Op> Compiler::binaryOp
     {BinaryExpr::BinaryOperator::LSE, Op::LSE},
 };
 
-void ExprCompiler::compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHandle &rhs)
+void Compiler::ExprVisitor::compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHandle &rhs)
 {
     compileExpression(lhs, 1);
     context.emit(Op::DUP);
@@ -582,7 +582,7 @@ void ExprCompiler::compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHand
 	context.patchJump(skip);
 }
 
-void ExprCompiler::operator()(const BinaryExpr &node)
+void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
 {
     bool flipOperand = false;
 
@@ -611,120 +611,120 @@ void ExprCompiler::operator()(const BinaryExpr &node)
     }  
 }
 
-void ExprCompiler::compileExpression(const ExprHandle &expression, int expectedReturn)
+void Compiler::ExprVisitor::compileExpression(const ExprHandle &expression, int expectedReturn)
 {
     context.compileExpression(expression, expectedReturn, false);
 }
 
-void Compiler::operator()(const WhileStmt &node)
+void Compiler::StmtVisitor::operator()(const WhileStmt &node)
 {
-    size_t loopStart = chunk.code.size();
+    size_t loopStart = context.chunk.code.size();
 
-    compileExpression(node.condExpr, 1, false);
-    size_t jumpToEnd = emitJump(Op::JUMP_IF_FALSE);
+    context.compileExpression(node.condExpr, 1, false);
+    size_t jumpToEnd = context.emitJump(Op::JUMP_IF_FALSE);
 
-    loopStack.emplace_back(std::vector<size_t>{}, scopeDepth);
-    compileBlock(node.whileStmts);
+    context.loopStack.emplace_back(std::vector<size_t>{}, context.scopeDepth);
+    context.compileBlock(node.whileStmts);
 
-    emitLoop(Op::LOOP, loopStart);
-    patchJump(jumpToEnd);
+    context.emitLoop(Op::LOOP, loopStart);
+    context.patchJump(jumpToEnd);
 
-    size_t endLoop = chunk.code.size();
+    size_t endLoop = context.chunk.code.size();
 
-    for (size_t breakStmt : loopStack.back().breaks)
+    for (size_t breakStmt : context.loopStack.back().breaks)
     {
-        patchJumpAt(breakStmt, endLoop);
+        context.patchJumpAt(breakStmt, endLoop);
     }
 
-    loopStack.pop_back();
+    context.loopStack.pop_back();
 }
 
-void Compiler::operator()(const ForRangeStmt &node)
+void Compiler::StmtVisitor::operator()(const ForRangeStmt &node)
 {
-    loopStack.emplace_back(std::vector<size_t>{}, scopeDepth);
+    context.loopStack.emplace_back(std::vector<size_t>{}, context.scopeDepth);
 
-    beginScope();
+    context.beginScope();
 
-    compileExpression(node.start, 1, false);
-    addLocal(node.variable);
+    context.compileExpression(node.start, 1, false);
+    context.addLocal(node.variable);
 
-    compileExpression(node.start, 1, false);
-    addLocal("(start)");
+    context.compileExpression(node.start, 1, false);
+    context.addLocal("(start)");
 
-    compileExpression(node.stop, 1, false);
-    addLocal("(stop)");
+    context.compileExpression(node.stop, 1, false);
+    context.addLocal("(stop)");
 
-    if (node.step != nullptr) compileExpression(node.step, 1, false);
-    else emitConstant(1.0);
-    addLocal("(step)");
+    if (node.step != nullptr) context.compileExpression(node.step, 1, false);
+    else context.emitConstant(1.0);
+    context.addLocal("(step)");
 
-    size_t forPrepJump = emitJump(Op::FOR_PREP);
-    size_t loopStart = chunk.code.size();
+    size_t forPrepJump = context.emitJump(Op::FOR_PREP);
+    size_t loopStart = context.chunk.code.size();
 
-    compileBlock(node.forStmts);
+    context.compileBlock(node.forStmts);
 
-    emitLoop(Op::FOR_LOOP, loopStart);
-    patchJump(forPrepJump);
+    context.emitLoop(Op::FOR_LOOP, loopStart);
+    context.patchJump(forPrepJump);
 
-    endScope();
+    context.endScope();
 
-    size_t endLoop = chunk.code.size();
+    size_t endLoop = context.chunk.code.size();
 
-    for (size_t breakStmt : loopStack.back().breaks)
+    for (size_t breakStmt : context.loopStack.back().breaks)
     {
-        patchJumpAt(breakStmt, endLoop);
+        context.patchJumpAt(breakStmt, endLoop);
     }
     
-    loopStack.pop_back();
+    context.loopStack.pop_back();
 }
 
-void Compiler::operator()([[maybe_unused]] const ForIteratorStmt &node)
+void Compiler::StmtVisitor::operator()([[maybe_unused]] const ForIteratorStmt &node)
 {
 
 }
 
-void Compiler::operator()(const RepeatStmt &node)
+void Compiler::StmtVisitor::operator()(const RepeatStmt &node)
 {
-    size_t loopStart = chunk.code.size();
-    loopStack.emplace_back(std::vector<size_t>{}, scopeDepth);
+    size_t loopStart = context.chunk.code.size();
+    context.loopStack.emplace_back(std::vector<size_t>{}, context.scopeDepth);
 
-    compileBlock(node.repeatStmts);
+    context.compileBlock(node.repeatStmts);
 
-    compileExpression(node.condExpr, 1, false);
+    context.compileExpression(node.condExpr, 1, false);
     
-    size_t jumpToEnd = emitJump(Op::JUMP_IF_TRUE);
-    emitLoop(Op::LOOP, loopStart);
-    patchJump(jumpToEnd);
+    size_t jumpToEnd = context.emitJump(Op::JUMP_IF_TRUE);
+    context.emitLoop(Op::LOOP, loopStart);
+    context.patchJump(jumpToEnd);
 
-    size_t endLoop = chunk.code.size();
+    size_t endLoop = context.chunk.code.size();
 
-    for (size_t breakStmt : loopStack.back().breaks)
+    for (size_t breakStmt : context.loopStack.back().breaks)
     {
-        patchJumpAt(breakStmt, endLoop);
+        context.patchJumpAt(breakStmt, endLoop);
     }
 
-    loopStack.pop_back();
+    context.loopStack.pop_back();
 }
 
-void Compiler::operator()(const IfStmt &node)
+void Compiler::StmtVisitor::operator()(const IfStmt &node)
 {
-    compileExpression(node.condExpr, 1, false);
-    size_t jumpToElse = emitJump(Op::JUMP_IF_FALSE);
+    context.compileExpression(node.condExpr, 1, false);
+    size_t jumpToElse = context.emitJump(Op::JUMP_IF_FALSE);
 
-    compileBlock(node.ifStmts);
+    context.compileBlock(node.ifStmts);
 
     if (!node.elseStmts.empty())
     {
-        size_t jumpToEnd = emitJump(Op::JUMP);
-        patchJump(jumpToElse);
+        size_t jumpToEnd = context.emitJump(Op::JUMP);
+        context.patchJump(jumpToElse);
 
-        compileBlock(node.elseStmts);
+        context.compileBlock(node.elseStmts);
 
-        patchJump(jumpToEnd);
+        context.patchJump(jumpToEnd);
     }
     else
     {
-        patchJump(jumpToElse);
+        context.patchJump(jumpToElse);
     }
 }
 
@@ -757,19 +757,19 @@ void Compiler::compileAssignment(size_t numOfTargets, const std::vector<ExprHand
     while (remaining-- > 0) emit(Op::LOAD_NULL); // Pad nils
 }
 
-void Compiler::operator()(const LocalAssignmentStmt &node)
+void Compiler::StmtVisitor::operator()(const LocalAssignmentStmt &node)
 {
-    compileAssignment(node.ident.size(), node.value);
+    context.compileAssignment(node.ident.size(), node.value);
     
     for (const auto &i : node.ident)
     {
-        addLocal(i);
+        context.addLocal(i);
     }
 }
 
-void Compiler::operator()(const AssignmentStmt &node)
+void Compiler::StmtVisitor::operator()(const AssignmentStmt &node)
 {
-    compileAssignment(node.target.size(), node.value);
+    context.compileAssignment(node.target.size(), node.value);
 
     for (auto i = node.target.size(); i-- > 0; ) 
     {
@@ -777,52 +777,52 @@ void Compiler::operator()(const AssignmentStmt &node)
         {
             [this](const FieldAccessExpr &node)
             { 
-                emitConstant(node.field);
-                compileExpression(node.expr, 1, false);
-                emit(Op::SET_FIELD);
+                context.emitConstant(node.field);
+                context.compileExpression(node.expr, 1, false);
+                context.emit(Op::SET_FIELD);
             },
             [this](const IndexExpr &node)
             { 
-                compileExpression(node.index, 1, false);
-                compileExpression(node.expr, 1, false);
+                context.compileExpression(node.index, 1, false);
+                context.compileExpression(node.expr, 1, false);
 
-                emit(Op::SET_FIELD);
+                context.emit(Op::SET_FIELD);
             },
             [this](const VariableExpr &node)
             {
-                namedVariable(node.ident, true);
+                context.namedVariable(node.ident, true);
             },
             [this](const auto &)
             {
-                compilerError("Unexpected assignment target");
+                context.compilerError("Unexpected assignment target");
             }
         }, *node.target[i]);
     }
 }
 
-void Compiler::operator()(const LocalFunctionAssignmentStmt &node)
+void Compiler::StmtVisitor::operator()(const LocalFunctionAssignmentStmt &node)
 {
-    addLocal(node.name);
-    compileFunction(node.name, node.isVarArg, node.args, node.body);
+    context.addLocal(node.name);
+    context.compileFunction(node.name, node.isVarArg, node.args, node.body);
 }
 
-void Compiler::operator()(const FunctionAssignmentStmt &node)
+void Compiler::StmtVisitor::operator()(const FunctionAssignmentStmt &node)
 {
     std::visit(overloaded 
     {
         [this, &node](const FieldAccessExpr &fieldAccessExpr) 
         { 
-            compileFunction(fieldAccessExpr.field, node.isVarArg, node.args, node.body);
+            context.compileFunction(fieldAccessExpr.field, node.isVarArg, node.args, node.body);
 
-            emitConstant(fieldAccessExpr.field);
-            compileExpression(fieldAccessExpr.expr, 1, false);
-            emit(Op::SET_FIELD);
+            context.emitConstant(fieldAccessExpr.field);
+            context.compileExpression(fieldAccessExpr.expr, 1, false);
+            context.emit(Op::SET_FIELD);
         },
         [this, &node](const VariableExpr &variableExpr)
         {
-            compileFunction(variableExpr.ident, node.isVarArg, node.args, node.body);
+            context.compileFunction(variableExpr.ident, node.isVarArg, node.args, node.body);
 
-            namedVariable(variableExpr.ident, true);
+            context.namedVariable(variableExpr.ident, true);
         },
         [](const auto&)
         {
@@ -831,114 +831,116 @@ void Compiler::operator()(const FunctionAssignmentStmt &node)
     }, *node.name);
 }
 
-void Compiler::operator()(const ExprStmt &node)
+void Compiler::StmtVisitor::operator()(const ExprStmt &node)
 {
     if (isCallable(node.expr))
     {
-        compileExpression(node.expr, 0, false);
+        context.compileExpression(node.expr, 0, false);
     }
-    else compilerError("Unexpected expression statement expected callable expression");
+    else context.compilerError("Unexpected expression statement expected callable expression");
 }
 
-void Compiler::operator()(const ReturnStmt &node)
+void Compiler::StmtVisitor::operator()(const ReturnStmt &node)
 {
-    if (node.values.size() > UINT8_MAX) compilerError("Can't have more than 255 return values");
+    if (node.values.size() > UINT8_MAX) context.compilerError("Can't have more than 255 return values");
 
     if (node.values.size() == 1 && isCallable(node.values.back()))
     {
-        return compileExpression(node.values.back(), -1, true);
+        return context.compileExpression(node.values.back(), -1, true);
     }
     
     for (size_t i = 0; i + 1 < node.values.size(); i++)
     {
-        compileExpression(node.values[i], 1, false);
+        context.compileExpression(node.values[i], 1, false);
     }
 
     if (!node.values.empty())
     {
-        compileExpression(node.values.back(), -1, false);
+        context.compileExpression(node.values.back(), -1, false);
     }
     
-    emitWithArg(Op::RETURN, static_cast<uint8_t>(locals.size()));
+    context.emitWithArg(Op::RETURN, static_cast<uint8_t>(context.locals.size()));
 }
 
-void Compiler::operator()(const BreakStmt &)
+void Compiler::StmtVisitor::operator()(const BreakStmt &)
 {
-    if (loopStack.empty()) compilerError("Break statement outside of loop");
+    if (context.loopStack.empty()) context.compilerError("Break statement outside of loop");
+
+    auto &locals = context.locals;
 
     for (auto i = locals.size(); i-- > 0 
-    && locals[i].depth > loopStack.back().loopDepth;) // Remove all locals added before the break statement
+    && locals[i].depth > context.loopStack.back().loopDepth;) // Remove all locals added before the break statement
     {
-        emit(locals.back().isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+        context.emit(locals.back().isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
     }
 
-    loopStack.back().breaks.emplace_back(emitJump(Op::JUMP));
+    context.loopStack.back().breaks.emplace_back(context.emitJump(Op::JUMP));
 }
 
-void Compiler::operator()(const GoToStmt &node) 
+void Compiler::StmtVisitor::operator()(const GoToStmt &node) 
 {
-    for (size_t i = labels.size(); i-- > 0;) // Resolve backward jumps
+    for (size_t i = context.labels.size(); i-- > 0;) // Resolve backward jumps
     {
-        const auto &lb = labels[i];
+        const auto &lb = context.labels[i];
         if (node.label == lb.name)
         {
-            for (size_t i = locals.size(); i-- > lb.currentLocals;) 
+            for (size_t i = context.locals.size(); i-- > lb.currentLocals;) 
             {
-                emit(locals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+                context.emit(context.locals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
             }
 
-            patchJumpAt(emitJump(Op::JUMP), lb.pos);
+            context.patchJumpAt(context.emitJump(Op::JUMP), lb.pos);
             return;
         }
     }
    
-    unresolvedGoto.emplace_back(locals, node.label, emitJump(Op::JUMP), locals.size(), scopeDepth);
+    context.unresolvedGoto.emplace_back(context.locals, node.label, context.emitJump(Op::JUMP), context.locals.size(), context.scopeDepth);
 }
 
-void Compiler::operator()(const LabelStmt &node)
+void Compiler::StmtVisitor::operator()(const LabelStmt &node)
 {
-    for (const auto &label : labels)
+    for (const auto &label : context.labels)
     {
         if (node.label == label.name)
         {
-            compilerError(std::format("Label `{}` already defined in scope", node.label));
+            context.compilerError(std::format("Label `{}` already defined in scope", node.label));
         }
     }
 
-    labels.emplace_back(std::nullopt, node.label, chunk.code.size(), locals.size(), scopeDepth);
+    context.labels.emplace_back(std::nullopt, node.label, context.chunk.code.size(), context.locals.size(), context.scopeDepth);
 
-    for (size_t i = unresolvedGoto.size(); i-- > 0 && unresolvedGoto[i].currentScope >= scopeDepth;) // Resolve forward jumps
+    for (size_t i = context.unresolvedGoto.size(); i-- > 0 && context.unresolvedGoto[i].currentScope >= context.scopeDepth;) // Resolve forward jumps
     {
-        const auto &gt = unresolvedGoto[i];
+        const auto &gt = context.unresolvedGoto[i];
         if (gt.name == node.label)
         {
-            if (node.isLastStmt) locals.resize(gt.currentLocals); // Those locals after the goto dont exist
+            if (node.isLastStmt) context.locals.resize(gt.currentLocals); // Those locals after the goto dont exist
 
-            if (locals.size() > gt.currentLocals)
+            if (context.locals.size() > gt.currentLocals)
             {
-                compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, locals.back().name));
+                context.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, context.locals.back().name));
             }
 
-            size_t fallthrough = emitJump(Op::JUMP);
-            patchJumpAt(gt.pos, chunk.code.size());
+            size_t fallthrough = context.emitJump(Op::JUMP);
+            context.patchJumpAt(gt.pos, context.chunk.code.size());
 
             auto &gtLocals = gt.locals.value();
-            for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > scopeDepth;)
+            for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > context.scopeDepth;)
             {
-                emit(gtLocals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+                context.emit(gtLocals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
             }
            
-            patchJump(fallthrough);
+            context.patchJump(fallthrough);
 
-            unresolvedGoto.erase(unresolvedGoto.begin() + 
+            context.unresolvedGoto.erase(context.unresolvedGoto.begin() + 
             static_cast<std::ptrdiff_t>(i));
         }
     }
 }
 
-void Compiler::operator()(const BlockStmt &node)
+void Compiler::StmtVisitor::operator()(const BlockStmt &node)
 {
-    compileBlock(node.stmt);
+    context.compileBlock(node.stmt);
 }
 
 void Compiler::compileExpression(const ExprHandle &expression, int expectedReturn, bool isTailCall)
@@ -962,7 +964,7 @@ void Compiler::compileExpression(const ExprHandle &expression, int expectedRetur
         } , *folded);
     }
 
-    std::visit(ExprCompiler(expectedReturn, isTailCall, *this), *expression);
+    std::visit(ExprVisitor(expectedReturn, isTailCall, *this), *expression);
 }
 
 void Compiler::compileBlock(const Ast &stmts)
