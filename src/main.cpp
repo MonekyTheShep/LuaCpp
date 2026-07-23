@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
     auto [result, status] = FileIo::readFile(argv[1]);
 
-    if (status == FileStatus::FILE_ERROR)
+    if (status == FileIo::FileStatus::FILE_ERROR)
     {
         std::cerr << "Error loading <script>!" << '\n';
         return EXIT_FAILURE;

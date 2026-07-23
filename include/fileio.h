@@ -6,14 +6,14 @@
 #include <string>
 #include <utility>
 
-enum class FileStatus : uint8_t
-{
-    FILE_ERROR,
-    FILE_SUCCESS
-};
-
 namespace FileIo 
 {
+    enum class FileStatus : uint8_t
+    {
+        FILE_ERROR,
+        FILE_SUCCESS
+    };
+
     inline std::pair<std::string, FileStatus> readFile(const std::filesystem::path& path)
     {
         std::string file;
