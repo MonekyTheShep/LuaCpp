@@ -326,7 +326,7 @@ class AstPrinter
                 static std::string binaryOpToString(BinaryExpr::BinaryOperator op);
 
                 [[nodiscard]] std::string visit(const ExprHandle &node) const;
-            private:
+            public:
                 int indentLevel;
         };
 
@@ -355,9 +355,7 @@ class AstPrinter
 
 
                 [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
-                void incrementIndentation() { indentLevel++; }
-                void decrementIndentation() { indentLevel--; }
-            private:
+            public:
                 int indentLevel;
         };
 };
