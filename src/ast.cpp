@@ -531,6 +531,6 @@ void AstPrinter::printStmts(const std::vector<StmtWithPos> &nodes)
 
     for (const auto &[stmt, line, col]: nodes)
     {
-        std::cout << visitor.visitStmt(stmt);
+        std::cout << visitor.visitStmt(stmt) << "\n";
     }
 }
