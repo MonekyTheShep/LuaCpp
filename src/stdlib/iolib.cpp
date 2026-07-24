@@ -19,9 +19,9 @@ int IoLib::read(VM &vm, std::span<Value>)
     return 1;
 }
 
-std::array<LibraryMethod, 1> IoLib::methods
+std::array<Library::Method, 1> IoLib::methods
 {{
-    {"read",  &read},
+    {"read", &read},
 }};
 
 LuaTableHandle IoLib::openLibrary(VM &vm) 
