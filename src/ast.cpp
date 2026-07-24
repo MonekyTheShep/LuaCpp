@@ -8,17 +8,17 @@
 #include <variant>
 #include <vector>
 
-std::string PrintExprVisitor::operator()(const NumberLiteralExpr &node) const { return std::to_string(node.value); }
+std::string AstPrinter::ExprVisitor::operator()(const NumberLiteralExpr &node) const { return std::to_string(node.value); }
 
-std::string PrintExprVisitor::operator()(const StringLiteralExpr &node) const { return '"' + node.value + '"'; }
+std::string AstPrinter::ExprVisitor::operator()(const StringLiteralExpr &node) const { return '"' + node.value + '"'; }
 
-std::string PrintExprVisitor::operator()(const BoolLiteralExpr &node) const { return (node.value) ? "true" : "false"; }
+std::string AstPrinter::ExprVisitor::operator()(const BoolLiteralExpr &node) const { return (node.value) ? "true" : "false"; }
 
-std::string PrintExprVisitor::operator()(const NilExpr &) const { return "nil"; }
+std::string AstPrinter::ExprVisitor::operator()(const NilExpr &) const { return "nil"; }
 
-std::string PrintExprVisitor::operator()(const VarArgExpr &) const { return "..."; }
+std::string AstPrinter::ExprVisitor::operator()(const VarArgExpr &) const { return "..."; }
 
-std::string PrintExprVisitor::operator()(const CallExpr &node) const
+std::string AstPrinter::ExprVisitor::operator()(const CallExpr &node) const
 {
     std::string result;
 
@@ -37,7 +37,7 @@ std::string PrintExprVisitor::operator()(const CallExpr &node) const
     return result;
 }
 
-std::string PrintExprVisitor::operator()(const IndexExpr &node) const
+std::string AstPrinter::ExprVisitor::operator()(const IndexExpr &node) const
 {
     std::string result;
     result += visit(node.expr);
@@ -45,7 +45,7 @@ std::string PrintExprVisitor::operator()(const IndexExpr &node) const
     return result;
 }
 
-std::string PrintExprVisitor::operator()(const FieldAccessExpr &node) const
+std::string AstPrinter::ExprVisitor::operator()(const FieldAccessExpr &node) const
 {
     std::string result;
     result += visit(node.expr);
@@ -53,7 +53,7 @@ std::string PrintExprVisitor::operator()(const FieldAccessExpr &node) const
     return result;
 }
 
-std::string PrintExprVisitor::operator()(const MethodAccessExpr &node) const
+std::string AstPrinter::ExprVisitor::operator()(const MethodAccessExpr &node) const
 {
     std::string result;
 
@@ -76,9 +76,9 @@ std::string PrintExprVisitor::operator()(const MethodAccessExpr &node) const
     return result;
 }
 
-std::string PrintExprVisitor::operator()(const FunctionExpr &node) const
+std::string AstPrinter::ExprVisitor::operator()(const FunctionExpr &node) const
 {
-    PrintStmtVisitor visitor{indentLevel};
+    StmtVisitor visitor{indentLevel};
 
     std::string result = "function(";
     for (size_t i = 0; i < node.args.size(); i++)
@@ -104,11 +104,11 @@ std::string PrintExprVisitor::operator()(const FunctionExpr &node) const
     return result;
 }
 
-std::string PrintExprVisitor::operator()(const VariableExpr &node) const { return node.ident; }
+std::string AstPrinter::ExprVisitor::operator()(const VariableExpr &node) const { return node.ident; }
 
-std::string PrintExprVisitor::operator()(const UnaryExpr &node) const { return unaryOpToString(node.op) + "(" + visit(node.expr) + ")"; }
+std::string AstPrinter::ExprVisitor::operator()(const UnaryExpr &node) const { return unaryOpToString(node.op) + "(" + visit(node.expr) + ")"; }
 
-std::string PrintExprVisitor::unaryOpToString(UnaryExpr::UnaryOperator op)
+std::string AstPrinter::ExprVisitor::unaryOpToString(UnaryExpr::UnaryOperator op)
 {
     switch (op)
     {
@@ -121,7 +121,7 @@ std::string PrintExprVisitor::unaryOpToString(UnaryExpr::UnaryOperator op)
     }
 }
 
-std::string PrintExprVisitor::binaryOpToString(BinaryExpr::BinaryOperator op)
+std::string AstPrinter::ExprVisitor::binaryOpToString(BinaryExpr::BinaryOperator op)
 {
     switch (op)
     {
@@ -155,9 +155,9 @@ std::string PrintExprVisitor::binaryOpToString(BinaryExpr::BinaryOperator op)
     }
 }
 
-std::string PrintExprVisitor::operator()(const BinaryExpr &node) const { return "(" + visit(node.lhs) + " " + binaryOpToString(node.op) + " " + visit(node.rhs) + ")"; }
+std::string AstPrinter::ExprVisitor::operator()(const BinaryExpr &node) const { return "(" + visit(node.lhs) + " " + binaryOpToString(node.op) + " " + visit(node.rhs) + ")"; }
 
-std::string PrintExprVisitor::visitTableExpr(const TableExpr &tableExpr) const
+std::string AstPrinter::ExprVisitor::visitTableExpr(const TableExpr &tableExpr) const
 {
     std::string result;
 
@@ -178,7 +178,7 @@ std::string PrintExprVisitor::visitTableExpr(const TableExpr &tableExpr) const
     return result;
 }
 
-std::string PrintExprVisitor::operator()(const TableExprDef &node) const 
+std::string AstPrinter::ExprVisitor::operator()(const TableExprDef &node) const 
 {
 
     std::string result;
@@ -198,14 +198,14 @@ std::string PrintExprVisitor::operator()(const TableExprDef &node) const
     return result;
 }
 
-[[nodiscard]] std::string PrintExprVisitor::visit(const ExprHandle &node) const 
+[[nodiscard]] std::string AstPrinter::ExprVisitor::visit(const ExprHandle &node) const 
 {
     return std::visit(*this, *node);
 }
 
-std::string PrintStmtVisitor::operator()(const WhileStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const WhileStmt &node)
 {
-    PrintExprVisitor visitor{indentLevel};
+    ExprVisitor visitor{indentLevel};
     std::string result;
 
     result += addIndentation();
@@ -226,9 +226,9 @@ std::string PrintStmtVisitor::operator()(const WhileStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const ForRangeStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const ForRangeStmt &node)
 {
-    PrintExprVisitor ExprVisitor{indentLevel};
+    ExprVisitor ExprVisitor{indentLevel};
     std::string result;
 
     result += addIndentation();
@@ -252,9 +252,9 @@ std::string PrintStmtVisitor::operator()(const ForRangeStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const ForIteratorStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const ForIteratorStmt &node)
 {
-    PrintExprVisitor ExprVisitor{indentLevel};
+    ExprVisitor ExprVisitor{indentLevel};
     std::string result;
 
     result += addIndentation();
@@ -288,9 +288,9 @@ std::string PrintStmtVisitor::operator()(const ForIteratorStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const RepeatStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const RepeatStmt &node)
 {
-    PrintExprVisitor visitor{indentLevel};
+    ExprVisitor visitor{indentLevel};
     std::string result;
     result += addIndentation();
     result += "repeat\n";
@@ -309,9 +309,9 @@ std::string PrintStmtVisitor::operator()(const RepeatStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const IfStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const IfStmt &node)
 {
-    PrintExprVisitor visitor{indentLevel};
+    ExprVisitor visitor{indentLevel};
     std::string result;
 
     result += addIndentation();
@@ -344,9 +344,9 @@ std::string PrintStmtVisitor::operator()(const IfStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const LocalAssignmentStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const LocalAssignmentStmt &node)
 {
-    PrintExprVisitor visitor{indentLevel};
+    ExprVisitor visitor{indentLevel};
 
     std::string result;
     result += addIndentation();
@@ -375,9 +375,9 @@ std::string PrintStmtVisitor::operator()(const LocalAssignmentStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const AssignmentStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const AssignmentStmt &node)
 {
-    PrintExprVisitor visitor{indentLevel};
+    ExprVisitor visitor{indentLevel};
 
     std::string result;
     result += addIndentation();
@@ -404,7 +404,7 @@ std::string PrintStmtVisitor::operator()(const AssignmentStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const LocalFunctionAssignmentStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const LocalFunctionAssignmentStmt &node)
 {
     std::string result;
     result += addIndentation();
@@ -433,9 +433,9 @@ std::string PrintStmtVisitor::operator()(const LocalFunctionAssignmentStmt &node
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const FunctionAssignmentStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const FunctionAssignmentStmt &node)
 {
-    PrintExprVisitor ExprVisitor{indentLevel};
+    ExprVisitor ExprVisitor{indentLevel};
 
     std::string result;
     result += addIndentation();
@@ -463,15 +463,15 @@ std::string PrintStmtVisitor::operator()(const FunctionAssignmentStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const ExprStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const ExprStmt &node)
 {
-    PrintExprVisitor visitor{indentLevel};
+    ExprVisitor visitor{indentLevel};
     return addIndentation() + visitor.visit(node.expr);
 }
 
-std::string PrintStmtVisitor::operator()(const ReturnStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const ReturnStmt &node)
 {
-    PrintExprVisitor visitor{indentLevel};
+    ExprVisitor visitor{indentLevel};
     
     std::string result;
     result += addIndentation();
@@ -489,19 +489,19 @@ std::string PrintStmtVisitor::operator()(const ReturnStmt &node)
     return result;
 }
 
-std::string PrintStmtVisitor::operator()(const BreakStmt &) {return addIndentation() + "break"; }
+std::string AstPrinter::StmtVisitor::operator()(const BreakStmt &) {return addIndentation() + "break"; }
 
-std::string PrintStmtVisitor::operator()(const GoToStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const GoToStmt &node)
 {
     return addIndentation() + "goto " + node.label;
 }
 
-std::string PrintStmtVisitor::operator()(const LabelStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const LabelStmt &node)
 {
     return addIndentation() + "::" + node.label + "::";
 }
 
-std::string PrintStmtVisitor::operator()(const BlockStmt &node)
+std::string AstPrinter::StmtVisitor::operator()(const BlockStmt &node)
 {
     std::string result;
     result += addIndentation();
@@ -520,19 +520,18 @@ std::string PrintStmtVisitor::operator()(const BlockStmt &node)
     return result;
 }
 
-[[nodiscard]] std::string PrintStmtVisitor::visitStmt(const StatementHandle &node)
+[[nodiscard]] std::string AstPrinter::StmtVisitor::visitStmt(const StatementHandle &node)
 {
     return std::visit(*this, *node);
 }
 
-[[nodiscard]] std::string PrintStmtVisitor::visitStmts(const std::vector<StmtWithPos> &nodes)
+[[nodiscard]] std::string AstPrinter::visitStmts(const std::vector<StmtWithPos> &nodes)
 {
     std::string ss;
 
-    for (const StmtWithPos &stmtWithPos : nodes)
+    for (const auto &[stmt, line, col]: nodes)
     {
-        ss += std::format("[line {}] ", stmtWithPos.line);
-        ss += std::visit(*this, *stmtWithPos.stmt) + "\n";
+        ss += visitor.visitStmt(stmt);
     }
 
     return ss;
