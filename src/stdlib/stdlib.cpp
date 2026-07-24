@@ -13,7 +13,7 @@
 #include "value.h"
 #include "vm.h"
 
-std::array<Lib, 4> StdLib::libraries =
+std::array<StdLib::Lib, 4> StdLib::libraries =
 {{
     {"_G", std::make_unique<BaseLib>()},
     {"table", std::make_unique<TableLib>()},
