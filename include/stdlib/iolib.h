@@ -13,5 +13,5 @@ class IoLib : public Library
     private:
         static int read(VM &vm, std::span<Value> args);
     private:
-        static std::array<LibraryMethod, 1> methods;
+        static std::array<Library::Method, 1> methods;
 };

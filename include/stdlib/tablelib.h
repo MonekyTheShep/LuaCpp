@@ -16,5 +16,5 @@ class TableLib : public Library
         static int insert(VM &vm, std::span<Value> args);
         static int remove(VM &vm, std::span<Value> args);
     private:
-        static std::array<LibraryMethod, 2> methods;
+        static std::array<Library::Method, 2> methods;
 };

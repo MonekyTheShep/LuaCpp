@@ -43,7 +43,7 @@ int TableLib::unpack(VM &vm, std::span<Value> args)
     return n;
 }
 
-std::array<LibraryMethod, 2> TableLib::methods
+std::array<Library::Method, 2> TableLib::methods
 {{
     {"pack",  &pack},
     {"unpack",  &unpack},

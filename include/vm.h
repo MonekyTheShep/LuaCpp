@@ -67,7 +67,6 @@ class VM
 
         struct CallFrame
         {
-
             CallFrame(std::vector<Value> varArg, ClosureHandle closure, size_t ip,
                     size_t frameBase, int expectedReturn, CallType callType)
             : varArg(std::move(varArg)), closure(std::move(closure)), ip(ip),

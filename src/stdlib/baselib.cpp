@@ -152,7 +152,7 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
     }
 }
 
-std::array<LibraryMethod, 9> BaseLib::methods
+std::array<Library::Method, 9> BaseLib::methods
 {{
     {"print",  &print},
     {"tostring", &tostring},

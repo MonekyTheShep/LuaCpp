@@ -7,20 +7,21 @@
 #include "value.h"
 #include "lua_table.h"
 
-struct LibraryMethod 
-{
-    std::string name;
-    NativeFunctionPointer func;
-};
-
 class Library 
 {
     public:
         virtual LuaTableHandle openLibrary(VM &vm) = 0;
         
         virtual ~Library() = default;
+        
     protected:
-        static NativeFunctionHandle makeNative(const LibraryMethod &method) 
+        struct Method 
+        {
+            std::string name;
+            NativeFunctionPointer func;
+        };
+
+        static NativeFunctionHandle makeNative(const Method &method) 
         {
             return std::make_shared<NativeFunction>(
                 method.func,
@@ -28,9 +29,9 @@ class Library
             );
         }
 
-        void setLibraryFunctions(VM &vm, std::span<LibraryMethod> methods, LuaTableHandle &luaTable)
+        void setLibraryFunctions(VM &vm, std::span<Method> methods, LuaTableHandle &luaTable)
         {
-            for (const LibraryMethod &method : methods)
+            for (const Method &method : methods)
             {
                 luaTable->set(vm, method.name, makeNative(method));
             }

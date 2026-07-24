@@ -13,5 +13,5 @@ class StringLib : public Library
     private:
         static int upper(VM &vm, std::span<Value> args);
     private:
-        static std::array<LibraryMethod, 1> methods;
+        static std::array<Library::Method, 1> methods;
 };

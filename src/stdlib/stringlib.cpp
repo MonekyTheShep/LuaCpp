@@ -29,7 +29,7 @@ int StringLib::upper(VM &vm, std::span<Value> args)
     return 1;
 }
 
-std::array<LibraryMethod, 1> StringLib::methods
+std::array<Library::Method, 1> StringLib::methods
 {{
     {"upper",  &upper},
 }};
