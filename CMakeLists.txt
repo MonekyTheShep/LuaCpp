@@ -16,8 +16,11 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -Wconversion
     -Wsign-conversion
     -Wimplicit-fallthrough
+    -fsanitize=address
     -O3
 )
+
+target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address )
 
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
