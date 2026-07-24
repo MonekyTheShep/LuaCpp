@@ -2,7 +2,7 @@
 
 #include <cassert>
 #include <cstddef>
-#include <format>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <variant>
@@ -525,14 +525,12 @@ std::string AstPrinter::StmtVisitor::operator()(const BlockStmt &node)
     return std::visit(*this, *node);
 }
 
-[[nodiscard]] std::string AstPrinter::visitStmts(const std::vector<StmtWithPos> &nodes)
+void AstPrinter::printStmts(const std::vector<StmtWithPos> &nodes)
 {
-    std::string ss;
+    StmtVisitor visitor{0};
 
     for (const auto &[stmt, line, col]: nodes)
     {
-        ss += visitor.visitStmt(stmt);
+        std::cout << visitor.visitStmt(stmt);
     }
-
-    return ss;
 }

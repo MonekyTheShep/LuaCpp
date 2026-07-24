@@ -299,11 +299,7 @@ inline ExprHandle makeExpr(Expr &&node)
 class AstPrinter
 {
     public:
-        AstPrinter() 
-        : visitor(0)
-        {}
-
-        [[nodiscard]] std::string visitStmts(const std::vector<StmtWithPos> &nodes);
+        static void printStmts(const std::vector<StmtWithPos> &nodes);
     private:
         struct ExprVisitor 
         {
@@ -368,8 +364,5 @@ class AstPrinter
                 friend struct ExprVisitor;
 
                 friend class AstPrinter;
-
         };
-
-        StmtVisitor visitor;
 };
