@@ -6,6 +6,8 @@
 #include "library.h"
 #include "value.h"
 
+class VM;
+
 class IoLib : public Library 
 {
     public:

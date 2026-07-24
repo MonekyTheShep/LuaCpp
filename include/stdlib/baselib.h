@@ -6,6 +6,8 @@
 #include "library.h"
 #include "value.h"
 
+class VM;
+
 class BaseLib : public Library 
 {
     public:
