@@ -29,6 +29,7 @@ void Lua::debugRun(std::string code)
 {
     Ast ast = Parser(std::move(code)).parse();
     {
+        std::cout << "========= AST DEBUGGING ==========" << "\n";
         AstPrinter::printStmts(ast);
     }
 
