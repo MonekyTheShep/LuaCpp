@@ -5,7 +5,7 @@
 #include "lua.h"
 #include "fileio.h"
 
-#define DEBUG
+#define NDEBUG
 
 int main(int argc, char **argv)
 {
@@ -23,10 +23,10 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-#ifdef DEBUG
-    Lua().debugRun(std::move(result));
-#else
+#ifdef NDEBUG
     Lua().run(std::move(result));
+#else
+    Lua().debugRun(std::move(result));
 #endif
     
 
