@@ -87,9 +87,9 @@ struct CallVisitor
     const size_t calleeIndex;
     const int expectedReturn;
     int depth;
-    const CallFrame::CallType callType;
+    const VM::CallType callType;
     
-    CallVisitor(size_t calleeIndex, int expectedReturn, CallFrame::CallType type, VM& vm)
+    CallVisitor(size_t calleeIndex, int expectedReturn, VM::CallType type, VM& vm)
         : vm(vm), calleeIndex(calleeIndex), expectedReturn(expectedReturn), depth(0), callType(type) {}
 
     void operator()(const NativeFunctionHandle &nativeFunction) const
@@ -99,11 +99,11 @@ struct CallVisitor
 
     void operator()(const ClosureHandle &closure)
     {
-        if (callType == CallFrame::CallType::CPP && ++vm.runDepth >= 100) vm.runtimeError("C++ stack overflow!");
+        if (callType == VM::CallType::CPP && ++vm.runDepth >= 100) vm.runtimeError("C++ stack overflow!");
 
         vm.call(closure, calleeIndex, expectedReturn, callType);
 
-        if (callType == CallFrame::CallType::CPP) { vm.run(); vm.runDepth--; } 
+        if (callType == VM::CallType::CPP) { vm.run(); vm.runDepth--; } 
     }
 
     void operator()(const LuaTableHandle &table)
@@ -138,7 +138,7 @@ struct CallVisitor
     }
 };
 
-void VM::callValue(size_t calleeIndex, int expectedReturn, CallFrame::CallType type)
+void VM::callValue(size_t calleeIndex, int expectedReturn, VM::CallType type)
 {
     std::visit(CallVisitor(calleeIndex, expectedReturn, type, *this), stack[calleeIndex]);
 }
@@ -222,7 +222,7 @@ void VM::nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeInd
     moveReturns(sp - static_cast<size_t>(numOfReturn), calleeIndex, expectedReturn);
 }
 
-void VM::call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallFrame::CallType type)
+void VM::call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallType type)
 {
     if(callFrames.size() + 1 > MAX_FRAMES) runtimeError("Potential infinite recursion!");
                     
@@ -334,7 +334,7 @@ std::optional<Value> VM::resolveValueMetaMethod(const Value &value, MetaMethod m
     return resolveMetaMethod(metatable, method);
 }
 
-bool VM::tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallFrame::CallType callType)
+bool VM::tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallType callType)
 {
     std::optional<Value> function;
 
@@ -436,7 +436,7 @@ void VM::handleCompare(Op op, MetaMethod method)
         },
         [this, method](const auto &a, const auto &b)  
         {
-            if (!tryMetaMethod({a,b}, method, CallFrame::CallType::CPP)) 
+            if (!tryMetaMethod({a,b}, method, CallType::CPP)) 
                 runtimeError(std::format("Attempt to compare {} with {}!", type(a), type(b)));
 
             push(isTruthy(pop()));
@@ -452,7 +452,7 @@ void VM::handleEquality()
     if (std::holds_alternative<LuaTableHandle>(a) 
     && std::holds_alternative<LuaTableHandle>(b))
     {
-        if (tryMetaMethod({a,b}, MetaMethod::EQ, CallFrame::CallType::CPP))
+        if (tryMetaMethod({a,b}, MetaMethod::EQ, CallType::CPP))
         {
             push(isTruthy(pop()));
             return;
@@ -526,7 +526,7 @@ void VM::handleBitWise(Op op, MetaMethod method)
 
         push(static_cast<double>(result));
     } 
-    else if (!tryMetaMethod({a,b}, method, CallFrame::CallType::LUA))
+    else if (!tryMetaMethod({a,b}, method, CallType::LUA))
     {
         handleBinaryError("bitwise operation", a, b, lhs, rhs);
     }
@@ -546,7 +546,7 @@ void VM::handleConcat()
     {
         push(*lhs + *rhs);
     } 
-    else if (!tryMetaMethod({a,b}, MetaMethod::CONCAT, CallFrame::CallType::LUA))
+    else if (!tryMetaMethod({a,b}, MetaMethod::CONCAT, CallType::LUA))
     {
         handleBinaryError("concat operation", a, b, lhs, rhs);
     }
@@ -575,7 +575,7 @@ void VM::handleArithmetic(Op op, MetaMethod method)
                 assert(false); // Unreachable
         }
     }
-    else if (!tryMetaMethod({a,b}, method, CallFrame::CallType::LUA))
+    else if (!tryMetaMethod({a,b}, method, CallType::LUA))
     {
         handleBinaryError("arithmetic operation", a, b, lhs, rhs);
     }
@@ -603,7 +603,7 @@ void VM::luaTableSet(const Value &table, const Value &key, const Value &value, i
         push(table);
         push(key);
         push(value);
-        callValue(calleeIndex, 0, CallFrame::CallType::LUA); 
+        callValue(calleeIndex, 0, CallType::LUA); 
         return;
     }
     
@@ -631,7 +631,7 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
         size_t calleeIndex = push(*meta);
         push(table);
         push(key);
-        callValue(calleeIndex, 1, CallFrame::CallType::CPP); 
+        callValue(calleeIndex, 1, CallType::CPP); 
         return pop();
     }
 
@@ -642,7 +642,7 @@ void VM::execute(const FunctionHandle &code)
 {
     auto closure = std::make_shared<Closure>(Closure{code});
     size_t calleeIndex = push(closure);
-    callValue(calleeIndex, 0, CallFrame::CallType::LUA);
+    callValue(calleeIndex, 0, CallType::LUA);
     run();
 }
 
@@ -842,7 +842,7 @@ void VM::run()
                     auto numInt = doubleToInt(*num);
                     push(static_cast<double>(static_cast<int32_t>(~static_cast<uint32_t>(numInt))));
                 }
-                else if (!tryMetaMethod({value}, MetaMethod::BNOT, CallFrame::CallType::LUA)) 
+                else if (!tryMetaMethod({value}, MetaMethod::BNOT, CallType::LUA)) 
                     runtimeError(std::format("Attempt to perform binary operation a {} value", type(value)));
                 break;
             }
@@ -852,7 +852,7 @@ void VM::run()
 
                 std::optional<double> num;
                 if ((num = ValueHelper::toNumber(value))) push(-num.value());
-                else if (!tryMetaMethod({value}, MetaMethod::UNM, CallFrame::CallType::LUA)) 
+                else if (!tryMetaMethod({value}, MetaMethod::UNM, CallType::LUA)) 
                     runtimeError(std::format("Attempt to negate a {} value", type(value)));
                 break;
             }
@@ -973,7 +973,7 @@ void VM::run()
                 assert(!callees.empty());
                 size_t calleeIndex = callees.back(); callees.pop_back();
 
-                callValue(calleeIndex, expectedReturn, CallFrame::CallType::LUA);
+                callValue(calleeIndex, expectedReturn, CallType::LUA);
                 break;
             }
             case Op::TAIL_CALL:
@@ -1000,7 +1000,7 @@ void VM::run()
                     push(std::move(*start++));
                 } 
                 
-                callValue(frameBase, expected, CallFrame::CallType::LUA);
+                callValue(frameBase, expected, CallType::LUA);
 
                 if (callFrames.empty()) return;
                 break;
@@ -1094,7 +1094,7 @@ void VM::run()
                 auto &frame = callFrames.back();
                 size_t frameBase = frame.frameBase;
                 int expectedReturn = frame.expectedReturn;
-                CallFrame::CallType callType = frame.callType;
+                CallType callType = frame.callType;
 
                 closeUpValues(&stack[frameBase]);
                 callFrames.pop_back();
@@ -1103,7 +1103,7 @@ void VM::run()
 
                 moveReturns(frameBase + numOfLocals, frameBase, expectedReturn);
   
-                if (callType == CallFrame::CallType::CPP) return; // Allows for recursive entry of the run() function  
+                if (callType == CallType::CPP) return; // Allows for recursive entry of the run() function  
                 break;
             }
             case Op::VARARG:
@@ -1151,7 +1151,7 @@ double VM::length(const Value &value)
     {
         [this](const LuaTableHandle &table) -> double 
         {
-            if (tryMetaMethod({table}, MetaMethod::LEN, CallFrame::CallType::CPP))
+            if (tryMetaMethod({table}, MetaMethod::LEN, CallType::CPP))
             {
                 std::optional<double> value = ValueHelper::toNumber(pop());
                 if (!value) runtimeError("__len must return a number value!");
@@ -1207,7 +1207,7 @@ std::string VM::toString(const Value &value)
         [](const LUA_NIL_TYPE) -> std::string { return "nil"; },
         [this](const LuaTableHandle &table) -> std::string 
         {
-            if (tryMetaMethod({table}, MetaMethod::TOSTRING, CallFrame::CallType::CPP))
+            if (tryMetaMethod({table}, MetaMethod::TOSTRING, CallType::CPP))
             {
                 std::optional<std::string> value = ValueHelper::toString(pop());
                 if (!value) runtimeError("__tostring must return a string value!");

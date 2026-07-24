@@ -20,28 +20,6 @@
 #include "value.h"
 #include "stdlib/stdlib.h"
 
-struct CallFrame
-{
-    enum class CallType : uint8_t
-    {
-        LUA,
-        CPP 
-    };
-
-    CallFrame(std::vector<Value> varArg, ClosureHandle closure, size_t ip,
-            size_t frameBase, int expectedReturn, CallType callType)
-      : varArg(std::move(varArg)), closure(std::move(closure)), ip(ip),
-        frameBase(frameBase), expectedReturn(expectedReturn),
-        callType(callType) {}
-        
-    std::vector<Value> varArg;
-    ClosureHandle closure;
-    size_t ip;
-    size_t frameBase;
-    int expectedReturn;
-    CallType callType;
-};
-
 class VMRuntimeError : public std::exception 
 {
     public:
@@ -72,6 +50,13 @@ class VM
         void execute(const FunctionHandle &code);
     public:
         std::array<size_t, NUM_OF_OPS> opCounts;
+
+        enum class CallType : uint8_t
+        {
+            LUA,
+            CPP 
+        };
+
     private:
         static constexpr size_t MAX_FRAMES = 128;
         static constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
@@ -79,6 +64,24 @@ class VM
         static constexpr int RETURN_ALL = -1;
 
         std::vector<Value> stack;
+
+        struct CallFrame
+        {
+
+            CallFrame(std::vector<Value> varArg, ClosureHandle closure, size_t ip,
+                    size_t frameBase, int expectedReturn, CallType callType)
+            : varArg(std::move(varArg)), closure(std::move(closure)), ip(ip),
+                frameBase(frameBase), expectedReturn(expectedReturn),
+                callType(callType) {}
+                
+            std::vector<Value> varArg;
+            ClosureHandle closure;
+            size_t ip;
+            size_t frameBase;
+            int expectedReturn;
+            CallType callType;
+        };
+
 
         std::vector<CallFrame> callFrames;
 
@@ -171,8 +174,8 @@ class VM
         // Call Functions
         // -------------------------
         void nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeIndex, int expectedReturn);
-        void call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallFrame::CallType type);
-        void callValue(size_t calleeIndex, int expectedReturn, CallFrame::CallType type);
+        void call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallType type);
+        void callValue(size_t calleeIndex, int expectedReturn, CallType type);
         void moveReturns(size_t firstResult, size_t frameBase, int expectedReturn);
 
         // -------------------------
@@ -189,7 +192,7 @@ class VM
         LuaTableHandle getMetaTable(const Value &value);
         std::optional<Value> resolveMetaMethod(const LuaTableHandle &metatable, MetaMethod method);
         std::optional<Value> resolveValueMetaMethod(const Value &value, MetaMethod method);
-        bool tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallFrame::CallType callType);
+        bool tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallType callType);
 
         // -------------------------
         // Upvalue Functions
