@@ -336,6 +336,7 @@ class AstPrinter
                 explicit StmtVisitor(int indentLevel) : indentLevel(indentLevel) {}
 
                 [[nodiscard]] std::string visitStmt(const StatementHandle &node);
+                [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
 
                 std::string operator()(const WhileStmt &node);
                 std::string operator()(const ForRangeStmt &node);
@@ -353,8 +354,6 @@ class AstPrinter
                 std::string operator()(const LabelStmt &node);
                 std::string operator()(const BlockStmt &node);
 
-
-                [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
             public:
                 int indentLevel;
         };
