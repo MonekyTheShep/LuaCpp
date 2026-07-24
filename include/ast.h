@@ -328,16 +328,14 @@ class AstPrinter
                 [[nodiscard]] std::string visit(const ExprHandle &node) const;
             private:
                 int indentLevel;
-            private:
-                friend struct PrintStmtVisitor;
-
-                friend class AstPrinter;
         };
 
         struct StmtVisitor
         {
             public:
                 explicit StmtVisitor(int indentLevel) : indentLevel(indentLevel) {}
+
+                [[nodiscard]] std::string visitStmt(const StatementHandle &node);
 
                 std::string operator()(const WhileStmt &node);
                 std::string operator()(const ForRangeStmt &node);
@@ -354,15 +352,12 @@ class AstPrinter
                 std::string operator()(const GoToStmt &node);
                 std::string operator()(const LabelStmt &node);
                 std::string operator()(const BlockStmt &node);
+
+
+                [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
+                void incrementIndentation() { indentLevel++; }
+                void decrementIndentation() { indentLevel--; }
             private:
                 int indentLevel;
-            private:
-                [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
-
-                [[nodiscard]] std::string visitStmt(const StatementHandle &node);
-            private:
-                friend struct ExprVisitor;
-
-                friend class AstPrinter;
         };
 };
