@@ -321,8 +321,10 @@ struct PrintExprVisitor
         static std::string binaryOpToString(BinaryExpr::BinaryOperator op);
 
         [[nodiscard]] std::string visit(const ExprHandle &node) const;
-    public:
+    private:
         int indentLevel;
+    private:
+        friend struct PrintStmtVisitor;
 };
 
 struct PrintStmtVisitor 
@@ -351,6 +353,8 @@ struct PrintStmtVisitor
 
         [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
         
-        public:
-            int indentLevel;
+    private:
+        int indentLevel;
+    private:
+        friend struct PrintExprVisitor;
 };
