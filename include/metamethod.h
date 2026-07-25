@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <string_view>
 
 namespace Meta
 {
@@ -34,7 +35,7 @@ namespace Meta
         METATABLE
     };
 
-    inline std::string names[] = 
+    constexpr inline std::string_view names[] = 
     {
         "__add",
         "__sub",
@@ -62,7 +63,7 @@ namespace Meta
         "__metatable"
     };
 
-    inline std::string& getName(Method method)
+    inline std::string_view getName(Method method)
     {
         return names[static_cast<size_t>(method)];
     }
