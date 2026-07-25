@@ -132,7 +132,7 @@ int BaseLib::xpcall(VM &vm, std::span<Value> args)
 {
     vm.argCheckAny(args, 0);
 
-    Value handler = vm.argCheckAny(args, 1);
+    Value handler = vm.argEnsure<FunctionHandle>(args, 1, "function value");
 
     size_t calleeIndex = vm.sp - args.size();
     auto pcall = vm.protectedCall(calleeIndex, true);
