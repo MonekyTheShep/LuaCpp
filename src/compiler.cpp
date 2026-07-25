@@ -127,14 +127,7 @@ void Compiler::namedVariable(const std::string &name, bool assignment)
         arg = makeConstant(name);
     }
 
-    if (assignment)
-    {
-        emitWithArg(storeOp, static_cast<uint8_t>(arg));
-    }
-    else 
-    {
-        emitWithArg(loadOp, static_cast<uint8_t>(arg));
-    }
+    emitWithArg((assignment) ? storeOp : loadOp, static_cast<uint8_t>(arg));
 }
 
 size_t Compiler::emitJump(Op op) 
