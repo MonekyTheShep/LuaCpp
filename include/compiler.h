@@ -219,8 +219,6 @@ class Compiler
                 Compiler &compiler;
         };
 
-        void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
-
         void compileStmt(const StatementHandle &stmt)
         {
             std::visit(StmtVisitor{*this}, *stmt);
@@ -234,6 +232,8 @@ class Compiler
                 compileStmt(stmt);
             }
         }
+
+        void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
 
         void compileBlock(const Ast &stmts);
 

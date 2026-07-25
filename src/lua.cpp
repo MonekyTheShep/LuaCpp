@@ -36,7 +36,7 @@ void Lua::debugRun(std::string code)
     FunctionHandle function = Compiler::makeTopLevel().compile(ast);
     {
         std::cout << "========= BYTECODE DEBUGGING ==========" << "\n";
-        Disassembler().disassemble(function->chunk);
+        Disassembler::disassemble(function->chunk);
     }
 
     using Time = std::chrono::high_resolution_clock;
