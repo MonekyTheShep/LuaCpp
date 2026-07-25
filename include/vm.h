@@ -189,9 +189,9 @@ class VM
         // Meta Method Functions
         // -------------------------
         LuaTableHandle getMetaTable(const Value &value);
-        std::optional<Value> resolveMetaMethod(const LuaTableHandle &metatable, MetaMethod method);
-        std::optional<Value> resolveValueMetaMethod(const Value &value, MetaMethod method);
-        bool tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallType callType);
+        std::optional<Value> resolveMetaMethod(const LuaTableHandle &metatable, Meta::Method method);
+        std::optional<Value> resolveValueMetaMethod(const Value &value, Meta::Method method);
+        bool tryMetaMethod(std::initializer_list<Value> values, Meta::Method method, CallType callType);
 
         // -------------------------
         // Upvalue Functions
@@ -206,12 +206,12 @@ class VM
         void handleBinaryError(std::string_view message, const Value &a, const Value &b, const std::optional<T> &lhs, const std::optional<T> &rhs);
         template <typename T>
         void pushCompare(ByteCode::Op op, const T &a, const T &b);
-        void handleCompare(ByteCode::Op op, MetaMethod method);
+        void handleCompare(ByteCode::Op op, Meta::Method method);
         void handleEquality();
         int32_t doubleToInt(double num);
-        void handleBitWise(ByteCode::Op op, MetaMethod method);
+        void handleBitWise(ByteCode::Op op, Meta::Method method);
         void handleConcat();
-        void handleArithmetic(ByteCode::Op op, MetaMethod method);
+        void handleArithmetic(ByteCode::Op op, Meta::Method method);
 
         // ------------------------- 
         // Table Functions

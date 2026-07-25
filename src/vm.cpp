@@ -108,7 +108,7 @@ struct CallVisitor
 
     void operator()(const LuaTableHandle &table)
     {
-        std::optional<Value> function = vm.resolveMetaMethod(table, MetaMethod::CALL);
+        std::optional<Value> function = vm.resolveMetaMethod(table, Meta::Method::CALL);
 
         if (!function) vm.runtimeError("Attempt to call a table value!");
 
@@ -315,11 +315,11 @@ LuaTableHandle VM::getMetaTable(const Value &value)
     }, value);
 }
 
-std::optional<Value> VM::resolveMetaMethod(const LuaTableHandle &metatable, MetaMethod method)
+std::optional<Value> VM::resolveMetaMethod(const LuaTableHandle &metatable, Meta::Method method)
 {
     if (!metatable) return std::nullopt;
 
-    const std::string &name = Method::names[static_cast<size_t>(method)];
+    const std::string &name = Meta::getName(method);
 
     if (!metatable->exists(name)) return std::nullopt;
 
@@ -327,14 +327,14 @@ std::optional<Value> VM::resolveMetaMethod(const LuaTableHandle &metatable, Meta
 }
 
 
-std::optional<Value> VM::resolveValueMetaMethod(const Value &value, MetaMethod method)
+std::optional<Value> VM::resolveValueMetaMethod(const Value &value, Meta::Method method)
 {
     LuaTableHandle metatable = getMetaTable(value);
 
     return resolveMetaMethod(metatable, method);
 }
 
-bool VM::tryMetaMethod(std::initializer_list<Value> values, MetaMethod method, CallType callType)
+bool VM::tryMetaMethod(std::initializer_list<Value> values, Meta::Method method, CallType callType)
 {
     std::optional<Value> function;
 
@@ -419,7 +419,7 @@ void VM::pushCompare(ByteCode::Op op, const T &a, const T &b)
     else assert(false); // Unreachable
 }
 
-void VM::handleCompare(ByteCode::Op op, MetaMethod method)
+void VM::handleCompare(ByteCode::Op op, Meta::Method method)
 {
     Value b = pop();
     Value a = pop();
@@ -452,7 +452,7 @@ void VM::handleEquality()
     if (std::holds_alternative<LuaTableHandle>(a) 
     && std::holds_alternative<LuaTableHandle>(b))
     {
-        if (tryMetaMethod({a,b}, MetaMethod::EQ, CallType::CPP))
+        if (tryMetaMethod({a,b}, Meta::Method::EQ, CallType::CPP))
         {
             push(isTruthy(pop()));
             return;
@@ -497,7 +497,7 @@ int32_t VM::doubleToInt(double num)
     return static_cast<int32_t>(num);
 }
 
-void VM::handleBitWise(ByteCode::Op op, MetaMethod method)
+void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
 {
     Value b = pop();
     Value a = pop();
@@ -546,13 +546,13 @@ void VM::handleConcat()
     {
         push(*lhs + *rhs);
     } 
-    else if (!tryMetaMethod({a,b}, MetaMethod::CONCAT, CallType::LUA))
+    else if (!tryMetaMethod({a,b}, Meta::Method::CONCAT, CallType::LUA))
     {
         handleBinaryError("concat operation", a, b, lhs, rhs);
     }
 }
 
-void VM::handleArithmetic(ByteCode::Op op, MetaMethod method)
+void VM::handleArithmetic(ByteCode::Op op, Meta::Method method)
 {
     Value b = pop();
     Value a = pop();
@@ -585,7 +585,7 @@ void VM::luaTableSet(const Value &table, const Value &key, const Value &value, i
 {
     if (depth >= 100) runtimeError("Potential infinite loop within `__newindex`");
 
-    std::optional<Value> meta = resolveValueMetaMethod(table, MetaMethod::NEWINDEX);
+    std::optional<Value> meta = resolveValueMetaMethod(table, Meta::Method::NEWINDEX);
 
     if (auto* luaTable = std::get_if<LuaTableHandle>(&table))
     {
@@ -614,7 +614,7 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
 {
     if (depth >= 100) runtimeError("Potential infinite loop within `__index`");
 
-    std::optional<Value> meta = resolveValueMetaMethod(table, MetaMethod::INDEX);
+    std::optional<Value> meta = resolveValueMetaMethod(table, Meta::Method::INDEX);
 
     if (auto* luaTable = std::get_if<LuaTableHandle>(&table))
     {
@@ -754,37 +754,37 @@ void VM::run()
             }
             case ByteCode::Op::ADD:
             {
-                handleArithmetic(ByteCode::Op::ADD, MetaMethod::ADD);
+                handleArithmetic(ByteCode::Op::ADD, Meta::Method::ADD);
                 break;
             }
             case ByteCode::Op::SUB:
             {
-                handleArithmetic(ByteCode::Op::SUB, MetaMethod::SUB);
+                handleArithmetic(ByteCode::Op::SUB, Meta::Method::SUB);
                 break;
             }
             case ByteCode::Op::MUL:
             {
-                handleArithmetic(ByteCode::Op::MUL, MetaMethod::MUL);
+                handleArithmetic(ByteCode::Op::MUL, Meta::Method::MUL);
                 break;
             }
             case ByteCode::Op::FLOOR_DIV:
             {
-                handleArithmetic(ByteCode::Op::FLOOR_DIV, MetaMethod::IDIV);
+                handleArithmetic(ByteCode::Op::FLOOR_DIV, Meta::Method::IDIV);
                 break;
             }
             case ByteCode::Op::DIV:
             {
-                handleArithmetic(ByteCode::Op::DIV, MetaMethod::DIV);
+                handleArithmetic(ByteCode::Op::DIV, Meta::Method::DIV);
                 break;
             }
             case ByteCode::Op::MOD:
             {
-                handleArithmetic(ByteCode::Op::MOD, MetaMethod::MOD);
+                handleArithmetic(ByteCode::Op::MOD, Meta::Method::MOD);
                 break;
             }
             case ByteCode::Op::EXPO:
             {
-                handleArithmetic(ByteCode::Op::EXPO,MetaMethod::POW);
+                handleArithmetic(ByteCode::Op::EXPO, Meta::Method::POW);
                 break;
             }
             case ByteCode::Op::CONCAT:
@@ -799,37 +799,37 @@ void VM::run()
             }
             case ByteCode::Op::LS:
             {
-                handleCompare(ByteCode::Op::LS, MetaMethod::LT);
+                handleCompare(ByteCode::Op::LS, Meta::Method::LT);
                 break;
             }
             case ByteCode::Op::LSE:
             {
-                handleCompare(ByteCode::Op::LSE, MetaMethod::LE);
+                handleCompare(ByteCode::Op::LSE, Meta::Method::LE);
                 break;
             }
             case ByteCode::Op::BIT_AND:
             {
-                handleBitWise(ByteCode::Op::BIT_AND, MetaMethod::BAND);
+                handleBitWise(ByteCode::Op::BIT_AND, Meta::Method::BAND);
                 break;
             }
             case ByteCode::Op::BIT_OR:
             {
-                handleBitWise(ByteCode::Op::BIT_OR, MetaMethod::BOR);
+                handleBitWise(ByteCode::Op::BIT_OR, Meta::Method::BOR);
                 break;
             }
             case ByteCode::Op::BIT_XOR:
             {
-                handleBitWise(ByteCode::Op::BIT_XOR, MetaMethod::BXOR);
+                handleBitWise(ByteCode::Op::BIT_XOR, Meta::Method::BXOR);
                 break;
             }
             case ByteCode::Op::BITSHIFT_LEFT:
             {
-                handleBitWise(ByteCode::Op::BITSHIFT_LEFT, MetaMethod::SHL);
+                handleBitWise(ByteCode::Op::BITSHIFT_LEFT, Meta::Method::SHL);
                 break;
             }
             case ByteCode::Op::BITSHIFT_RIGHT:
             {
-                handleBitWise(ByteCode::Op::BITSHIFT_RIGHT, MetaMethod::SHR);
+                handleBitWise(ByteCode::Op::BITSHIFT_RIGHT, Meta::Method::SHR);
                 break;
             }
             case ByteCode::Op::BIT_NOT:
@@ -842,7 +842,7 @@ void VM::run()
                     auto numInt = doubleToInt(*num);
                     push(static_cast<double>(static_cast<int32_t>(~static_cast<uint32_t>(numInt))));
                 }
-                else if (!tryMetaMethod({value}, MetaMethod::BNOT, CallType::LUA)) 
+                else if (!tryMetaMethod({value}, Meta::Method::BNOT, CallType::LUA)) 
                     runtimeError(std::format("Attempt to perform binary operation a {} value", type(value)));
                 break;
             }
@@ -852,7 +852,7 @@ void VM::run()
 
                 std::optional<double> num;
                 if ((num = ValueHelper::toNumber(value))) push(-num.value());
-                else if (!tryMetaMethod({value}, MetaMethod::UNM, CallType::LUA)) 
+                else if (!tryMetaMethod({value}, Meta::Method::UNM, CallType::LUA)) 
                     runtimeError(std::format("Attempt to negate a {} value", type(value)));
                 break;
             }
@@ -1151,7 +1151,7 @@ double VM::length(const Value &value)
     {
         [this](const LuaTableHandle &table) -> double 
         {
-            if (tryMetaMethod({table}, MetaMethod::LEN, CallType::CPP))
+            if (tryMetaMethod({table}, Meta::Method::LEN, CallType::CPP))
             {
                 std::optional<double> value = ValueHelper::toNumber(pop());
                 if (!value) runtimeError("__len must return a number value!");
@@ -1207,7 +1207,7 @@ std::string VM::toString(const Value &value)
         [](const LUA_NIL_TYPE) -> std::string { return "nil"; },
         [this](const LuaTableHandle &table) -> std::string 
         {
-            if (tryMetaMethod({table}, MetaMethod::TOSTRING, CallType::CPP))
+            if (tryMetaMethod({table}, Meta::Method::TOSTRING, CallType::CPP))
             {
                 std::optional<std::string> value = ValueHelper::toString(pop());
                 if (!value) runtimeError("__tostring must return a string value!");

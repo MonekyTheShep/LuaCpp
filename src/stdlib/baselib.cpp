@@ -59,7 +59,7 @@ int BaseLib::getmetatable(VM &vm, std::span<Value> args)
    
     auto metatable = vm.getMetaTable(value);
 
-    if (auto metamethod = vm.resolveMetaMethod(metatable, MetaMethod::METATABLE))
+    if (auto metamethod = vm.resolveMetaMethod(metatable, Meta::Method::METATABLE))
     {
         vm.push(*metamethod);
     }
@@ -75,7 +75,7 @@ int BaseLib::setmetatable(VM &vm, std::span<Value> args)
 {
     auto table = vm.argEnsure<LuaTableHandle>(args, 0, "table value");
 
-    if (vm.resolveValueMetaMethod(table, MetaMethod::METATABLE))
+    if (vm.resolveValueMetaMethod(table, Meta::Method::METATABLE))
     {
         vm.runtimeError("cannot change a protected metatable");
     }

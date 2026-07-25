@@ -1,38 +1,39 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
-enum class MetaMethod : uint8_t
+namespace Meta
 {
-    ADD = 0,
-    SUB,
-    MUL,
-    IDIV,
-    DIV,
-    MOD,
-    POW,
-    CONCAT,
-    UNM,
-    EQ,
-    LT,
-    LE,
-    BAND,
-    BOR,
-    BXOR,
-    SHL,
-    SHR,
-    BNOT,
-    TOSTRING,
-    LEN,
-    CALL,
-    INDEX,
-    NEWINDEX,
-    METATABLE
-};
+    enum class Method : uint8_t
+    {
+        ADD = 0,
+        SUB,
+        MUL,
+        IDIV,
+        DIV,
+        MOD,
+        POW,
+        CONCAT,
+        UNM,
+        EQ,
+        LT,
+        LE,
+        BAND,
+        BOR,
+        BXOR,
+        SHL,
+        SHR,
+        BNOT,
+        TOSTRING,
+        LEN,
+        CALL,
+        INDEX,
+        NEWINDEX,
+        METATABLE
+    };
 
-namespace Method 
-{
     inline std::string names[] = 
     {
         "__add",
@@ -60,4 +61,9 @@ namespace Method
         "__newindex",
         "__metatable"
     };
+
+    inline std::string getName(Method method)
+    {
+        return names[static_cast<size_t>(method)];
+    }
 };
