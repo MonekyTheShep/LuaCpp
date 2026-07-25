@@ -269,7 +269,8 @@ class VM
         {
             Value *begin = &stack[start];
             Value *end = &stack[sp];
-        
+
+            assert(start >= by);
             std::move(begin, end, begin - by);
 
             sp -= by;
