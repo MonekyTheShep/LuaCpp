@@ -20,16 +20,6 @@
 class Compiler 
 {
     public:
-        Compiler(Compiler *enclosing, std::string_view name, int arity, bool isVarArg)
-        : function(std::make_shared<FunctionChunk>(FunctionChunk{{}, std::string(name), 0, arity, isVarArg}))
-        , chunk(function->chunk)
-        , enclosing(enclosing)
-        , scopeDepth(0)
-        , currentLine(1)
-        {
-            addLocal(""); // Reserved for the callee
-        }
-
         FunctionHandle compile(const Ast &stmts);
         static Compiler makeTopLevel() { return Compiler(nullptr, "<main>", 0, true); };
     private:
@@ -80,6 +70,16 @@ class Compiler
         int scopeDepth;
         int currentLine;
     private:
+        Compiler(Compiler *enclosing, std::string_view name, int arity, bool isVarArg)
+        : function(std::make_shared<FunctionChunk>(FunctionChunk{{}, std::string(name), 0, arity, isVarArg}))
+        , chunk(function->chunk)
+        , enclosing(enclosing)
+        , scopeDepth(0)
+        , currentLine(1)
+        {
+            addLocal(""); // Reserved for the callee
+        }
+
         // ---------------------
         // Scope Functions
         // ---------------------
