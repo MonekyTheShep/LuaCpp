@@ -427,8 +427,8 @@ std::pair<int, int> Parser::getPrecedence(Token::Type op)
         case Token::Type::OP_MOD:
         case Token::Type::OP_MUL:
             return {110, 111};
-        case Token::Type::OP_EXPO:
-            return {131, 130}; // Right associative
+        case Token::Type::OP_EXPO:  // Right associative
+            return {131, 130};
         default:
             return {-1,-1};
     }
