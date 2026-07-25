@@ -181,6 +181,7 @@ std::expected<int, Value> VM::protectedCall(size_t calleeIndex, bool isXPCall)
     }
     catch(...)
     {
+        errorHandlers.clear(); // Assume whatever happened is bad
         runtimeError("Unrecoverable error occured!");
     }
 }
