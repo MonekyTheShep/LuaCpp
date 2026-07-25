@@ -42,7 +42,7 @@ void Chunk::write(uint8_t arg, int line)
     lines.emplace_back(line);
 }
 
-void Chunk::write(Op op, int line)
+void Chunk::write(ByteCode::Op op, int line)
 {
     write(static_cast<uint8_t>(op), line);
 }

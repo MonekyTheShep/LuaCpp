@@ -412,14 +412,14 @@ void VM::handleBinaryError(std::string_view msg, const Value &a, const Value &b,
 }
 
 template <typename T>
-void VM::pushCompare(Op op, const T &a, const T &b) 
+void VM::pushCompare(ByteCode::Op op, const T &a, const T &b) 
 {
-    if (op == Op::LS) push(a < b);
-    else if (op == Op::LSE) push(a <= b);
+    if (op == ByteCode::Op::LS) push(a < b);
+    else if (op == ByteCode::Op::LSE) push(a <= b);
     else assert(false); // Unreachable
 }
 
-void VM::handleCompare(Op op, MetaMethod method)
+void VM::handleCompare(ByteCode::Op op, MetaMethod method)
 {
     Value b = pop();
     Value a = pop();
@@ -497,7 +497,7 @@ int32_t VM::doubleToInt(double num)
     return static_cast<int32_t>(num);
 }
 
-void VM::handleBitWise(Op op, MetaMethod method)
+void VM::handleBitWise(ByteCode::Op op, MetaMethod method)
 {
     Value b = pop();
     Value a = pop();
@@ -515,11 +515,11 @@ void VM::handleBitWise(Op op, MetaMethod method)
 
         switch (op)
         {
-            case Op::BIT_AND: result = BIT_OP(&, iLhs, iRhs); break;
-            case Op::BIT_OR: result =  BIT_OP(|, iLhs, iRhs); break;
-            case Op::BIT_XOR: result = BIT_OP(^, iLhs, iRhs); break;
-            case Op::BITSHIFT_LEFT:  result = bitShift(iLhs, iRhs); break;
-            case Op::BITSHIFT_RIGHT: result = bitShift(iLhs, -iRhs); break;
+            case ByteCode::Op::BIT_AND: result = BIT_OP(&, iLhs, iRhs); break;
+            case ByteCode::Op::BIT_OR: result =  BIT_OP(|, iLhs, iRhs); break;
+            case ByteCode::Op::BIT_XOR: result = BIT_OP(^, iLhs, iRhs); break;
+            case ByteCode::Op::BITSHIFT_LEFT:  result = bitShift(iLhs, iRhs); break;
+            case ByteCode::Op::BITSHIFT_RIGHT: result = bitShift(iLhs, -iRhs); break;
             default:
                 assert(false); // Unreachable
         }
@@ -552,7 +552,7 @@ void VM::handleConcat()
     }
 }
 
-void VM::handleArithmetic(Op op, MetaMethod method)
+void VM::handleArithmetic(ByteCode::Op op, MetaMethod method)
 {
     Value b = pop();
     Value a = pop();
@@ -564,13 +564,13 @@ void VM::handleArithmetic(Op op, MetaMethod method)
     {
         switch (op)
         {
-            case Op::ADD: push(*lhs + *rhs); break;
-            case Op::SUB: push(*lhs - *rhs); break;
-            case Op::MUL: push(*lhs * *rhs); break;  
-            case Op::FLOOR_DIV: push(floor(*lhs / *rhs)); break;
-            case Op::DIV: push(*lhs / *rhs); break;
-            case Op::MOD: push(fmod(*lhs, *rhs)); break;
-            case Op::EXPO: push(pow(*lhs, *rhs)); break;
+            case ByteCode::Op::ADD: push(*lhs + *rhs); break;
+            case ByteCode::Op::SUB: push(*lhs - *rhs); break;
+            case ByteCode::Op::MUL: push(*lhs * *rhs); break;  
+            case ByteCode::Op::FLOOR_DIV: push(floor(*lhs / *rhs)); break;
+            case ByteCode::Op::DIV: push(*lhs / *rhs); break;
+            case ByteCode::Op::MOD: push(fmod(*lhs, *rhs)); break;
+            case ByteCode::Op::EXPO: push(pow(*lhs, *rhs)); break;
             default:
                 assert(false); // Unreachable
         }
@@ -679,160 +679,160 @@ void VM::run()
 {
     for(;;)
     {
-        auto op = Op(readByte()); 
+        auto op = ByteCode::Op(readByte()); 
         opCounts[static_cast<size_t>(op)]++;
 
         switch (op)
         {
-            case Op::LOAD_CONST:
+            case ByteCode::Op::LOAD_CONST:
             {
                 push(readConstant());
                 break;
             }
-            case Op::STORE_LOCAL:
+            case ByteCode::Op::STORE_LOCAL:
             {
                 auto arg = readByte();
                 stack[callFrames.back().frameBase + arg] = pop();
                 break;
             } 
-            case Op::STORE_GLOBAL:
+            case ByteCode::Op::STORE_GLOBAL:
             {
                 luaTableSet(globals, readConstant(), pop());
                 break;
             }
-            case Op::STORE_UPVALUE:
+            case ByteCode::Op::STORE_UPVALUE:
             {
                 auto arg = readByte();
 
                 *callFrames.back().closure->upvalues[arg]->location = pop();
                 break;
             }
-            case Op::LOAD_LOCAL:
+            case ByteCode::Op::LOAD_LOCAL:
             {
                 auto arg = readByte();
 
                 push(stack[callFrames.back().frameBase + arg]);
                 break;
             }
-            case Op::LOAD_GLOBAL:
+            case ByteCode::Op::LOAD_GLOBAL:
             {
                 push(luaTableGet(globals, readConstant()));
                 break;
             }
-            case Op::LOAD_UPVALUE:
+            case ByteCode::Op::LOAD_UPVALUE:
             {
                 auto arg = readByte();
 
                 push(*callFrames.back().closure->upvalues[arg]->location);
                 break;
             }
-            case Op::LOAD_NULL:
+            case ByteCode::Op::LOAD_NULL:
             {
                 push(LUA_NIL_VALUE);
                 break;
             }
-            case Op::LOAD_TRUE:
+            case ByteCode::Op::LOAD_TRUE:
             {
                 push(true);
                 break;
             }
-            case Op::LOAD_FALSE:
+            case ByteCode::Op::LOAD_FALSE:
             {
                 push(false);
                 break;
             }
-            case Op::POP:
+            case ByteCode::Op::POP:
             {
                 pop();
                 break;
             }
-            case Op::DUP:
+            case ByteCode::Op::DUP:
             {
                 assert(sp - 1 > 0);
                 push(stack[sp - 1]);
                 break;
             }
-            case Op::ADD:
+            case ByteCode::Op::ADD:
             {
-                handleArithmetic(Op::ADD, MetaMethod::ADD);
+                handleArithmetic(ByteCode::Op::ADD, MetaMethod::ADD);
                 break;
             }
-            case Op::SUB:
+            case ByteCode::Op::SUB:
             {
-                handleArithmetic(Op::SUB, MetaMethod::SUB);
+                handleArithmetic(ByteCode::Op::SUB, MetaMethod::SUB);
                 break;
             }
-            case Op::MUL:
+            case ByteCode::Op::MUL:
             {
-                handleArithmetic(Op::MUL, MetaMethod::MUL);
+                handleArithmetic(ByteCode::Op::MUL, MetaMethod::MUL);
                 break;
             }
-            case Op::FLOOR_DIV:
+            case ByteCode::Op::FLOOR_DIV:
             {
-                handleArithmetic(Op::FLOOR_DIV, MetaMethod::IDIV);
+                handleArithmetic(ByteCode::Op::FLOOR_DIV, MetaMethod::IDIV);
                 break;
             }
-            case Op::DIV:
+            case ByteCode::Op::DIV:
             {
-                handleArithmetic(Op::DIV, MetaMethod::DIV);
+                handleArithmetic(ByteCode::Op::DIV, MetaMethod::DIV);
                 break;
             }
-            case Op::MOD:
+            case ByteCode::Op::MOD:
             {
-                handleArithmetic(Op::MOD, MetaMethod::MOD);
+                handleArithmetic(ByteCode::Op::MOD, MetaMethod::MOD);
                 break;
             }
-            case Op::EXPO:
+            case ByteCode::Op::EXPO:
             {
-                handleArithmetic(Op::EXPO,MetaMethod::POW);
+                handleArithmetic(ByteCode::Op::EXPO,MetaMethod::POW);
                 break;
             }
-            case Op::CONCAT:
+            case ByteCode::Op::CONCAT:
             {
                 handleConcat();
                 break;
             }
-            case Op::EQ:
+            case ByteCode::Op::EQ:
             {
                 handleEquality();
                 break;
             }
-            case Op::LS:
+            case ByteCode::Op::LS:
             {
-                handleCompare(Op::LS, MetaMethod::LT);
+                handleCompare(ByteCode::Op::LS, MetaMethod::LT);
                 break;
             }
-            case Op::LSE:
+            case ByteCode::Op::LSE:
             {
-                handleCompare(Op::LSE, MetaMethod::LE);
+                handleCompare(ByteCode::Op::LSE, MetaMethod::LE);
                 break;
             }
-            case Op::BIT_AND:
+            case ByteCode::Op::BIT_AND:
             {
-                handleBitWise(Op::BIT_AND, MetaMethod::BAND);
+                handleBitWise(ByteCode::Op::BIT_AND, MetaMethod::BAND);
                 break;
             }
-            case Op::BIT_OR:
+            case ByteCode::Op::BIT_OR:
             {
-                handleBitWise(Op::BIT_OR, MetaMethod::BOR);
+                handleBitWise(ByteCode::Op::BIT_OR, MetaMethod::BOR);
                 break;
             }
-            case Op::BIT_XOR:
+            case ByteCode::Op::BIT_XOR:
             {
-                handleBitWise(Op::BIT_XOR, MetaMethod::BXOR);
+                handleBitWise(ByteCode::Op::BIT_XOR, MetaMethod::BXOR);
                 break;
             }
-            case Op::BITSHIFT_LEFT:
+            case ByteCode::Op::BITSHIFT_LEFT:
             {
-                handleBitWise(Op::BITSHIFT_LEFT, MetaMethod::SHL);
+                handleBitWise(ByteCode::Op::BITSHIFT_LEFT, MetaMethod::SHL);
                 break;
             }
-            case Op::BITSHIFT_RIGHT:
+            case ByteCode::Op::BITSHIFT_RIGHT:
             {
-                handleBitWise(Op::BITSHIFT_RIGHT, MetaMethod::SHR);
+                handleBitWise(ByteCode::Op::BITSHIFT_RIGHT, MetaMethod::SHR);
                 break;
             }
-            case Op::BIT_NOT:
+            case ByteCode::Op::BIT_NOT:
             {
                 Value value = pop();
 
@@ -846,7 +846,7 @@ void VM::run()
                     runtimeError(std::format("Attempt to perform binary operation a {} value", type(value)));
                 break;
             }
-            case Op::NEGATE:
+            case ByteCode::Op::NEGATE:
             {
                 Value value = pop();
 
@@ -856,17 +856,17 @@ void VM::run()
                     runtimeError(std::format("Attempt to negate a {} value", type(value)));
                 break;
             }
-            case Op::LENGTH:
+            case ByteCode::Op::LENGTH:
             {
                 push(length(pop()));
                 break;
             }
-            case Op::NOT:
+            case ByteCode::Op::NOT:
             {
                 push(!isTruthy(pop()));
                 break;
             }
-            case Op::MAKE_TABLE:
+            case ByteCode::Op::MAKE_TABLE:
             {
                 auto fieldc = readByte();
 
@@ -886,7 +886,7 @@ void VM::run()
                 push(luaTable);
                 break;
             }
-            case Op::SET_FIELD:
+            case ByteCode::Op::SET_FIELD:
             {
                 Value table = pop();
                 Value field = pop();
@@ -895,19 +895,19 @@ void VM::run()
                 luaTableSet(table, field, value);
                 break;
             }
-            case Op::GET_FIELD: case Op::GET_METHOD:
+            case ByteCode::Op::GET_FIELD: case ByteCode::Op::GET_METHOD:
             {
                 Value table = pop();
                 Value field = pop();
 
                 size_t calleeIndex = push(luaTableGet(table, field));
-                if (op == Op::GET_METHOD) {
+                if (op == ByteCode::Op::GET_METHOD) {
                     callees.emplace_back(calleeIndex);
                     push(table); // Push self
                 }
                 break;
             }
-            case Op::SET_LIST:
+            case ByteCode::Op::SET_LIST:
             {
                 auto index = static_cast<double>(readByte());
                 assert(!tables.empty());
@@ -932,12 +932,12 @@ void VM::run()
                 
                 break;
             }
-            case Op::STORE_TABLE:
+            case ByteCode::Op::STORE_TABLE:
             {
                 tables.emplace_back(sp - 1);
                 break;
             }
-            case Op::MAKE_CLOSURE:
+            case ByteCode::Op::MAKE_CLOSURE:
             {
                 auto function = std::get<FunctionHandle>(readConstant());
                 auto closure = std::make_shared<Closure>(Closure{function});
@@ -960,12 +960,12 @@ void VM::run()
                 }
                 break;
             }
-            case Op::STORE_CALLEE:
+            case ByteCode::Op::STORE_CALLEE:
             {
                 callees.emplace_back(sp - 1);
                 break;
             }
-            case Op::CALL:
+            case ByteCode::Op::CALL:
             {
                 [[maybe_unused]] auto argc = readByte();
                 auto expectedReturn = readSignedByte();
@@ -976,7 +976,7 @@ void VM::run()
                 callValue(calleeIndex, expectedReturn, CallType::LUA);
                 break;
             }
-            case Op::TAIL_CALL:
+            case ByteCode::Op::TAIL_CALL:
             {
                 [[maybe_unused]] auto argc = readByte();
                 [[maybe_unused]] auto expectedReturn = readSignedByte();
@@ -1005,7 +1005,7 @@ void VM::run()
                 if (callFrames.empty()) return;
                 break;
             }
-            case Op::JUMP_IF_FALSE:
+            case ByteCode::Op::JUMP_IF_FALSE:
             {
                 auto arg = readShort();
                 if (!isTruthy(pop()))
@@ -1014,7 +1014,7 @@ void VM::run()
                 }
                 break;
             }
-            case Op::JUMP_IF_TRUE:
+            case ByteCode::Op::JUMP_IF_TRUE:
             {
                 auto arg = readShort();
                 if (isTruthy(pop()))
@@ -1023,13 +1023,13 @@ void VM::run()
                 }
                 break;
             }
-            case Op::JUMP:
+            case ByteCode::Op::JUMP:
             {
                 auto arg = readShort();
                 doJump(arg);
                 break;
             }
-            case Op::FOR_PREP:
+            case ByteCode::Op::FOR_PREP:
             {
                 auto arg = readShort();
 
@@ -1055,7 +1055,7 @@ void VM::run()
                 }
                 break;
             }
-            case Op::FOR_LOOP:
+            case ByteCode::Op::FOR_LOOP:
             {
                 auto arg = readShort();
 
@@ -1075,19 +1075,19 @@ void VM::run()
                 }
                 break;
             }
-            case Op::LOOP:
+            case ByteCode::Op::LOOP:
             {
                 auto arg = readShort();
                 doJump(-arg);
                 break;
             }
-            case Op::CLOSE_UPVALUE:
+            case ByteCode::Op::CLOSE_UPVALUE:
             {
                 closeUpValues(&stack[sp - 1]);
                 pop();
                 break;
             }
-            case Op::RETURN:
+            case ByteCode::Op::RETURN:
             {
                 auto numOfLocals = readByte();
 
@@ -1106,7 +1106,7 @@ void VM::run()
                 if (callType == CallType::CPP) return; // Allows for recursive entry of the run() function  
                 break;
             }
-            case Op::VARARG:
+            case ByteCode::Op::VARARG:
             {       
                 auto expected = readSignedByte();
                

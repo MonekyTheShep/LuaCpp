@@ -23,8 +23,8 @@ class Compiler
         FunctionHandle compile(const Ast &stmts);
         static Compiler makeTopLevel() { return Compiler(nullptr, "<main>", 0, true); };
     private:
-        static const std::unordered_map<UnaryExpr::UnaryOperator, Op> unaryOp;
-        static const std::unordered_map<BinaryExpr::BinaryOperator, Op> binaryOp;
+        static const std::unordered_map<UnaryExpr::UnaryOperator, ByteCode::Op> unaryOp;
+        static const std::unordered_map<BinaryExpr::BinaryOperator, ByteCode::Op> binaryOp;
 
         struct Local 
         {
@@ -106,20 +106,20 @@ class Compiler
         // --------------------
         // Jumping Helper Functions
         // --------------------
-        size_t emitJump(Op op);
-        void emitLoop(Op op, size_t loopStart);
+        size_t emitJump(ByteCode::Op op);
+        void emitLoop(ByteCode::Op op, size_t loopStart);
         void patchJump(size_t offset);
         void patchJumpAt(size_t jumpPos, size_t target);
-        void emitReturn() { emitWithArg(Op::RETURN, static_cast<uint8_t>(locals.size())); }
+        void emitReturn() { emitWithArg(ByteCode::Op::RETURN, static_cast<uint8_t>(locals.size())); }
 
         // --------------------
         // Chunk Functions
         // --------------------
         void emitConstant(const Value &value);
         int makeConstant(Value value);
-        void emitWithArg(Op op, uint8_t arg);
-        void emitWithArg2(Op op, uint8_t arg, uint8_t arg2);
-        void emit(Op op);
+        void emitWithArg(ByteCode::Op op, uint8_t arg);
+        void emitWithArg2(ByteCode::Op op, uint8_t arg, uint8_t arg2);
+        void emit(ByteCode::Op op);
         void emit(uint8_t arg);
 
         // --------------------
@@ -179,7 +179,7 @@ class Compiler
                 void operator()(const VariableExpr &node);
                 void operator()(const UnaryExpr &node);
 
-                void compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHandle &rhs);
+                void compileLogicalOp(ByteCode::Op op, const ExprHandle &lhs, const ExprHandle &rhs);
                 void operator()(const BinaryExpr &node);
 
                 void compileExpression(const ExprHandle &expression, int expectedReturn);

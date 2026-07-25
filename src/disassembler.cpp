@@ -58,105 +58,105 @@ static size_t jumpInstruction(const char *name, int sign, const Chunk& chunk, si
 
 size_t Disassembler::disassembleInstruction(const Chunk &chunk, size_t offset)
 {
-    auto instruction = Op(chunk.code[offset]);
+    auto instruction = ByteCode::Op(chunk.code[offset]);
 
     switch (instruction)
     {
-        case Op::LOAD_CONST:
+        case ByteCode::Op::LOAD_CONST:
             return constantInstruction("LOAD_CONST", chunk, offset);
-        case Op::STORE_LOCAL:
+        case ByteCode::Op::STORE_LOCAL:
             return unsignedInstruction("STORE_LOCAL", chunk, offset);
-        case Op::STORE_GLOBAL:
+        case ByteCode::Op::STORE_GLOBAL:
             return constantInstruction("STORE_GLOBAL", chunk, offset);
-        case Op::LOAD_LOCAL:
+        case ByteCode::Op::LOAD_LOCAL:
             return unsignedInstruction("LOAD_LOCAL", chunk, offset);
-        case Op::LOAD_GLOBAL:
+        case ByteCode::Op::LOAD_GLOBAL:
             return constantInstruction("LOAD_GLOBAL", chunk, offset);
-        case Op::LOAD_NULL:
+        case ByteCode::Op::LOAD_NULL:
             return simpleInstruction("LOAD_NULL", offset);
-        case Op::LOAD_TRUE:
+        case ByteCode::Op::LOAD_TRUE:
             return simpleInstruction("LOAD_TRUE", offset);
-        case Op::LOAD_FALSE:
+        case ByteCode::Op::LOAD_FALSE:
             return simpleInstruction("LOAD_FALSE", offset);
-        case Op::POP:
+        case ByteCode::Op::POP:
             return simpleInstruction("POP", offset);
-        case Op::DUP:
+        case ByteCode::Op::DUP:
             return simpleInstruction("DUP", offset);
 
-        case Op::ADD:
+        case ByteCode::Op::ADD:
             return simpleInstruction("ADD", offset);
-        case Op::SUB:
+        case ByteCode::Op::SUB:
             return simpleInstruction("SUB", offset);
-        case Op::MUL:
+        case ByteCode::Op::MUL:
             return simpleInstruction("MUL", offset);
-        case Op::FLOOR_DIV:
+        case ByteCode::Op::FLOOR_DIV:
             return simpleInstruction("FLOOR_DIV", offset);
-        case Op::DIV:
+        case ByteCode::Op::DIV:
             return simpleInstruction("DIV", offset);
-        case Op::MOD:
+        case ByteCode::Op::MOD:
             return simpleInstruction("MOD", offset);
-        case Op::EXPO:
+        case ByteCode::Op::EXPO:
             return simpleInstruction("EXPO", offset);
-        case Op::CONCAT:
+        case ByteCode::Op::CONCAT:
             return simpleInstruction("CONCAT", offset);
 
-        case Op::BIT_AND:
+        case ByteCode::Op::BIT_AND:
             return simpleInstruction("BIT_AND", offset);
-        case Op::BIT_OR:
+        case ByteCode::Op::BIT_OR:
             return simpleInstruction("BIT_OR", offset);
-        case Op::BIT_XOR:
+        case ByteCode::Op::BIT_XOR:
             return simpleInstruction("BIT_XOR", offset);
-        case Op::BITSHIFT_LEFT:
+        case ByteCode::Op::BITSHIFT_LEFT:
             return simpleInstruction("BITSHIFT_LEFT", offset);
-        case Op::BITSHIFT_RIGHT:
+        case ByteCode::Op::BITSHIFT_RIGHT:
             return simpleInstruction("BITSHIFT_RIGHT", offset);
-        case Op::BIT_NOT:
+        case ByteCode::Op::BIT_NOT:
             return simpleInstruction("BIT_NOT", offset);
 
 
-        case Op::EQ:
+        case ByteCode::Op::EQ:
             return simpleInstruction("EQ", offset);
-        case Op::LS:
+        case ByteCode::Op::LS:
             return simpleInstruction("LS", offset);
-        case Op::LSE:
+        case ByteCode::Op::LSE:
             return simpleInstruction("LSE", offset);
 
-        case Op::NEGATE:
+        case ByteCode::Op::NEGATE:
             return simpleInstruction("NEGATE", offset);
-        case Op::LENGTH:
+        case ByteCode::Op::LENGTH:
             return simpleInstruction("LENGTH", offset);
 
-        case Op::NOT:
+        case ByteCode::Op::NOT:
             return simpleInstruction("NOT", offset);
 
-        case Op::MAKE_TABLE:
+        case ByteCode::Op::MAKE_TABLE:
             return unsignedInstruction("MAKE_TABLE", chunk, offset);
-        case Op::SET_FIELD:
+        case ByteCode::Op::SET_FIELD:
             return simpleInstruction("SET_FIELD", offset);
-        case Op::GET_FIELD:
+        case ByteCode::Op::GET_FIELD:
             return simpleInstruction("GET_FIELD", offset);
-        case Op::GET_METHOD:
+        case ByteCode::Op::GET_METHOD:
             return simpleInstruction("GET_METHOD", offset);
-        case Op::STORE_TABLE:
+        case ByteCode::Op::STORE_TABLE:
             return simpleInstruction("STORE_TABLE", offset);
-        case Op::SET_LIST:
+        case ByteCode::Op::SET_LIST:
             return unsignedInstruction("SET_LIST", chunk, offset);
 
-        case Op::JUMP_IF_FALSE:
+        case ByteCode::Op::JUMP_IF_FALSE:
             return jumpInstruction("JUMP_IF_FALSE", 1, chunk, offset);
-        case Op::JUMP_IF_TRUE:
+        case ByteCode::Op::JUMP_IF_TRUE:
             return jumpInstruction("JUMP_IF_TRUE", 1, chunk, offset);
-        case Op::JUMP:
+        case ByteCode::Op::JUMP:
             return jumpInstruction("JUMP", 1, chunk, offset);
 
-        case Op::FOR_PREP:
+        case ByteCode::Op::FOR_PREP:
             return jumpInstruction("FOR_PREP", 1, chunk, offset);
-        case Op::FOR_LOOP:
+        case ByteCode::Op::FOR_LOOP:
             return jumpInstruction("FOR_LOOP", -1, chunk, offset);
-        case Op::LOOP:
+        case ByteCode::Op::LOOP:
             return jumpInstruction("LOOP", -1, chunk, offset);
             
-        case Op::MAKE_CLOSURE:
+        case ByteCode::Op::MAKE_CLOSURE:
         {
             offset++;
 
@@ -175,23 +175,23 @@ size_t Disassembler::disassembleInstruction(const Chunk &chunk, size_t offset)
 
             return offset;
         }
-        case Op::CALL:
+        case ByteCode::Op::CALL:
             return unsignedSignedInstruction("CALL", chunk, offset);
-        case Op::TAIL_CALL:
+        case ByteCode::Op::TAIL_CALL:
             return unsignedSignedInstruction("TAIL_CALL", chunk, offset);
-        case Op::STORE_CALLEE:
+        case ByteCode::Op::STORE_CALLEE:
             return simpleInstruction("STORE_CALLEE", offset);
 
-        case Op::CLOSE_UPVALUE:
+        case ByteCode::Op::CLOSE_UPVALUE:
             return simpleInstruction("CLOSE_UPVALUE", offset);
-        case Op::LOAD_UPVALUE:
+        case ByteCode::Op::LOAD_UPVALUE:
             return simpleInstruction("LOAD_UPVALUE", offset);
-        case Op::STORE_UPVALUE:
+        case ByteCode::Op::STORE_UPVALUE:
             return simpleInstruction("STORE_UPVALUE", offset);
 
-        case Op::VARARG:
+        case ByteCode::Op::VARARG:
             return signedInstruction("VARARG", chunk, offset);
-        case Op::RETURN:
+        case ByteCode::Op::RETURN:
             return unsignedInstruction("RETURN", chunk, offset);
         
         default:

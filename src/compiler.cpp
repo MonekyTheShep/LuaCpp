@@ -28,7 +28,7 @@ void Compiler::endScope()
 
     while (!locals.empty() && locals.back().depth > scopeDepth)
     {
-        emit(locals.back().isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+        emit(locals.back().isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
         locals.pop_back();
     }
 
@@ -106,31 +106,31 @@ int Compiler::addUpvalue(uint8_t index, bool isLocal)
 
 void Compiler::namedVariable(const std::string &name, bool assignment)
 {
-    Op storeOp, loadOp;
+    ByteCode::Op storeOp, loadOp;
 
     int arg = resolveLocal(name);
 
     if (arg != -1)
     {
-        storeOp = Op::STORE_LOCAL;
-        loadOp = Op::LOAD_LOCAL;
+        storeOp = ByteCode::Op::STORE_LOCAL;
+        loadOp = ByteCode::Op::LOAD_LOCAL;
     }
     else if ((arg = resolveUpValue(name)) != -1)
     {
-        storeOp = Op::STORE_UPVALUE;
-        loadOp = Op::LOAD_UPVALUE;
+        storeOp = ByteCode::Op::STORE_UPVALUE;
+        loadOp = ByteCode::Op::LOAD_UPVALUE;
     }
     else
     {
-        storeOp = Op::STORE_GLOBAL;
-        loadOp = Op::LOAD_GLOBAL;
+        storeOp = ByteCode::Op::STORE_GLOBAL;
+        loadOp = ByteCode::Op::LOAD_GLOBAL;
         arg = makeConstant(name);
     }
 
     emitWithArg((assignment) ? storeOp : loadOp, static_cast<uint8_t>(arg));
 }
 
-size_t Compiler::emitJump(Op op) 
+size_t Compiler::emitJump(ByteCode::Op op) 
 {
     emit(op);
     emit(0XFF);
@@ -138,7 +138,7 @@ size_t Compiler::emitJump(Op op)
     return chunk.code.size() - 2;
 }
 
-void Compiler::emitLoop(Op op, size_t loopStart) 
+void Compiler::emitLoop(ByteCode::Op op, size_t loopStart) 
 {
     emit(op);
 
@@ -172,7 +172,7 @@ void Compiler::patchJumpAt(size_t jumpPos, size_t target)
 
 void Compiler::emitConstant(const Value &value)
 {
-    emitWithArg(Op::LOAD_CONST, static_cast<uint8_t>(makeConstant(value)));
+    emitWithArg(ByteCode::Op::LOAD_CONST, static_cast<uint8_t>(makeConstant(value)));
 }
 
 int Compiler::makeConstant(Value value) 
@@ -182,20 +182,20 @@ int Compiler::makeConstant(Value value)
     return *constant;
 }
 
-void Compiler::emitWithArg(Op op, uint8_t arg)
+void Compiler::emitWithArg(ByteCode::Op op, uint8_t arg)
 {
     emit(op);
     emit(arg);
 }
 
-void Compiler::emitWithArg2(Op op, uint8_t arg, uint8_t arg2)
+void Compiler::emitWithArg2(ByteCode::Op op, uint8_t arg, uint8_t arg2)
 {
     emit(op);
     emit(arg);
     emit(arg2);
 }
 
-void Compiler::emit(Op op)
+void Compiler::emit(ByteCode::Op op)
 {
     chunk.write(op, currentLine);
 }
@@ -217,18 +217,18 @@ void Compiler::ExprVisitor::operator()(const StringLiteralExpr &node)
 
 void Compiler::ExprVisitor::operator()(const BoolLiteralExpr &node)
 {
-    compiler.emit(node.value ? Op::LOAD_TRUE : Op::LOAD_FALSE);
+    compiler.emit(node.value ? ByteCode::Op::LOAD_TRUE : ByteCode::Op::LOAD_FALSE);
 }
 
 void Compiler::ExprVisitor::operator()(const NilExpr &)
 {
-    compiler.emit(Op::LOAD_NULL);
+    compiler.emit(ByteCode::Op::LOAD_NULL);
 }
 
 void Compiler::ExprVisitor::operator()(const VarArgExpr &)
 {
     if (!compiler.function->isVarArg) compiler.compilerError("Can't use `...` outside a vararg function");
-    compiler.emitWithArg(Op::VARARG, static_cast<uint8_t>(expectedReturn));
+    compiler.emitWithArg(ByteCode::Op::VARARG, static_cast<uint8_t>(expectedReturn));
 }
 
 void Compiler::ExprVisitor::compileTableExpr(const TableExpr &node, double &arrayIndex)
@@ -254,7 +254,7 @@ void Compiler::ExprVisitor::operator()(const TableExprDef &node)
 {
     if (node.fields.size() > UINT8_MAX) compiler.compilerError("Can't have more than 255 fields in table constructor");
 
-    if (node.fields.empty()) return compiler.emitWithArg(Op::MAKE_TABLE, 0); // No point in compiling fields
+    if (node.fields.empty()) return compiler.emitWithArg(ByteCode::Op::MAKE_TABLE, 0); // No point in compiling fields
 
     uint8_t fieldsMinusOne = static_cast<uint8_t>(node.fields.size()) - 1;
     double arrayIndex = 1.0;
@@ -270,16 +270,16 @@ void Compiler::ExprVisitor::operator()(const TableExprDef &node)
 
     if (expandable)
     {
-        compiler.emitWithArg(Op::MAKE_TABLE,fieldsMinusOne); 
-        compiler.emit(Op::STORE_TABLE);
+        compiler.emitWithArg(ByteCode::Op::MAKE_TABLE,fieldsMinusOne); 
+        compiler.emit(ByteCode::Op::STORE_TABLE);
         compileExpression(lastField.value, -1);
         if (arrayIndex > UINT8_MAX) compiler.compilerError("Constructor too long!");
-        compiler.emitWithArg(Op::SET_LIST, static_cast<uint8_t>(arrayIndex));
+        compiler.emitWithArg(ByteCode::Op::SET_LIST, static_cast<uint8_t>(arrayIndex));
     }
     else 
     {
         compileTableExpr(lastField, arrayIndex);
-        compiler.emitWithArg(Op::MAKE_TABLE,++fieldsMinusOne); 
+        compiler.emitWithArg(ByteCode::Op::MAKE_TABLE,++fieldsMinusOne); 
     }
 }
 
@@ -299,13 +299,13 @@ void Compiler::ExprVisitor::compileArgs(const std::vector<ExprHandle> &args)
 void Compiler::ExprVisitor::operator()(const CallExpr &node)
 {
     compileExpression(node.callee, 1);
-    compiler.emit(Op::STORE_CALLEE);
+    compiler.emit(ByteCode::Op::STORE_CALLEE);
             
     if (node.args.size() > UINT8_MAX) compiler.compilerError("Can't have more than 255 arguments inside of function call");
     compileArgs(node.args);
    
     compiler.emitWithArg2 (
-        isTailCall ? Op::TAIL_CALL : Op::CALL, 
+        isTailCall ? ByteCode::Op::TAIL_CALL : ByteCode::Op::CALL, 
         static_cast<uint8_t>(node.args.size()), 
         static_cast<uint8_t>(expectedReturn)
     );
@@ -315,13 +315,13 @@ void Compiler::ExprVisitor::operator()(const MethodAccessExpr &node)
 {
     compiler.emitConstant(node.field);
     compileExpression(node.object, 1);
-    compiler.emit(Op::GET_METHOD);
+    compiler.emit(ByteCode::Op::GET_METHOD);
 
     if (node.args.size() > UINT8_MAX) compiler.compilerError("Can't have more than 255 arguments inside of method call");
     compileArgs(node.args);
    
     compiler.emitWithArg2 (
-        isTailCall ? Op::TAIL_CALL : Op::CALL, 
+        isTailCall ? ByteCode::Op::TAIL_CALL : ByteCode::Op::CALL, 
         static_cast<uint8_t>(node.args.size()), 
         static_cast<uint8_t>(expectedReturn)
     );
@@ -332,7 +332,7 @@ void Compiler::ExprVisitor::operator()(const FieldAccessExpr &node)
     compiler.emitConstant(node.field);
     compileExpression(node.expr, 1);
 
-    compiler.emit(Op::GET_FIELD);
+    compiler.emit(ByteCode::Op::GET_FIELD);
 }
 
 void Compiler::ExprVisitor::operator()(const IndexExpr &node)
@@ -340,7 +340,7 @@ void Compiler::ExprVisitor::operator()(const IndexExpr &node)
     compileExpression(node.index, 1);
     compileExpression(node.expr, 1);
     
-    compiler.emit(Op::GET_FIELD);
+    compiler.emit(ByteCode::Op::GET_FIELD);
 }
 
 void Compiler::ExprVisitor::operator()(const FunctionExpr &node)
@@ -372,7 +372,7 @@ void Compiler::compileFunction(const std::string &name, bool isVarArg, const std
     inner.emitReturn();
 
     FunctionHandle function = inner.makeFunction();
-    emitWithArg(Op::MAKE_CLOSURE, static_cast<uint8_t>(makeConstant(function)));
+    emitWithArg(ByteCode::Op::MAKE_CLOSURE, static_cast<uint8_t>(makeConstant(function)));
 
     for (size_t i = 0; i < function->upValueCount; i++) 
     {
@@ -523,12 +523,12 @@ void Compiler::ExprVisitor::operator()(const VariableExpr &node)
     compiler.namedVariable(node.ident, false);
 }
 
-const std::unordered_map<UnaryExpr::UnaryOperator, Op> Compiler::unaryOp 
+const std::unordered_map<UnaryExpr::UnaryOperator, ByteCode::Op> Compiler::unaryOp 
 {
-    {UnaryExpr::UnaryOperator::NEGATE, Op::NEGATE},
-    {UnaryExpr::UnaryOperator::NOT, Op::NOT},
-    {UnaryExpr::UnaryOperator::LENGTH, Op::LENGTH},
-    {UnaryExpr::UnaryOperator::BIT_NOT, Op::BIT_NOT}
+    {UnaryExpr::UnaryOperator::NEGATE, ByteCode::Op::NEGATE},
+    {UnaryExpr::UnaryOperator::NOT, ByteCode::Op::NOT},
+    {UnaryExpr::UnaryOperator::LENGTH, ByteCode::Op::LENGTH},
+    {UnaryExpr::UnaryOperator::BIT_NOT, ByteCode::Op::BIT_NOT}
 };
 
 void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
@@ -540,37 +540,37 @@ void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
     else compiler.compilerError("Unexpected unary operator!");
 }
 
-const std::unordered_map<BinaryExpr::BinaryOperator, Op> Compiler::binaryOp 
+const std::unordered_map<BinaryExpr::BinaryOperator, ByteCode::Op> Compiler::binaryOp 
 {
-    {BinaryExpr::BinaryOperator::ADD, Op::ADD},
-    {BinaryExpr::BinaryOperator::SUB, Op::SUB},
-    {BinaryExpr::BinaryOperator::MUL, Op::MUL},
-    {BinaryExpr::BinaryOperator::FLOOR_DIV, Op::FLOOR_DIV},
-    {BinaryExpr::BinaryOperator::DIV, Op::DIV},
-    {BinaryExpr::BinaryOperator::MOD, Op::MOD},
-    {BinaryExpr::BinaryOperator::EXPO, Op::EXPO},
-    {BinaryExpr::BinaryOperator::CONCAT, Op::CONCAT},
+    {BinaryExpr::BinaryOperator::ADD, ByteCode::Op::ADD},
+    {BinaryExpr::BinaryOperator::SUB, ByteCode::Op::SUB},
+    {BinaryExpr::BinaryOperator::MUL, ByteCode::Op::MUL},
+    {BinaryExpr::BinaryOperator::FLOOR_DIV, ByteCode::Op::FLOOR_DIV},
+    {BinaryExpr::BinaryOperator::DIV, ByteCode::Op::DIV},
+    {BinaryExpr::BinaryOperator::MOD, ByteCode::Op::MOD},
+    {BinaryExpr::BinaryOperator::EXPO, ByteCode::Op::EXPO},
+    {BinaryExpr::BinaryOperator::CONCAT, ByteCode::Op::CONCAT},
 
-    {BinaryExpr::BinaryOperator::BIT_AND, Op::BIT_AND},
-    {BinaryExpr::BinaryOperator::BIT_OR, Op::BIT_OR},
-    {BinaryExpr::BinaryOperator::BIT_XOR, Op::BIT_XOR},
-    {BinaryExpr::BinaryOperator::BITSHIFT_LEFT, Op::BITSHIFT_LEFT},
-    {BinaryExpr::BinaryOperator::BITSHIFT_RIGHT, Op::BITSHIFT_RIGHT},
+    {BinaryExpr::BinaryOperator::BIT_AND, ByteCode::Op::BIT_AND},
+    {BinaryExpr::BinaryOperator::BIT_OR, ByteCode::Op::BIT_OR},
+    {BinaryExpr::BinaryOperator::BIT_XOR, ByteCode::Op::BIT_XOR},
+    {BinaryExpr::BinaryOperator::BITSHIFT_LEFT, ByteCode::Op::BITSHIFT_LEFT},
+    {BinaryExpr::BinaryOperator::BITSHIFT_RIGHT, ByteCode::Op::BITSHIFT_RIGHT},
 
-    {BinaryExpr::BinaryOperator::EQ, Op::EQ},
-    {BinaryExpr::BinaryOperator::NEQ, Op::EQ}, // NEQ pushes not after eq
-    {BinaryExpr::BinaryOperator::GT, Op::LS}, // Flips operands around
-    {BinaryExpr::BinaryOperator::GTE, Op::LSE}, // Flips operands around
-    {BinaryExpr::BinaryOperator::LS, Op::LS},
-    {BinaryExpr::BinaryOperator::LSE, Op::LSE},
+    {BinaryExpr::BinaryOperator::EQ, ByteCode::Op::EQ},
+    {BinaryExpr::BinaryOperator::NEQ, ByteCode::Op::EQ}, // NEQ pushes not after eq
+    {BinaryExpr::BinaryOperator::GT, ByteCode::Op::LS}, // Flips operands around
+    {BinaryExpr::BinaryOperator::GTE, ByteCode::Op::LSE}, // Flips operands around
+    {BinaryExpr::BinaryOperator::LS, ByteCode::Op::LS},
+    {BinaryExpr::BinaryOperator::LSE, ByteCode::Op::LSE},
 };
 
-void Compiler::ExprVisitor::compileLogicalOp(Op op, const ExprHandle &lhs, const ExprHandle &rhs)
+void Compiler::ExprVisitor::compileLogicalOp(ByteCode::Op op, const ExprHandle &lhs, const ExprHandle &rhs)
 {
     compileExpression(lhs, 1);
-    compiler.emit(Op::DUP);
+    compiler.emit(ByteCode::Op::DUP);
 	size_t skip = compiler.emitJump(op);
-	compiler.emit(Op::POP);
+	compiler.emit(ByteCode::Op::POP);
 	compileExpression(rhs, 1);
 	compiler.patchJump(skip);
 }
@@ -582,9 +582,9 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
     switch (node.op)
     {
         case BinaryExpr::BinaryOperator::OR:
-            return compileLogicalOp(Op::JUMP_IF_TRUE, node.lhs, node.rhs);
+            return compileLogicalOp(ByteCode::Op::JUMP_IF_TRUE, node.lhs, node.rhs);
         case BinaryExpr::BinaryOperator::AND:
-            return compileLogicalOp(Op::JUMP_IF_FALSE, node.lhs, node.rhs);
+            return compileLogicalOp(ByteCode::Op::JUMP_IF_FALSE, node.lhs, node.rhs);
         case BinaryExpr::BinaryOperator::GTE: case BinaryExpr::BinaryOperator::GT:
             flipOperand = true;
             [[fallthrough]];
@@ -597,7 +597,7 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
                 compileExpression(flipOperand ? node.lhs : node.rhs, 1);
 
                 compiler.emit(it->second);
-                if (node.op == BinaryExpr::BinaryOperator::NEQ) compiler.emit(Op::NOT);
+                if (node.op == BinaryExpr::BinaryOperator::NEQ) compiler.emit(ByteCode::Op::NOT);
             }
             else compiler.compilerError("Unexpected binary operator");
         }
@@ -614,12 +614,12 @@ void Compiler::StmtVisitor::operator()(const WhileStmt &node)
     size_t loopStart = compiler.chunk.code.size();
 
     compiler.compileExpression(node.condExpr, 1, false);
-    size_t jumpToEnd = compiler.emitJump(Op::JUMP_IF_FALSE);
+    size_t jumpToEnd = compiler.emitJump(ByteCode::Op::JUMP_IF_FALSE);
 
     compiler.loopStack.emplace_back(std::vector<size_t>{}, compiler.scopeDepth);
     compiler.compileBlock(node.whileStmts);
 
-    compiler.emitLoop(Op::LOOP, loopStart);
+    compiler.emitLoop(ByteCode::Op::LOOP, loopStart);
     compiler.patchJump(jumpToEnd);
 
     size_t endLoop = compiler.chunk.code.size();
@@ -651,12 +651,12 @@ void Compiler::StmtVisitor::operator()(const ForRangeStmt &node)
     else compiler.emitConstant(1.0);
     compiler.addLocal("(step)");
 
-    size_t forPrepJump = compiler.emitJump(Op::FOR_PREP);
+    size_t forPrepJump = compiler.emitJump(ByteCode::Op::FOR_PREP);
     size_t loopStart = compiler.chunk.code.size();
 
     compiler.compileBlock(node.forStmts);
 
-    compiler.emitLoop(Op::FOR_LOOP, loopStart);
+    compiler.emitLoop(ByteCode::Op::FOR_LOOP, loopStart);
     compiler.patchJump(forPrepJump);
 
     compiler.endScope();
@@ -685,8 +685,8 @@ void Compiler::StmtVisitor::operator()(const RepeatStmt &node)
 
     compiler.compileExpression(node.condExpr, 1, false);
     
-    size_t jumpToEnd = compiler.emitJump(Op::JUMP_IF_TRUE);
-    compiler.emitLoop(Op::LOOP, loopStart);
+    size_t jumpToEnd = compiler.emitJump(ByteCode::Op::JUMP_IF_TRUE);
+    compiler.emitLoop(ByteCode::Op::LOOP, loopStart);
     compiler.patchJump(jumpToEnd);
 
     size_t endLoop = compiler.chunk.code.size();
@@ -702,13 +702,13 @@ void Compiler::StmtVisitor::operator()(const RepeatStmt &node)
 void Compiler::StmtVisitor::operator()(const IfStmt &node)
 {
     compiler.compileExpression(node.condExpr, 1, false);
-    size_t jumpToElse = compiler.emitJump(Op::JUMP_IF_FALSE);
+    size_t jumpToElse = compiler.emitJump(ByteCode::Op::JUMP_IF_FALSE);
 
     compiler.compileBlock(node.ifStmts);
 
     if (!node.elseStmts.empty())
     {
-        size_t jumpToEnd = compiler.emitJump(Op::JUMP);
+        size_t jumpToEnd = compiler.emitJump(ByteCode::Op::JUMP);
         compiler.patchJump(jumpToElse);
 
         compiler.compileBlock(node.elseStmts);
@@ -747,7 +747,7 @@ void Compiler::compileAssignment(size_t numOfTargets, const std::vector<ExprHand
         if (isMultiReturn(expr)) remaining = 0; // Multi return expressions should return all the values to pad nils
     }
      
-    while (remaining-- > 0) emit(Op::LOAD_NULL); // Pad nils
+    while (remaining-- > 0) emit(ByteCode::Op::LOAD_NULL); // Pad nils
 }
 
 void Compiler::StmtVisitor::operator()(const LocalAssignmentStmt &node)
@@ -772,14 +772,14 @@ void Compiler::StmtVisitor::operator()(const AssignmentStmt &node)
             { 
                 compiler.emitConstant(node.field);
                 compiler.compileExpression(node.expr, 1, false);
-                compiler.emit(Op::SET_FIELD);
+                compiler.emit(ByteCode::Op::SET_FIELD);
             },
             [this](const IndexExpr &node)
             { 
                 compiler.compileExpression(node.index, 1, false);
                 compiler.compileExpression(node.expr, 1, false);
 
-                compiler.emit(Op::SET_FIELD);
+                compiler.emit(ByteCode::Op::SET_FIELD);
             },
             [this](const VariableExpr &node)
             {
@@ -809,7 +809,7 @@ void Compiler::StmtVisitor::operator()(const FunctionAssignmentStmt &node)
 
             compiler.emitConstant(fieldAccessExpr.field);
             compiler.compileExpression(fieldAccessExpr.expr, 1, false);
-            compiler.emit(Op::SET_FIELD);
+            compiler.emit(ByteCode::Op::SET_FIELD);
         },
         [this, &node](const VariableExpr &variableExpr)
         {
@@ -852,7 +852,7 @@ void Compiler::StmtVisitor::operator()(const ReturnStmt &node)
         compiler.compileExpression(node.values.back(), -1, false);
     }
     
-    compiler.emitWithArg(Op::RETURN, static_cast<uint8_t>(compiler.locals.size()));
+    compiler.emitWithArg(ByteCode::Op::RETURN, static_cast<uint8_t>(compiler.locals.size()));
 }
 
 void Compiler::StmtVisitor::operator()(const BreakStmt &)
@@ -864,10 +864,10 @@ void Compiler::StmtVisitor::operator()(const BreakStmt &)
     for (auto i = locals.size(); i-- > 0 
     && locals[i].depth > compiler.loopStack.back().loopDepth;) // Remove all locals added before the break statement
     {
-        compiler.emit(locals.back().isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+        compiler.emit(locals.back().isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
     }
 
-    compiler.loopStack.back().breaks.emplace_back(compiler.emitJump(Op::JUMP));
+    compiler.loopStack.back().breaks.emplace_back(compiler.emitJump(ByteCode::Op::JUMP));
 }
 
 void Compiler::StmtVisitor::operator()(const GoToStmt &node) 
@@ -879,15 +879,15 @@ void Compiler::StmtVisitor::operator()(const GoToStmt &node)
         {
             for (size_t i = compiler.locals.size(); i-- > lb.currentLocals;) 
             {
-                compiler.emit(compiler.locals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+                compiler.emit(compiler.locals[i].isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
             }
 
-            compiler.patchJumpAt(compiler.emitJump(Op::JUMP), lb.pos);
+            compiler.patchJumpAt(compiler.emitJump(ByteCode::Op::JUMP), lb.pos);
             return;
         }
     }
    
-    compiler.unresolvedGoto.emplace_back(compiler.locals, node.label, compiler.emitJump(Op::JUMP), compiler.locals.size(), compiler.scopeDepth);
+    compiler.unresolvedGoto.emplace_back(compiler.locals, node.label, compiler.emitJump(ByteCode::Op::JUMP), compiler.locals.size(), compiler.scopeDepth);
 }
 
 void Compiler::StmtVisitor::operator()(const LabelStmt &node)
@@ -914,13 +914,13 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
                 compiler.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, compiler.locals.back().name));
             }
 
-            size_t fallthrough = compiler.emitJump(Op::JUMP);
+            size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
             compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
 
             auto &gtLocals = gt.locals.value();
             for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > compiler.scopeDepth;)
             {
-                compiler.emit(gtLocals[i].isCaptured ? Op::CLOSE_UPVALUE : Op::POP);
+                compiler.emit(gtLocals[i].isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
             }
            
             compiler.patchJump(fallthrough);
@@ -944,11 +944,11 @@ void Compiler::compileExpression(const ExprHandle &expression, int expectedRetur
         {
             [this](const bool a)
             {
-                emit(a ? Op::LOAD_TRUE : Op::LOAD_FALSE);
+                emit(a ? ByteCode::Op::LOAD_TRUE : ByteCode::Op::LOAD_FALSE);
             },
             [this](const LUA_NIL_TYPE)
             {
-                emit(Op::LOAD_NULL);
+                emit(ByteCode::Op::LOAD_NULL);
             },
             [this](const auto &a) 
             {

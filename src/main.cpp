@@ -5,8 +5,6 @@
 #include "lua.h"
 #include "fileio.h"
 
-#define NDEBUG
-
 int main(int argc, char **argv)
 {
     if (argc != 2)

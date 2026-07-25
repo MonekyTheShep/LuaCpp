@@ -50,7 +50,7 @@ struct Chunk
     
     std::optional<int> makeConstant(Value value);
     void write(uint8_t arg, int line);
-    void write(Op op, int line);
+    void write(ByteCode::Op op, int line);
 };
 
 struct FunctionChunk 

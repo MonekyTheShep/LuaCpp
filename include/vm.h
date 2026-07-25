@@ -49,7 +49,7 @@ class VM
 
         void execute(const FunctionHandle &code);
     public:
-        std::array<size_t, NUM_OF_OPS> opCounts;
+        std::array<size_t, ByteCode::NUM_OF_OPS> opCounts;
 
         enum class CallType : uint8_t
         {
@@ -205,13 +205,13 @@ class VM
         template <typename T>
         void handleBinaryError(std::string_view message, const Value &a, const Value &b, const std::optional<T> &lhs, const std::optional<T> &rhs);
         template <typename T>
-        void pushCompare(Op op, const T &a, const T &b);
-        void handleCompare(Op op, MetaMethod method);
+        void pushCompare(ByteCode::Op op, const T &a, const T &b);
+        void handleCompare(ByteCode::Op op, MetaMethod method);
         void handleEquality();
         int32_t doubleToInt(double num);
-        void handleBitWise(Op op, MetaMethod method);
+        void handleBitWise(ByteCode::Op op, MetaMethod method);
         void handleConcat();
-        void handleArithmetic(Op op, MetaMethod method);
+        void handleArithmetic(ByteCode::Op op, MetaMethod method);
 
         // ------------------------- 
         // Table Functions
