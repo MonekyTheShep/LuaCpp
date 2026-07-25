@@ -497,7 +497,7 @@ ExprHandle Parser::parseExpression(int minBp)
 
     for(;;)
     {
-        Token::Type op = previous().type;
+        Token::Type op = peek().type;
 
         auto [lBp, rBp] = getPrecedence(op);
         if (lBp < minBp) break;
