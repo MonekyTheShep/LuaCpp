@@ -22,6 +22,8 @@
 #include "value.h"
 #include "stdlib/stdlib.h"
 
+class VM;
+
 class VMRuntimeError : public std::exception 
 {
     public:
