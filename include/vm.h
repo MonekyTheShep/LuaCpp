@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <exception>
+#include <expected>
 #include <format>
 #include <initializer_list>
 #include <optional>
@@ -174,6 +175,7 @@ class VM
         // -------------------------
         void nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeIndex, int expectedReturn);
         void call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallType type);
+        std::expected<int, Value> protectedCall(size_t calleeIndex, bool isXPCall);
         void callValue(size_t calleeIndex, int expectedReturn, CallType type);
         void moveReturns(size_t firstResult, size_t frameBase, int expectedReturn);
 

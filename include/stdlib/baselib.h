@@ -22,6 +22,7 @@ class BaseLib : public Library
         static int rawset(VM &vm, std::span<Value> args);
         static int rawget(VM &vm, std::span<Value> args);
         static int pcall(VM &vm, std::span<Value> args);
+        static int xpcall(VM &vm, std::span<Value> args);
     private:
-        static std::array<Library::Method, 9> methods;
+        static std::array<Library::Method, 10> methods;
 };

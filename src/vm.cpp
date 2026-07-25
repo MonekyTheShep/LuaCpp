@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <format>
 #include <initializer_list>
 #include <iostream>
@@ -137,6 +138,53 @@ struct CallVisitor
         vm.runtimeError(std::format("Attempt to call a {} value!", vm.type(value)));
     }
 };
+
+std::expected<int, Value> VM::protectedCall(size_t calleeIndex, bool isXPCall)
+{
+    try 
+    {
+        if (isXPCall) // Move args over the handler
+        {
+            Value *handler = &stack[calleeIndex + 1];
+            Value *start = &stack[calleeIndex + 2];
+            Value *end = &stack[sp];
+            sp--;
+
+            std::move(start, end, handler);
+        }
+
+        pushErrorHandler(sp);
+        callValue(calleeIndex, -1, VM::CallType::CPP);
+        popErrorHandler();
+
+        // Insert true infront of returns
+        {
+            Value *start = &stack[calleeIndex];
+            Value *end = &stack[sp];
+
+            checkStack(sp, 1);
+            sp++;
+
+            std::move_backward(start, end, end + 1);
+
+            *start = true;
+        }
+
+        int results = static_cast<int>(sp - calleeIndex);
+
+        return results;
+    } 
+    catch (const VMRuntimeError& error)
+    {
+        recoverVM(); 
+        return std::unexpected(error.getObj());
+    }
+    catch(...)
+    {
+        runtimeError("Unrecoverable error occured!");
+    }
+}
+
 
 void VM::callValue(size_t calleeIndex, int expectedReturn, VM::CallType type)
 {

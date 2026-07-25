@@ -1,6 +1,5 @@
 #include "stdlib/baselib.h"
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <iostream>
@@ -114,45 +113,45 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
 {
     vm.argCheckAny(args, 0);
 
-    try 
+    size_t calleeIndex = vm.sp - args.size();
+    auto pcall = vm.protectedCall(calleeIndex, false);
+
+    if (pcall.has_value())
     {
-        size_t calleeIndex = vm.sp - args.size();
-
-        vm.pushErrorHandler(vm.sp);
-        vm.callValue(calleeIndex, -1, VM::CallType::CPP);
-        vm.popErrorHandler();
-
-        // Insert true infront of returns
-        {
-            Value *start = &vm.stack[calleeIndex];
-            Value *end = &vm.stack[vm.sp];
-
-            vm.checkStack(vm.sp, 1);
-            vm.sp++;
-
-            std::move_backward(start, end, end + 1);
-
-            *start = true;
-        }
-
-        int results = static_cast<int>(vm.sp - calleeIndex);
-
-        return results;
-    } 
-    catch (const VMRuntimeError& error)
-    {
-        vm.recoverVM(); 
-        vm.push(false);
-        vm.push(error.getObj());
-        return 2;
+        return pcall.value();
     }
-    catch(...)
+    else
     {
-        vm.runtimeError("Unrecoverable error occured!");
+        vm.push(false);
+        vm.push(pcall.error());
+        return 2;
     }
 }
 
-std::array<Library::Method, 9> BaseLib::methods
+int BaseLib::xpcall(VM &vm, std::span<Value> args)
+{
+    vm.argCheckAny(args, 0);
+
+    Value handler = vm.argCheckAny(args, 1);
+
+    size_t calleeIndex = vm.sp - args.size();
+    auto pcall = vm.protectedCall(calleeIndex, true);
+
+    if (pcall.has_value())
+    {
+        return pcall.value();
+    }
+    else
+    {
+        vm.push(false);
+        size_t calleeIndex = vm.push(handler);
+        vm.push(pcall.error());
+        vm.callValue(calleeIndex, 1, VM::CallType::CPP);
+        return 2;
+    }
+}
+
+std::array<Library::Method, 10> BaseLib::methods
 {{
     {"print",  &print},
     {"tostring", &tostring},
@@ -163,6 +162,7 @@ std::array<Library::Method, 9> BaseLib::methods
     {"rawset", &rawset},
     {"rawget", &rawget},
     {"pcall", &pcall},
+    {"xpcall", &xpcall},
 }};
 
 LuaTableHandle BaseLib::openLibrary(VM &vm) 
