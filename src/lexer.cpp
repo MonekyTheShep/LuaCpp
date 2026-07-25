@@ -158,7 +158,7 @@ TokenWithPos Lexer::lex()
             }
             else 
             {
-                return {{TokenType::LEFT_BRACKET, "]"}, startLine, startCol};
+                return {{TokenType::LEFT_BRACKET, "["}, startLine, startCol};
             }
         }
 
