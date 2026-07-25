@@ -9,7 +9,6 @@
 #include <expected>
 #include <format>
 #include <initializer_list>
-#include <iostream>
 #include <optional>
 #include <span>
 #include <string>
@@ -274,7 +273,6 @@ class VM
             std::move(begin, end, begin - by);
 
             sp -= by;
-            assert(sp >= 0);
         }
 
         void shiftRight(size_t start, size_t by)
