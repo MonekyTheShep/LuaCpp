@@ -117,8 +117,8 @@ struct CallVisitor
         if (++depth >= 100) vm.runtimeError("Potential infinite loop within `__call`!");
     
         // Insert table infront of args
-        size_t tableIndex = calleeIndex + 1;
-        vm.insert(tableIndex, table);
+        size_t argStart = calleeIndex + 1;
+        vm.insert(argStart, table);
 
         vm.stack[calleeIndex] = *function;
         std::visit(*this, *function);
