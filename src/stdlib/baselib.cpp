@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <iostream>
 #include <span>
+#include <utility>
 #include <variant>
 
 #include "metamethod.h"
@@ -114,7 +115,7 @@ int BaseLib::pcall(VM &vm, std::span<Value> args)
     vm.argCheckAny(args, 0);
 
     size_t calleeIndex = vm.sp - args.size();
-    auto pcall = vm.protectedCall(calleeIndex, false);
+    auto pcall = vm.protectedCall(calleeIndex);
 
     if (pcall.has_value())
     {
@@ -132,10 +133,13 @@ int BaseLib::xpcall(VM &vm, std::span<Value> args)
 {
     vm.argCheckAny(args, 0);
 
-    Value handler = vm.argEnsure<FunctionHandle>(args, 1, "function value");
+    vm.argCheck<ClosureHandle, NativeFunctionHandle>(args, 1, "function value");
+    Value handler = args[1];
 
     size_t calleeIndex = vm.sp - args.size();
-    auto pcall = vm.protectedCall(calleeIndex, true);
+    vm.shiftLeft(calleeIndex + 2, 1); // Move args over handler
+
+    auto pcall = vm.protectedCall(calleeIndex);
 
     if (pcall.has_value())
     {
@@ -144,7 +148,7 @@ int BaseLib::xpcall(VM &vm, std::span<Value> args)
     else
     {
         vm.push(false);
-        size_t calleeIndex = vm.push(handler);
+        size_t calleeIndex = vm.push(std::move(handler));
         vm.push(pcall.error());
         vm.callValue(calleeIndex, 1, VM::CallType::CPP);
         return 2;

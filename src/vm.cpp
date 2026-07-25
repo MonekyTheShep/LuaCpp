@@ -22,6 +22,7 @@
 #include "bytecode.h"
 #include "lua_table.h"
 #include "metamethod.h"
+#include "stdlib/stdlib.h"
 #include "value.h"
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
@@ -115,18 +116,9 @@ struct CallVisitor
 
         if (++depth >= 100) vm.runtimeError("Potential infinite loop within `__call`!");
     
-        // Insert table in front of args
-        {
-            Value *start = &vm.stack[calleeIndex + 1];
-            Value *end = &vm.stack[vm.sp];
-
-            vm.checkStack(vm.sp, 1);
-            vm.sp++;
-
-            std::move_backward(start, end, end + 1);
-
-            *start = table; 
-        }
+        // Insert table infront of args
+        size_t tableIndex = calleeIndex + 1;
+        vm.insert(tableIndex, table);
 
         vm.stack[calleeIndex] = *function;
         std::visit(*this, *function);
@@ -139,36 +131,16 @@ struct CallVisitor
     }
 };
 
-std::expected<int, Value> VM::protectedCall(size_t calleeIndex, bool isXPCall)
+std::expected<int, Value> VM::protectedCall(size_t calleeIndex)
 {
     try 
     {
-        if (isXPCall) // Move args over the handler
-        {
-            Value *handler = &stack[calleeIndex + 1];
-            Value *start = &stack[calleeIndex + 2];
-            Value *end = &stack[sp];
-            sp--;
-
-            std::move(start, end, handler);
-        }
-
         pushErrorHandler(sp);
         callValue(calleeIndex, -1, VM::CallType::CPP);
         popErrorHandler();
 
         // Insert true infront of returns
-        {
-            Value *start = &stack[calleeIndex];
-            Value *end = &stack[sp];
-
-            checkStack(sp, 1);
-            sp++;
-
-            std::move_backward(start, end, end + 1);
-
-            *start = true;
-        }
+        insert(calleeIndex, true);
 
         int results = static_cast<int>(sp - calleeIndex);
 

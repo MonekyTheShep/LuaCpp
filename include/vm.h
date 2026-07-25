@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
@@ -8,6 +9,7 @@
 #include <expected>
 #include <format>
 #include <initializer_list>
+#include <iostream>
 #include <optional>
 #include <span>
 #include <string>
@@ -175,7 +177,7 @@ class VM
         // -------------------------
         void nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeIndex, int expectedReturn);
         void call(const ClosureHandle &closure, size_t calleeIndex, int expectedReturn, CallType type);
-        std::expected<int, Value> protectedCall(size_t calleeIndex, bool isXPCall);
+        std::expected<int, Value> protectedCall(size_t calleeIndex);
         void callValue(size_t calleeIndex, int expectedReturn, CallType type);
         void moveReturns(size_t firstResult, size_t frameBase, int expectedReturn);
 
@@ -262,6 +264,33 @@ class VM
         {
             assert(sp > 0);
             return std::move(stack[--sp]);
+        }
+
+        void shiftLeft(size_t start, size_t by)
+        {
+            Value *begin = &stack[start];
+            Value *end = &stack[sp];
+        
+            std::move(begin, end, begin - by);
+
+            sp -= by;
+        }
+
+        void shiftRight(size_t start, size_t by)
+        {
+            Value *begin = &stack[start];
+            Value *end = &stack[sp];
+
+            checkStack(sp, by);
+            sp += by;
+
+            std::move_backward(begin, end, end + by);
+        }
+
+        void insert(size_t pos, Value value)
+        {
+            shiftRight(pos, 1);
+            stack[pos] = std::move(value);
         }
 
         // -------------------------
