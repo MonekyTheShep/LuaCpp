@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -156,7 +157,8 @@ class Compiler
                 , expectedReturn(expectedReturn)
                 , isTailCall(isTailCall) 
                 {
-                    assert(expectedReturn > -1 && expectedReturn <= INT8_MAX);
+                    assert(expectedReturn >= -1);
+                    assert(expectedReturn <= INT8_MAX);
                 }
 
                 void operator()(const NumberLiteralExpr &node);
