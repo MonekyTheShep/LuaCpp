@@ -205,11 +205,11 @@ class Parser
         std::vector<ExprHandle> parseArgs();
         std::vector<ExprHandle> parseArgumentList();
 
-        struct ParsedParams 
+        struct Params 
         {   
             std::vector<std::string> args;
             bool isVarArg;
         };
 
-        ParsedParams parseParams();
+        Params parseParams();
 };

@@ -712,7 +712,7 @@ std::vector<ExprHandle> Parser::parseArgumentList()
     return args;
 }
 
-Parser::ParsedParams Parser::parseParams()
+Parser::Params Parser::parseParams()
 {
     std::vector<std::string> args;
     bool isVarArg = false;
