@@ -233,9 +233,9 @@ class Compiler
             }
         }
 
-        void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
-
         void compileBlock(const Ast &stmts);
+
+        void compileAssignment(size_t numOfTargets, const std::vector<ExprHandle> &values);
 
         // --------------------
         // Helper Functions
