@@ -42,22 +42,22 @@ class Parser
 
         Ast parse();
     private:
-        static std::unordered_map<TokenType, BinaryExpr::BinaryOperator> binOps;
-        static std::unordered_map<TokenType, UnaryExpr::UnaryOperator> unaryOps;
+        static std::unordered_map<Token::Type, BinaryExpr::BinaryOperator> binOps;
+        static std::unordered_map<Token::Type, UnaryExpr::UnaryOperator> unaryOps;
 
         Lexer lexer;
-        TokenWithPos currentToken;
-        TokenWithPos previousToken;
+        Token currentToken;
+        Token previousToken;
     private:
         // -----------------------------
         // Error Functions
         // -----------------------------
-        [[noreturn]] void parserError(std::string_view error, const TokenWithPos &token) 
+        [[noreturn]] void parserError(std::string_view error, const Token &token) 
         { 
             throw ParserError(std::format("[Line {}, Col {}] {}!", token.line, token.col, error)); 
         }
 
-        std::string makeContextError(std::initializer_list<TokenType> tokens, TokenType failedToken, const char *context)
+        std::string makeContextError(std::initializer_list<Token::Type> tokens, Token::Type failedToken, const char *context)
         {
             std::string tokensExpected;
 
@@ -65,20 +65,20 @@ class Parser
 
             for (size_t i = 0; i < tokens.size(); i++)
             {
-                tokensExpected += std::format("`{}`", TokenHelper::toString(it[i]));
+                tokensExpected += std::format("`{}`", Token::toString(it[i]));
                 if (i < tokens.size() - 1)
                 {
                     tokensExpected += " or ";
                 }
             }
 
-            std::string failedTokenString = TokenHelper::toString(failedToken);
+            std::string failedTokenString = Token::toString(failedToken);
 
             if (context) return std::format("Expected {} got `{}` while parsing {}", tokensExpected, failedTokenString, context);
             else return std::format("Expected {} got `{}`", tokensExpected, failedTokenString);
         }
 
-        [[noreturn]] void multiTokenError(std::initializer_list<TokenType> tokens, const char *context)
+        [[noreturn]] void multiTokenError(std::initializer_list<Token::Type> tokens, const char *context)
         {
             parserError(makeContextError(tokens, peek().type, context), peek());
         }
@@ -86,27 +86,27 @@ class Parser
         // -----------------------------
         // Helper Function
         // -----------------------------
-        bool check(TokenType type) { return peek().type == type; }
+        bool check(Token::Type type) { return peek().type == type; }
 
-        bool checkNext(TokenType type) { return peekNext().type == type; }
+        bool checkNext(Token::Type type) { return peekNext().type == type; }
 
         template<typename... Args>
-        requires (std::same_as<Args, TokenType> && ...)
+        requires (std::same_as<Args, Token::Type> && ...)
         bool checkAny(Args... types)
         {
             return ((check(types)) || ...);
         }
 
-        bool isEof() { return (check(TokenType::TEOF)); }
+        bool isEof() { return (check(Token::Type::TEOF)); }
 
         bool isEndBlock(bool withUntil = true) // Until doesnt close the scope since it can contain an expression
         {
             switch (peek().type)
             {
-                case TokenType::END: case TokenType::ELSE: 
-                case TokenType::ELSE_IF: case TokenType::TEOF:
+                case Token::Type::END: case Token::Type::ELSE: 
+                case Token::Type::ELSE_IF: case Token::Type::TEOF:
                     return true;
-                case TokenType::UNTIL: 
+                case Token::Type::UNTIL: 
                     return withUntil;
                 default:
                     return false;
@@ -115,7 +115,7 @@ class Parser
         // -----------------------------
         // Traversal Functions
         // -----------------------------
-        void expect(TokenType type, const char* context)
+        void expect(Token::Type type, const char* context)
         {
             if (!check(type)) 
                 parserError(makeContextError({type}, peek().type, context), peek());
@@ -125,12 +125,12 @@ class Parser
 
         std::string expectIdentifier(const char* context)
         {
-            expect(TokenType::IDENTIFIER, context);
+            expect(Token::Type::IDENTIFIER, context);
             return std::string(previous().lexeme);
         }
 
         template<typename... Args>
-        requires (std::same_as<Args, TokenType> && ...)
+        requires (std::same_as<Args, Token::Type> && ...)
         bool match(Args... types)
         {
             if ((check(types) || ...))
@@ -142,9 +142,9 @@ class Parser
             return false;
         }
 
-        TokenWithPos peek() { return currentToken; }
+        Token peek() { return currentToken; }
   
-        TokenWithPos peekNext() 
+        Token peekNext() 
         { 
             if (isEof()) return currentToken;
             return lexer.lookAheadToken();
@@ -155,13 +155,13 @@ class Parser
             previousToken = currentToken;
             currentToken = lexer.nextToken();
 
-            while (currentToken.type == TokenType::COMMENT)
+            while (currentToken.type == Token::Type::COMMENT)
             {
                 currentToken = lexer.nextToken();
             }
         }
 
-        TokenWithPos previous() { return previousToken; }
+        Token previous() { return previousToken; }
 
         void skipSeparators();
 
@@ -193,9 +193,9 @@ class Parser
         // -----------------------------
         // Expression Functions
         // -----------------------------
-        std::pair<int, int> getPrecedence(TokenType op);
-        BinaryExpr::BinaryOperator getBinaryOperator(TokenType op);
-        UnaryExpr::UnaryOperator getUnaryOperator(TokenType op);
+        std::pair<int, int> getPrecedence(Token::Type op);
+        BinaryExpr::BinaryOperator getBinaryOperator(Token::Type op);
+        UnaryExpr::UnaryOperator getUnaryOperator(Token::Type op);
         ExprHandle parseExpression(int minBp = 0);
         ExprHandle parseSimple();
         ExprHandle parsePostFix();

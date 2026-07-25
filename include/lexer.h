@@ -21,16 +21,16 @@ class Lexer
         , line(1)
         {}
 
-        TokenWithPos nextToken();
-        TokenWithPos lookAheadToken();
+        Token nextToken();
+        Token lookAheadToken();
 
         static std::string makeFormattedString(std::string_view lexeme);
 
-        static std::string getTokenTypeName(const TokenType &type);
+        static std::string getTokenTypeName(const Token::Type &type);
     private:
-        static std::unordered_map<TokenType, std::string_view> tokenNames;
+        static std::unordered_map<Token::Type, std::string_view> tokenNames;
     
-        std::optional<TokenWithPos> lookAhead;
+        std::optional<Token> lookAhead;
 
         std::string query;
 
@@ -41,22 +41,22 @@ class Lexer
         // -----------------------------
         // Token Functions
         // -----------------------------
-        TokenWithPos lex();
+        Token lex();
 
-        TokenValue readComment();
+        Token::Value readComment();
         
-        std::optional<TokenType> resolveKeyword(std::string_view lexeme);
-        TokenValue readIdentifier();
+        std::optional<Token::Type> resolveKeyword(std::string_view lexeme);
+        Token::Value readIdentifier();
 
         int isLongStringSequence();
         int countEquals();
-        TokenValue readLongString(int sep, TokenType type, TokenType broken);
+        Token::Value readLongString(int sep, Token::Type type, Token::Type broken);
 
-        TokenValue readString();
+        Token::Value readString();
 
-        TokenValue readNumber();
+        Token::Value readNumber();
 
-        TokenValue readOperatorAndDelimiter();
+        Token::Value readOperatorAndDelimiter();
 
         // -----------------------------
         // Helper Functions

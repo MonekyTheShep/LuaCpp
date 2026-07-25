@@ -11,86 +11,86 @@
 
 #include "token.h"
 
-std::unordered_map<TokenType, std::string_view> Lexer::tokenNames 
+std::unordered_map<Token::Type, std::string_view> Lexer::tokenNames 
 {
-    {TokenType::TEOF, "EOF"},
-    {TokenType::COMMENT, "COMMENT"},
-    {TokenType::MALFORMED_COMMENT, "MALFORMED_COMMENT"},
-    {TokenType::LOCAL, "LOCAL"},
-    {TokenType::GOTO, "GOTO"},
-    {TokenType::FUNCTION, "FUNCTION"},
-    {TokenType::THEN, "THEN"},
-    {TokenType::END, "END"},
-    {TokenType::IN, "IN"},
-    {TokenType::NIL, "NIL"},
-    {TokenType::FALSE, "FALSE"},
-    {TokenType::TRUE, "TRUE"},
-    {TokenType::IF, "IF"},
-    {TokenType::ELSE, "ELSE"},
-    {TokenType::ELSE_IF, "ELSE_IF"},
-    {TokenType::FOR, "FOR"},
-    {TokenType::WHILE, "WHILE"},
-    {TokenType::REPEAT, "REPEAT"},
-    {TokenType::UNTIL, "UNTIL"},
-    {TokenType::DO, "DO"},
-    {TokenType::AND, "AND"},
-    {TokenType::OR, "OR"},
-    {TokenType::NOT, "NOT"},
-    {TokenType::RETURN, "RETURN"},
-    {TokenType::BREAK, "BREAK"},
+    {Token::Type::TEOF, "EOF"},
+    {Token::Type::COMMENT, "COMMENT"},
+    {Token::Type::MALFORMED_COMMENT, "MALFORMED_COMMENT"},
+    {Token::Type::LOCAL, "LOCAL"},
+    {Token::Type::GOTO, "GOTO"},
+    {Token::Type::FUNCTION, "FUNCTION"},
+    {Token::Type::THEN, "THEN"},
+    {Token::Type::END, "END"},
+    {Token::Type::IN, "IN"},
+    {Token::Type::NIL, "NIL"},
+    {Token::Type::FALSE, "FALSE"},
+    {Token::Type::TRUE, "TRUE"},
+    {Token::Type::IF, "IF"},
+    {Token::Type::ELSE, "ELSE"},
+    {Token::Type::ELSE_IF, "ELSE_IF"},
+    {Token::Type::FOR, "FOR"},
+    {Token::Type::WHILE, "WHILE"},
+    {Token::Type::REPEAT, "REPEAT"},
+    {Token::Type::UNTIL, "UNTIL"},
+    {Token::Type::DO, "DO"},
+    {Token::Type::AND, "AND"},
+    {Token::Type::OR, "OR"},
+    {Token::Type::NOT, "NOT"},
+    {Token::Type::RETURN, "RETURN"},
+    {Token::Type::BREAK, "BREAK"},
 
-    {TokenType::STRING_LITERAL, "STRING_LITERAL"},
-    {TokenType::MALFORMED_STRING, "MALFORMED_STRING"},
-    {TokenType::NUMBER_LITERAL, "INTEGER_LITERAL"},
+    {Token::Type::STRING_LITERAL, "STRING_LITERAL"},
+    {Token::Type::MALFORMED_STRING, "MALFORMED_STRING"},
+    {Token::Type::NUMBER_LITERAL, "INTEGER_LITERAL"},
 
-    {TokenType::OP_ADD, "OP_ADD"},
-    {TokenType::OP_SUB, "OP_SUB"},
-    {TokenType::OP_MUL, "OP_MUL"},
-    {TokenType::OP_DIV, "OP_DIV"},
-    {TokenType::OP_FLOOR_DIV, "OP_FLOOR_DIV"},
-    {TokenType::OP_EXPO, "OP_EXPO"},
+    {Token::Type::OP_ADD, "OP_ADD"},
+    {Token::Type::OP_SUB, "OP_SUB"},
+    {Token::Type::OP_MUL, "OP_MUL"},
+    {Token::Type::OP_DIV, "OP_DIV"},
+    {Token::Type::OP_FLOOR_DIV, "OP_FLOOR_DIV"},
+    {Token::Type::OP_EXPO, "OP_EXPO"},
 
-    {TokenType::OP_ASSIGN, "OP_ASSIGN"},
+    {Token::Type::OP_ASSIGN, "OP_ASSIGN"},
 
-    {TokenType::OP_EQUAL, "OP_EQUAL"},
-    {TokenType::OP_NOT_EQUAL, "OP_NOT_EQUAL"},
-    {TokenType::OP_GREATER_EQUAL, "OP_GREAT_EQUAL"},
-    {TokenType::OP_LESS_EQUAL, "OP_LESS_EQUAL"},
+    {Token::Type::OP_EQUAL, "OP_EQUAL"},
+    {Token::Type::OP_NOT_EQUAL, "OP_NOT_EQUAL"},
+    {Token::Type::OP_GREATER_EQUAL, "OP_GREAT_EQUAL"},
+    {Token::Type::OP_LESS_EQUAL, "OP_LESS_EQUAL"},
 
-    {TokenType::OP_AND, "OP_AND"},
-    {TokenType::OP_OR, "OP_OR"},
-    {TokenType::OP_BITSHIFT_RIGHT, "OP_BITSHIFT_RIGHT"},
-    {TokenType::OP_BITSHIFT_LEFT, "OP_BITSHIFT_LEFT"},
-    {TokenType::OP_NOT, "OP_NOT"},
+    {Token::Type::OP_AND, "OP_AND"},
+    {Token::Type::OP_OR, "OP_OR"},
+    {Token::Type::OP_BITSHIFT_RIGHT, "OP_BITSHIFT_RIGHT"},
+    {Token::Type::OP_BITSHIFT_LEFT, "OP_BITSHIFT_LEFT"},
+    {Token::Type::OP_NOT, "OP_NOT"},
 
-    {TokenType::OP_CONCAT, "CONCAT"},
-    {TokenType::OP_LENGTH, "OP_LENGTH"},
+    {Token::Type::OP_CONCAT, "CONCAT"},
+    {Token::Type::OP_LENGTH, "OP_LENGTH"},
 
-    {TokenType::LEFT_PAREN, "LEFT_PAREN"},
-    {TokenType::RIGHT_PAREN, "RIGHT_PAREN"},
-    {TokenType::LEFT_BRACE, "LEFT_BRACE"},
-    {TokenType::RIGHT_BRACE, "RIGHT_BRACE"},
-    {TokenType::LEFT_BRACKET, "LEFT_BRACKET"},
-    {TokenType::RIGHT_BRACKET, "RIGHT_BRACKET"},
-    {TokenType::OP_GREATER, "OP_GREATER"},
-    {TokenType::OP_LESS, "OP_LESS"},
-    {TokenType::COMMA, "COMMA"},
-    {TokenType::DOT, "DOT"},
-    {TokenType::VARARG, "VARARG"},
-    {TokenType::COLON, "COLON"},
-    {TokenType::DOUBLECOLON, "DOUBLECOLON"},
-    {TokenType::SEMICOLON, "SEMICOLON"},
+    {Token::Type::LEFT_PAREN, "LEFT_PAREN"},
+    {Token::Type::RIGHT_PAREN, "RIGHT_PAREN"},
+    {Token::Type::LEFT_BRACE, "LEFT_BRACE"},
+    {Token::Type::RIGHT_BRACE, "RIGHT_BRACE"},
+    {Token::Type::LEFT_BRACKET, "LEFT_BRACKET"},
+    {Token::Type::RIGHT_BRACKET, "RIGHT_BRACKET"},
+    {Token::Type::OP_GREATER, "OP_GREATER"},
+    {Token::Type::OP_LESS, "OP_LESS"},
+    {Token::Type::COMMA, "COMMA"},
+    {Token::Type::DOT, "DOT"},
+    {Token::Type::VARARG, "VARARG"},
+    {Token::Type::COLON, "COLON"},
+    {Token::Type::DOUBLECOLON, "DOUBLECOLON"},
+    {Token::Type::SEMICOLON, "SEMICOLON"},
 
-    {TokenType::IDENTIFIER, "IDENTIFIER"},
+    {Token::Type::IDENTIFIER, "IDENTIFIER"},
 };
 
-std::string Lexer::getTokenTypeName(const TokenType &type)
+std::string Lexer::getTokenTypeName(const Token::Type &type)
 {
     auto it = tokenNames.find(type);
     return it == tokenNames.end() ? "UNKNOWN" : std::string(it->second);
 }
 
-TokenWithPos Lexer::nextToken()
+Token Lexer::nextToken()
 {
     if (lookAhead) 
         return std::exchange(lookAhead, std::nullopt).value();
@@ -98,14 +98,14 @@ TokenWithPos Lexer::nextToken()
     return lex();
 }
 
-TokenWithPos Lexer::lookAheadToken()
+Token Lexer::lookAheadToken()
 {
     if (lookAhead) return *lookAhead;
     lookAhead = lex();
     return *lookAhead;
 }
 
-TokenWithPos Lexer::lex()
+Token Lexer::lex()
 {
     for(;;)
     {
@@ -114,7 +114,7 @@ TokenWithPos Lexer::lex()
         int startLine = line;
         int startCol = col;
         
-        if (isEof()) return {{TokenType::TEOF, std::string_view()}, startLine, startCol};
+        if (isEof()) return {{Token::Type::TEOF, std::string_view()}, startLine, startCol};
 
         size_t startPos = pos;
         char currentChar = peek();
@@ -131,7 +131,7 @@ TokenWithPos Lexer::lex()
             {
                 return {readComment(), startLine, startCol};
             }
-            return {{TokenType::OP_SUB, "-"}, startLine, startCol};
+            return {{Token::Type::OP_SUB, "-"}, startLine, startCol};
         }
         else if (isAlpha(currentChar) || currentChar == '_')
         {
@@ -150,25 +150,26 @@ TokenWithPos Lexer::lex()
             int prefix = isLongStringSequence();
             if (prefix >= 2)
             {
-                return {{readLongString(prefix, TokenType::STRING_LITERAL, TokenType::MALFORMED_STRING)}, startLine, startCol};
+                Token::Value value = readLongString(prefix, Token::Type::STRING_LITERAL, Token::Type::MALFORMED_STRING);
+                return {value, startLine, startCol};
             }
             else if (prefix == 0)
             {
-                return {{TokenType::MALFORMED_STRING, std::string_view(query).substr(startPos, pos - startPos)}, startLine, startCol};
+                return {{Token::Type::MALFORMED_STRING, std::string_view(query).substr(startPos, pos - startPos)}, startLine, startCol};
             }
             else 
             {
-                return {{TokenType::LEFT_BRACKET, "["}, startLine, startCol};
+                return {{Token::Type::LEFT_BRACKET, "["}, startLine, startCol};
             }
         }
 
-        return {readOperatorAndDelimiter(), startLine, startCol};
+       return {readOperatorAndDelimiter(), startLine, startCol};
     }
 }
 
-TokenValue Lexer::readComment()
+Token::Value Lexer::readComment()
 {
-    advance(); // Consume '-' 
+    advance(); // Consume second '-' 
     size_t start = pos;
 
     if (peek() == '[')
@@ -177,7 +178,7 @@ TokenValue Lexer::readComment()
 
         if (prefix >= 2)
         {
-            return readLongString(prefix, TokenType::COMMENT, TokenType::MALFORMED_COMMENT);
+            return readLongString(prefix, Token::Type::COMMENT, Token::Type::MALFORMED_COMMENT);
         }
     }
 
@@ -186,43 +187,43 @@ TokenValue Lexer::readComment()
         advance();
     }
 
-    return {TokenType::COMMENT, std::string_view(query).substr(start, pos - start)};
+    return {Token::Type::COMMENT, std::string_view(query).substr(start, pos - start)};
 }
 
-std::optional<TokenType> Lexer::resolveKeyword(std::string_view lexeme)
+std::optional<Token::Type> Lexer::resolveKeyword(std::string_view lexeme)
 {
-    if (lexeme == "local") return TokenType::LOCAL;
-    if (lexeme == "goto") return TokenType::GOTO;
-    if (lexeme == "function") return TokenType::FUNCTION;
-    if (lexeme == "then") return TokenType::THEN;
-    if (lexeme == "end") return TokenType::END;
-    if (lexeme == "in") return TokenType::IN;
+    if (lexeme == "local") return Token::Type::LOCAL;
+    if (lexeme == "goto") return Token::Type::GOTO;
+    if (lexeme == "function") return Token::Type::FUNCTION;
+    if (lexeme == "then") return Token::Type::THEN;
+    if (lexeme == "end") return Token::Type::END;
+    if (lexeme == "in") return Token::Type::IN;
 
-    if (lexeme == "nil") return TokenType::NIL;
-    if (lexeme == "false") return TokenType::FALSE;
-    if (lexeme == "true") return TokenType::TRUE;
+    if (lexeme == "nil") return Token::Type::NIL;
+    if (lexeme == "false") return Token::Type::FALSE;
+    if (lexeme == "true") return Token::Type::TRUE;
 
-    if (lexeme == "if") return TokenType::IF;
-    if (lexeme == "else") return TokenType::ELSE;
-    if (lexeme == "elseif") return TokenType::ELSE_IF;
+    if (lexeme == "if") return Token::Type::IF;
+    if (lexeme == "else") return Token::Type::ELSE;
+    if (lexeme == "elseif") return Token::Type::ELSE_IF;
 
-    if (lexeme == "for") return TokenType::FOR;
-    if (lexeme == "while") return TokenType::WHILE;
-    if (lexeme == "repeat") return TokenType::REPEAT;
-    if (lexeme == "until") return TokenType::UNTIL;
-    if (lexeme == "do") return TokenType::DO;
+    if (lexeme == "for") return Token::Type::FOR;
+    if (lexeme == "while") return Token::Type::WHILE;
+    if (lexeme == "repeat") return Token::Type::REPEAT;
+    if (lexeme == "until") return Token::Type::UNTIL;
+    if (lexeme == "do") return Token::Type::DO;
 
-    if (lexeme == "and") return TokenType::AND;
-    if (lexeme == "or") return TokenType::OR;
-    if (lexeme == "not") return TokenType::NOT;
+    if (lexeme == "and") return Token::Type::AND;
+    if (lexeme == "or") return Token::Type::OR;
+    if (lexeme == "not") return Token::Type::NOT;
 
-    if (lexeme == "return") return TokenType::RETURN;
-    if (lexeme == "break") return TokenType::BREAK;
+    if (lexeme == "return") return Token::Type::RETURN;
+    if (lexeme == "break") return Token::Type::BREAK;
 
     return std::nullopt;
 }
 
-TokenValue Lexer::readIdentifier()
+Token::Value Lexer::readIdentifier()
 {
     size_t start = pos;
 
@@ -236,7 +237,7 @@ TokenValue Lexer::readIdentifier()
     if(auto keyword = resolveKeyword(lexeme)) 
         return {*keyword, lexeme};
 
-    return {TokenType::IDENTIFIER, lexeme};
+    return {Token::Type::IDENTIFIER, lexeme};
 }
 
 /*
@@ -265,7 +266,7 @@ int Lexer::countEquals()
     return equals;
 }
 
-TokenValue Lexer::readLongString(int sep, TokenType type, TokenType broken)
+Token::Value Lexer::readLongString(int sep, Token::Type type, Token::Type broken)
 {
     advance(); // Consume long string 2nd starting '['
     size_t start = pos;
@@ -293,7 +294,7 @@ TokenValue Lexer::readLongString(int sep, TokenType type, TokenType broken)
     return {broken, std::string_view(query).substr(start, pos - start)};
 }
 
-TokenValue Lexer::readString()
+Token::Value Lexer::readString()
 {
     char quote = advance(); // Consume starting quote
     size_t start = pos;
@@ -326,11 +327,11 @@ TokenValue Lexer::readString()
 
     size_t endPos = pos;
 
-    if (peek() != quote) return {TokenType::MALFORMED_STRING, std::string_view(query).substr(start, endPos - start)};
+    if (peek() != quote) return {Token::Type::MALFORMED_STRING, std::string_view(query).substr(start, endPos - start)};
     
     advance(); // Consume ending quote
     
-    return {TokenType::STRING_LITERAL, std::string_view(query).substr(start, endPos - start)};
+    return {Token::Type::STRING_LITERAL, std::string_view(query).substr(start, endPos - start)};
 }
 
 std::string Lexer::makeFormattedString(std::string_view lexeme)
@@ -371,7 +372,7 @@ std::string Lexer::makeFormattedString(std::string_view lexeme)
     return content;
 }
 
-TokenValue Lexer::readNumber() 
+Token::Value Lexer::readNumber() 
 {
     size_t start = pos;
 
@@ -397,10 +398,10 @@ TokenValue Lexer::readNumber()
         else break;
     }
 
-    return {TokenType::NUMBER_LITERAL, std::string_view(query).substr(start, pos - start)};
+    return {Token::Type::NUMBER_LITERAL, std::string_view(query).substr(start, pos - start)};
 }
 
-TokenValue Lexer::readOperatorAndDelimiter()
+Token::Value Lexer::readOperatorAndDelimiter()
 {
     size_t start = pos;
     char c = advance();
@@ -408,94 +409,94 @@ TokenValue Lexer::readOperatorAndDelimiter()
     switch (c)
     {
         case '(':
-            return {TokenType::LEFT_PAREN, "("};
+            return {Token::Type::LEFT_PAREN, "("};
         case ')':
-            return {TokenType::RIGHT_PAREN, ")"};
+            return {Token::Type::RIGHT_PAREN, ")"};
         case '{':
-            return {TokenType::LEFT_BRACE, "{"};
+            return {Token::Type::LEFT_BRACE, "{"};
         case '}':
-            return {TokenType::RIGHT_BRACE, "}"};     
+            return {Token::Type::RIGHT_BRACE, "}"};     
         case ']':
-            return {TokenType::RIGHT_BRACKET, "]"};
+            return {Token::Type::RIGHT_BRACKET, "]"};
         case ',':
-            return {TokenType::COMMA, ","};
+            return {Token::Type::COMMA, ","};
         case '.':
         {
-            if (peek() != '.') return {TokenType::DOT, "."};
+            if (peek() != '.') return {Token::Type::DOT, "."};
             advance();
-            if (peek() != '.') return {TokenType::OP_CONCAT, ".."};
+            if (peek() != '.') return {Token::Type::OP_CONCAT, ".."};
             advance();
-            return {TokenType::VARARG, "..."};
+            return {Token::Type::VARARG, "..."};
         }
         case ':':
-            if (peek() != ':') return {TokenType::COLON, ":"};
+            if (peek() != ':') return {Token::Type::COLON, ":"};
             advance();
-            return {TokenType::DOUBLECOLON, "::"};
+            return {Token::Type::DOUBLECOLON, "::"};
         case ';':
-            return {TokenType::SEMICOLON, ";"};
+            return {Token::Type::SEMICOLON, ";"};
         case '+':
-            return {TokenType::OP_ADD, "+"};
+            return {Token::Type::OP_ADD, "+"};
         case '*':
-            return {TokenType::OP_MUL, "*"};
+            return {Token::Type::OP_MUL, "*"};
         case '/':
         {
-            if (peek() != '/') return {TokenType::OP_DIV, "/"};
+            if (peek() != '/') return {Token::Type::OP_DIV, "/"};
             advance();
-            return {TokenType::OP_FLOOR_DIV, "//"};
+            return {Token::Type::OP_FLOOR_DIV, "//"};
         }
         case '%':
-            return {TokenType::OP_MOD, "%"};
+            return {Token::Type::OP_MOD, "%"};
         case '^':
-            return {TokenType::OP_EXPO, "^"};
+            return {Token::Type::OP_EXPO, "^"};
         case '&':
-            return {TokenType::OP_AND, "&"};
+            return {Token::Type::OP_AND, "&"};
         case '|':
-            return {TokenType::OP_OR, "|"};
+            return {Token::Type::OP_OR, "|"};
         case '~':
         {
-            if (peek() != '=') return {TokenType::OP_NOT, "~"};
+            if (peek() != '=') return {Token::Type::OP_NOT, "~"};
             advance();
-            return {TokenType::OP_NOT_EQUAL, "~="};
+            return {Token::Type::OP_NOT_EQUAL, "~="};
         }
         case '>':
         {
             if (peek() == '=')
             {
                 advance();
-                return {TokenType::OP_GREATER_EQUAL, ">="};
+                return {Token::Type::OP_GREATER_EQUAL, ">="};
             }
             if (peek() == '>')
             {
                 advance();
-                return {TokenType::OP_BITSHIFT_RIGHT, ">>"};
+                return {Token::Type::OP_BITSHIFT_RIGHT, ">>"};
             }
-            return {TokenType::OP_GREATER, ">"};
+            return {Token::Type::OP_GREATER, ">"};
         }
         case '<':
         {
             if (peek() == '=')
             {
                 advance();
-                return {TokenType::OP_LESS_EQUAL, "<="};
+                return {Token::Type::OP_LESS_EQUAL, "<="};
             }
             if (peek() == '<')
             {
                 advance();
-                return {TokenType::OP_BITSHIFT_LEFT, "<<"};
+                return {Token::Type::OP_BITSHIFT_LEFT, "<<"};
             }
-            return {TokenType::OP_LESS, "<"};
+            return {Token::Type::OP_LESS, "<"};
         }
         case '#':
-            return {TokenType::OP_LENGTH, "#"};
+            return {Token::Type::OP_LENGTH, "#"};
         case '=':
         {
-            if (peek() != '=') return {TokenType::OP_ASSIGN, "="};
+            if (peek() != '=') return {Token::Type::OP_ASSIGN, "="};
 
             advance();
-            return {TokenType::OP_EQUAL, "=="};
+            return {Token::Type::OP_EQUAL, "=="};
         }
 
         default:
-            return {TokenType::UNKNOWN_CHARACTER, std::string_view(query).substr(start, 1)};
+            return {Token::Type::UNKNOWN_CHARACTER, std::string_view(query).substr(start, 1)};
     }
 }
