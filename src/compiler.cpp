@@ -902,7 +902,7 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
 
     compiler.labels.emplace_back(std::nullopt, node.label, compiler.chunk.code.size(), compiler.locals.size(), compiler.scopeDepth);
 
-    auto lb = compiler.labels.back();
+    const auto lb = compiler.labels.back();
 
     for (size_t i = compiler.unresolvedGoto.size(); i-- > 0 && compiler.unresolvedGoto[i].currentScope >= lb.currentScope;) // Resolve forward jumps
     {
