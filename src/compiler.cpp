@@ -915,7 +915,7 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
             }
 
             auto &gtLocals = gt.locals.value();
-            if (gtLocals.back().depth > compiler.scopeDepth)
+            if (!gtLocals.empty() && gtLocals.back().depth > compiler.scopeDepth) // Locals to close
             {
                 size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
                 compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
@@ -931,7 +931,7 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
             {
                 compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
             }
-            
+
             compiler.unresolvedGoto.erase(compiler.unresolvedGoto.begin() + 
             static_cast<std::ptrdiff_t>(i));
         }
