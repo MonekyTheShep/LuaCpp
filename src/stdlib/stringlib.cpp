@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 
+#include "metamethod.h"
 #include "stdlib/library.h"
 #include "value.h"
 #include "vm.h"
@@ -40,6 +41,6 @@ LuaTableHandle StringLib::openLibrary(VM &vm)
     setLibraryFunctions(vm, methods, luaTable);
     LuaTableHandle metaTable = std::make_shared<LuaTable>();
     metaTable->set(vm, "__index", luaTable);
-    vm.primitiveMt[static_cast<size_t>(VM::Primitives::STRING)] = metaTable;
+    vm.setPrimitiveMt(VM::Primitives::STRING, metaTable);
     return luaTable;
 }

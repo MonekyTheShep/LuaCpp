@@ -109,6 +109,11 @@ class VM
 
         static constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
 
+        void setPrimitiveMt(Primitives primitive, LuaTableHandle table)
+        {
+            primitiveMt[static_cast<size_t>(primitive)] = std::move(table);
+        }
+        
         std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
 
         LuaTableHandle globals;
