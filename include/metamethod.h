@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 #include <string_view>
 
 namespace Meta
@@ -62,8 +63,8 @@ namespace Meta
         "__metatable"
     };
 
-    inline std::string_view getName(Method method)
+    inline std::string getName(Method method)
     {
-        return names[static_cast<size_t>(method)];
+        return std::string(names[static_cast<size_t>(method)]);
     }
 };
