@@ -914,17 +914,24 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
                 compiler.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, compiler.locals.back().name));
             }
 
-            size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
-            compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
-
             auto &gtLocals = gt.locals.value();
-            for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > compiler.scopeDepth;)
+            if (gtLocals.back().depth > compiler.scopeDepth)
             {
-                compiler.emit(gtLocals[i].isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
-            }
-           
-            compiler.patchJump(fallthrough);
+                size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
+                compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
 
+                for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > compiler.scopeDepth;)
+                {
+                    compiler.emit(gtLocals[i].isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
+                }
+           
+                compiler.patchJump(fallthrough);
+            }
+            else 
+            {
+                compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
+            }
+            
             compiler.unresolvedGoto.erase(compiler.unresolvedGoto.begin() + 
             static_cast<std::ptrdiff_t>(i));
         }
