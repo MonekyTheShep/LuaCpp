@@ -54,13 +54,6 @@ class VM
         void execute(const FunctionHandle &code);
     public:
         std::array<size_t, ByteCode::NUM_OF_OPS> opCounts;
-
-        enum class CallType : uint8_t
-        {
-            LUA,
-            CPP 
-        };
-
     private:
         static constexpr size_t MAX_FRAMES = 128;
         static constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
@@ -68,6 +61,12 @@ class VM
         static constexpr int RETURN_ALL = -1;
 
         std::vector<Value> stack;
+
+        enum class CallType : uint8_t
+        {
+            LUA,
+            CPP 
+        };
 
         struct CallFrame
         {
