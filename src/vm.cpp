@@ -392,7 +392,7 @@ UpValueHandle VM::captureUpValue(Value *location)
         return upValue;
     }
 
-    UpValueHandle newUpValue = std::make_shared<UpValue>(UpValue{location});
+    UpValueHandle newUpValue = std::make_shared<UpValue>(location);
 
     newUpValue->next = upValue;
 
