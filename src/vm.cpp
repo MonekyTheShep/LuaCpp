@@ -661,7 +661,7 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
 
 void VM::execute(const FunctionHandle &code)
 {
-    auto closure = std::make_shared<Closure>(Closure{code});
+    auto closure = std::make_shared<Closure>(code);
     size_t calleeIndex = push(closure);
     callValue(calleeIndex, 0, CallType::LUA);
     run();
