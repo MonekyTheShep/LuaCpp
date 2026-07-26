@@ -72,15 +72,15 @@ VM::VM(Lua &lua)
     , sp(0)
     ,
     runDepth(0) 
-    {
-        callFrames.reserve(MAX_FRAMES);
-        stack.resize(STACK_SIZE);
+{
+    callFrames.reserve(MAX_FRAMES);
+    stack.resize(STACK_SIZE);
 
-        callees.reserve(20); // Vectors likely to grow
-        tables.reserve(20);
-        errorHandlers.reserve(5);
+    callees.reserve(20); // Vectors likely to grow
+    tables.reserve(20);
+    errorHandlers.reserve(5);
 
-        StdLib::initLibraries(*this);
+    StdLib::initLibraries(*this);
 }
 
 struct CallVisitor 
