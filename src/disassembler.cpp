@@ -196,6 +196,6 @@ size_t Disassembler::disassembleInstruction(const Chunk &chunk, size_t offset)
         
         default:
             std::cout << "UNKNOWN";
-            return ++offset;
+            return offset + 1;
     }
 }
