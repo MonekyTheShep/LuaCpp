@@ -916,7 +916,7 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
                 compiler.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, compiler.locals.back().name));
             }
 
-            auto &gtLocals = gt.locals.value();
+            const auto &gtLocals = gt.locals.value();
             if (!gtLocals.empty() && gtLocals.back().depth > lb.currentScope) // Locals to close
             {
                 size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
