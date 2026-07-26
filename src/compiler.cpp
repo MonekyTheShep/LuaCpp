@@ -902,25 +902,27 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
 
     compiler.labels.emplace_back(std::nullopt, node.label, compiler.chunk.code.size(), compiler.locals.size(), compiler.scopeDepth);
 
-    for (size_t i = compiler.unresolvedGoto.size(); i-- > 0 && compiler.unresolvedGoto[i].currentScope >= compiler.scopeDepth;) // Resolve forward jumps
+    auto lb = compiler.labels.back();
+
+    for (size_t i = compiler.unresolvedGoto.size(); i-- > 0 && compiler.unresolvedGoto[i].currentScope >= lb.currentScope;) // Resolve forward jumps
     {
         const auto &gt = compiler.unresolvedGoto[i];
         if (gt.name == node.label)
         {
             if (node.isLastStmt) compiler.locals.resize(gt.currentLocals); // Those locals after the goto dont exist
 
-            if (compiler.locals.size() > gt.currentLocals)
+            if (lb.currentLocals > gt.currentLocals)
             {
                 compiler.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, compiler.locals.back().name));
             }
 
             auto &gtLocals = gt.locals.value();
-            if (!gtLocals.empty() && gtLocals.back().depth > compiler.scopeDepth) // Locals to close
+            if (!gtLocals.empty() && gtLocals.back().depth > lb.currentScope) // Locals to close
             {
                 size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
-                compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
+                compiler.patchJumpAt(gt.pos, lb.pos);
 
-                for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > compiler.scopeDepth;)
+                for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > lb.currentScope;)
                 {
                     compiler.emit(gtLocals[i].isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
                 }
@@ -929,7 +931,7 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
             }
             else 
             {
-                compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
+                compiler.patchJumpAt(gt.pos, lb.pos);
             }
 
             compiler.unresolvedGoto.erase(compiler.unresolvedGoto.begin() + 
