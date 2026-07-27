@@ -192,6 +192,7 @@ class VM
         void pushErrorHandler(size_t sp);
         void popErrorHandler();
         void recoverVM();
+        void stackBackTrace();
         [[noreturn]] void runtimeError(const Value &error);
 
         // -------------------------

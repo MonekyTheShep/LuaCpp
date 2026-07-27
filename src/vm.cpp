@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <expected>
 #include <format>
 #include <initializer_list>
@@ -153,8 +154,9 @@ std::expected<int, Value> VM::protectedCall(size_t calleeIndex)
     }
     catch(...)
     {
-        errorHandlers.clear(); // Assume whatever happened is bad
-        runtimeError("Unrecoverable error occured!");
+        stackBackTrace();
+        std::cerr << "Unrecoverable error occured!" << "\n";
+        std::terminate();
     }
 }
 
@@ -203,6 +205,20 @@ void VM::recoverVM()
     errorHandlers.pop_back(); // Make sure to remove the error handler
 }
 
+void VM::stackBackTrace()
+{
+    for (auto i = callFrames.size(); i-- > 0; ) 
+    {
+        auto &frame = callFrames[i];
+
+        int line = frame.closure->function->chunk.lines[frame.ip - 1];
+
+        std::cerr << std::format("[line {}] in ", line);
+
+        std::cerr << frame.closure->function->name << "\n";
+    }
+}
+
 void VM::runtimeError(const Value &error) 
 {
     if (!errorHandlers.empty()) // Custom message for recoverable errors
@@ -216,16 +232,7 @@ void VM::runtimeError(const Value &error)
         throw VMRuntimeError(*this, error, VMRuntimeError::ErrorPosInfo{name, line});
     }
 
-    for (auto i = callFrames.size(); i-- > 0; ) 
-    {
-        auto &frame = callFrames[i];
-
-        int line = frame.closure->function->chunk.lines[frame.ip - 1];
-
-        std::cerr << std::format("[line {}] in ", line);
-
-        std::cerr << frame.closure->function->name << "\n";
-    }
+    stackBackTrace();
 
     throw VMRuntimeError(*this, error, std::nullopt);
 }
