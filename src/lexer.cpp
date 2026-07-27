@@ -163,7 +163,7 @@ Token Lexer::lex()
             }
         }
 
-       return {readOperatorAndDelimiter(), startLine, startCol};
+       return {readOperatorAndDelimiter(), startLine, startCol}; // Excluding `[` and `-` as handled above.
     }
 }
 
