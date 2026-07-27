@@ -71,7 +71,7 @@ class Compiler
         int currentLine;
     private:
         Compiler(Compiler *enclosing, std::string_view name, int arity, bool isVarArg)
-        : function(std::make_shared<FunctionChunk>(FunctionChunk{{}, std::string(name), 0, arity, isVarArg}))
+        : function(std::make_shared<FunctionChunk>({}, std::string(name), 0, arity, isVarArg)
         , chunk(function->chunk)
         , enclosing(enclosing)
         , scopeDepth(0)
