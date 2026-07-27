@@ -640,7 +640,7 @@ std::vector<TableExpr> Parser::parseTable()
             expect(Token::Type::OP_ASSIGN, context);
             ExprHandle value = parseExpression();
 
-            tableExprs.emplace_back(TableExpr{TableExpr::Kind::General, std::move(name), std::move(value)});
+            tableExprs.emplace_back(TableExpr::Kind::General, std::move(name), std::move(value));
         }
         else if (check(Token::Type::IDENTIFIER) && checkNext(Token::Type::OP_ASSIGN))
         {
@@ -648,12 +648,12 @@ std::vector<TableExpr> Parser::parseTable()
             advance(); // Consume assignment
 
             ExprHandle value = parseExpression();
-            tableExprs.emplace_back(TableExpr{TableExpr::Kind::Record, makeExpr(StringLiteralExpr{std::move(identifier)}), std::move(value)});
+            tableExprs.emplace_back(TableExpr::Kind::Record, makeExpr(StringLiteralExpr{std::move(identifier)}), std::move(value));
         }
         else
         {
             ExprHandle value = parseExpression();
-            tableExprs.emplace_back(TableExpr{TableExpr::Kind::List, nullptr, std::move(value)});
+            tableExprs.emplace_back(TableExpr::Kind::List, nullptr, std::move(value));
         }
 
         if (check(Token::Type::RIGHT_BRACE)) break;
