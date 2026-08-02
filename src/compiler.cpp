@@ -567,7 +567,7 @@ void Compiler::ExprVisitor::operator()(BinaryExpr &node)
     else if (node.op == Binop::AND)
         return compileLogicalOp(ByteCode::Op::JUMP_IF_FALSE, node.lhs, node.rhs);
 
-    bool flipOperand = (node.op == Binop::GT || node.op == Binop::GTE);
+    const bool flipOperand = (node.op == Binop::GT || node.op == Binop::GTE);
     if (flipOperand) std::swap(node.lhs, node.rhs);
 
     compileExpression(node.lhs, 1);
