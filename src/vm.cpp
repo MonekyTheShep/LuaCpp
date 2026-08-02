@@ -22,7 +22,7 @@
 
 #include "bytecode.h"
 #include "lua_table.h"
-#include "metamethod.h"
+#include "meta.h"
 #include "stdlib/stdlib.h"
 #include "value.h"
 

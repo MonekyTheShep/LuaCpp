@@ -7,6 +7,8 @@
 #include "value.h"
 #include "lua_table.h"
 
+class VM;
+
 class Library 
 {
     public:

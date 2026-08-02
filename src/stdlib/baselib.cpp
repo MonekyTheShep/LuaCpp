@@ -7,7 +7,7 @@
 #include <utility>
 #include <variant>
 
-#include "metamethod.h"
+#include "meta.h"
 #include "stdlib/library.h"
 #include "value.h"
 #include "vm.h"

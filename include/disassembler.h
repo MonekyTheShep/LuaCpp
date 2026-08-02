@@ -1,13 +1,8 @@
 #pragma once
 
-#include <cstddef>
-
 struct Chunk;
 
-class Disassembler
+namespace Disassembler
 {
-    public:
-        static void disassemble(const Chunk &chunk); 
-    private:
-        static size_t disassembleInstruction(const Chunk &chunk, size_t offset);
-};
+    void disassemble(const Chunk &chunk); 
+}

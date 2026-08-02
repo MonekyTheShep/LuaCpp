@@ -6,7 +6,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <utility>
 
 #include "token.h"
@@ -28,8 +27,6 @@ class Lexer
 
         static std::string getTokenTypeName(const Token::Type &type);
     private:
-        static std::unordered_map<Token::Type, std::string_view> tokenNames;
-    
         std::optional<Token> lookAhead;
 
         std::string query;

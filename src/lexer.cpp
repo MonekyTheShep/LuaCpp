@@ -11,7 +11,7 @@
 
 #include "token.h"
 
-std::unordered_map<Token::Type, std::string_view> Lexer::tokenNames 
+std::unordered_map<Token::Type, std::string_view> tokenNames 
 {
     {Token::Type::TEOF, "EOF"},
     {Token::Type::COMMENT, "COMMENT"},

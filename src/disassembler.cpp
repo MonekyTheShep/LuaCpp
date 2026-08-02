@@ -8,6 +8,8 @@
 #include "value.h"
 #include "bytecode.h"
 
+size_t disassembleInstruction(const Chunk &chunk, size_t offset);
+
 void Disassembler::disassemble(const Chunk &chunk)
 {
     for (size_t i = 0; i < chunk.code.size();) 
@@ -56,7 +58,7 @@ static size_t jumpInstruction(const char *name, int sign, const Chunk& chunk, si
     return offset + 3;
 }
 
-size_t Disassembler::disassembleInstruction(const Chunk &chunk, size_t offset)
+size_t disassembleInstruction(const Chunk &chunk, size_t offset)
 {
     auto instruction = ByteCode::Op(chunk.code[offset]);
 

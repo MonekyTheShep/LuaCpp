@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "bytecode.h"
-#include "metamethod.h"
+#include "meta.h"
 #include "value.h"
 #include "stdlib/stdlib.h"
 
