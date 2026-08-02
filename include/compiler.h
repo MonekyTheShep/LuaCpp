@@ -179,7 +179,7 @@ class Compiler
                 void operator()(const UnaryExpr &node);
 
                 void compileLogicalOp(ByteCode::Op op, const ExprHandle &lhs, const ExprHandle &rhs);
-                void operator()(const BinaryExpr &node);
+                void operator()(BinaryExpr &node);
 
                 void compileExpression(const ExprHandle &expression, int expectedReturn);
             private:

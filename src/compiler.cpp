@@ -552,7 +552,7 @@ void Compiler::ExprVisitor::compileLogicalOp(ByteCode::Op op, const ExprHandle &
 	compiler.patchJump(skip);
 }
 
-void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
+void Compiler::ExprVisitor::operator()(BinaryExpr &node)
 {
     using Binop = BinaryExpr::BinaryOperator;
 
@@ -567,8 +567,10 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
     else if (node.op == Binop::AND)
         return compileLogicalOp(ByteCode::Op::JUMP_IF_FALSE, node.lhs, node.rhs);
 
-    compileExpression(node.lhs, 1);
-    compileExpression(node.rhs, 1);
+    bool flipOperand = (node.op == Binop::GT || node.op == Binop::GTE);
+
+    compileExpression((!flipOperand) ? node.lhs : node.rhs, 1);
+    compileExpression((!flipOperand) ? node.rhs : node.lhs, 1);
 
     switch (node.op)
     {
@@ -588,10 +590,8 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
 
         case Binop::EQ: compiler.emit(ByteCode::Op::BIT_OR); break;
         case Binop::NEQ: emitTwo(ByteCode::Op::EQ, ByteCode::Op::NOT); break;
-        case Binop::GT: emitTwo(ByteCode::Op::LS, ByteCode::Op::NOT); break;
-        case Binop::GTE: emitTwo(ByteCode::Op::LSE, ByteCode::Op::NOT); break;
-        case Binop::LS: compiler.emit(ByteCode::Op::LS); break;
-        case Binop::LSE: compiler.emit(ByteCode::Op::LSE); break;
+        case Binop::LS: case Binop::GT: compiler.emit(ByteCode::Op::LS); break;
+        case Binop::LSE: case Binop::GTE: compiler.emit(ByteCode::Op::LSE); break;
         default: 
             compiler.compilerError("Unknown binary operator!");
     }
