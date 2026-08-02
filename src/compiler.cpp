@@ -556,6 +556,12 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
 {
     using Binop = BinaryExpr::BinaryOperator;
 
+    auto emitTwo = [this](ByteCode::Op a, ByteCode::Op b) 
+    {
+        compiler.emit(a);
+        compiler.emit(b);
+    };
+
     if (node.op == Binop::OR)
         return compileLogicalOp(ByteCode::Op::JUMP_IF_TRUE, node.lhs, node.rhs);
     else if (node.op == Binop::AND)
@@ -563,12 +569,6 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
 
     compileExpression(node.lhs, 1);
     compileExpression(node.rhs, 1);
-
-    auto emitTwo = [this](ByteCode::Op a, ByteCode::Op b) 
-    {
-        compiler.emit(a);
-        compiler.emit(b);
-    };
 
     switch (node.op)
     {
