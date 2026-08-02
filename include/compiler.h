@@ -24,7 +24,6 @@ class Compiler
         static Compiler makeTopLevel() { return Compiler(nullptr, "<main>", 0, true); };
     private:
         static const std::unordered_map<UnaryExpr::UnaryOperator, ByteCode::Op> unaryOp;
-        static const std::unordered_map<BinaryExpr::BinaryOperator, ByteCode::Op> binaryOp;
 
         struct Local 
         {

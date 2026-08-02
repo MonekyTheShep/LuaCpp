@@ -523,12 +523,14 @@ void Compiler::ExprVisitor::operator()(const VariableExpr &node)
     compiler.namedVariable(node.ident, false);
 }
 
+using UnaryOp = UnaryExpr::UnaryOperator;
+
 const std::unordered_map<UnaryExpr::UnaryOperator, ByteCode::Op> Compiler::unaryOp 
 {
-    {UnaryExpr::UnaryOperator::NEGATE, ByteCode::Op::NEGATE},
-    {UnaryExpr::UnaryOperator::NOT, ByteCode::Op::NOT},
-    {UnaryExpr::UnaryOperator::LENGTH, ByteCode::Op::LENGTH},
-    {UnaryExpr::UnaryOperator::BIT_NOT, ByteCode::Op::BIT_NOT}
+    {UnaryOp::NEGATE, ByteCode::Op::NEGATE},
+    {UnaryOp::NOT, ByteCode::Op::NOT},
+    {UnaryOp::LENGTH, ByteCode::Op::LENGTH},
+    {UnaryOp::BIT_NOT, ByteCode::Op::BIT_NOT}
 };
 
 void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
@@ -539,31 +541,6 @@ void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
     if (it != Compiler::unaryOp.end()) compiler.emit(it->second);
     else compiler.compilerError("Unexpected unary operator!");
 }
-
-const std::unordered_map<BinaryExpr::BinaryOperator, ByteCode::Op> Compiler::binaryOp 
-{
-    {BinaryExpr::BinaryOperator::ADD, ByteCode::Op::ADD},
-    {BinaryExpr::BinaryOperator::SUB, ByteCode::Op::SUB},
-    {BinaryExpr::BinaryOperator::MUL, ByteCode::Op::MUL},
-    {BinaryExpr::BinaryOperator::FLOOR_DIV, ByteCode::Op::FLOOR_DIV},
-    {BinaryExpr::BinaryOperator::DIV, ByteCode::Op::DIV},
-    {BinaryExpr::BinaryOperator::MOD, ByteCode::Op::MOD},
-    {BinaryExpr::BinaryOperator::EXPO, ByteCode::Op::EXPO},
-    {BinaryExpr::BinaryOperator::CONCAT, ByteCode::Op::CONCAT},
-
-    {BinaryExpr::BinaryOperator::BIT_AND, ByteCode::Op::BIT_AND},
-    {BinaryExpr::BinaryOperator::BIT_OR, ByteCode::Op::BIT_OR},
-    {BinaryExpr::BinaryOperator::BIT_XOR, ByteCode::Op::BIT_XOR},
-    {BinaryExpr::BinaryOperator::BITSHIFT_LEFT, ByteCode::Op::BITSHIFT_LEFT},
-    {BinaryExpr::BinaryOperator::BITSHIFT_RIGHT, ByteCode::Op::BITSHIFT_RIGHT},
-
-    {BinaryExpr::BinaryOperator::EQ, ByteCode::Op::EQ},
-    {BinaryExpr::BinaryOperator::NEQ, ByteCode::Op::EQ}, // NEQ pushes not after eq
-    {BinaryExpr::BinaryOperator::GT, ByteCode::Op::LS}, // Flips operands around
-    {BinaryExpr::BinaryOperator::GTE, ByteCode::Op::LSE}, // Flips operands around
-    {BinaryExpr::BinaryOperator::LS, ByteCode::Op::LS},
-    {BinaryExpr::BinaryOperator::LSE, ByteCode::Op::LSE},
-};
 
 void Compiler::ExprVisitor::compileLogicalOp(ByteCode::Op op, const ExprHandle &lhs, const ExprHandle &rhs)
 {
@@ -577,31 +554,47 @@ void Compiler::ExprVisitor::compileLogicalOp(ByteCode::Op op, const ExprHandle &
 
 void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
 {
-    bool flipOperand = false;
+    using Binop = BinaryExpr::BinaryOperator;
+
+    if (node.op == Binop::OR)
+        return compileLogicalOp(ByteCode::Op::JUMP_IF_TRUE, node.lhs, node.rhs);
+    else if (node.op == Binop::AND)
+        return compileLogicalOp(ByteCode::Op::JUMP_IF_FALSE, node.lhs, node.rhs);
+
+    compileExpression(node.lhs, 1);
+    compileExpression(node.rhs, 1);
+
+    auto emit2Op = [this](ByteCode::Op a, ByteCode::Op b) 
+    {
+        compiler.emit(a);
+        compiler.emit(b);
+    };
 
     switch (node.op)
     {
-        case BinaryExpr::BinaryOperator::OR:
-            return compileLogicalOp(ByteCode::Op::JUMP_IF_TRUE, node.lhs, node.rhs);
-        case BinaryExpr::BinaryOperator::AND:
-            return compileLogicalOp(ByteCode::Op::JUMP_IF_FALSE, node.lhs, node.rhs);
-        case BinaryExpr::BinaryOperator::GTE: case BinaryExpr::BinaryOperator::GT:
-            flipOperand = true;
-            [[fallthrough]];
-        default:
-        {
-            auto it = Compiler::binaryOp.find(node.op);
-            if (it != Compiler::binaryOp.end())
-            {
-                compileExpression(flipOperand ? node.rhs : node.lhs, 1);
-                compileExpression(flipOperand ? node.lhs : node.rhs, 1);
+        case Binop::ADD: compiler.emit(ByteCode::Op::ADD); break;
+        case Binop::SUB: compiler.emit(ByteCode::Op::SUB); break;
+        case Binop::MUL: compiler.emit(ByteCode::Op::MUL); break;
+        case Binop::FLOOR_DIV: compiler.emit(ByteCode::Op::FLOOR_DIV); break;
+        case Binop::DIV: compiler.emit(ByteCode::Op::DIV); break;
+        case Binop::EXPO: compiler.emit(ByteCode::Op::EXPO); break;
+        case Binop::CONCAT: compiler.emit(ByteCode::Op::CONCAT); break; 
 
-                compiler.emit(it->second);
-                if (node.op == BinaryExpr::BinaryOperator::NEQ) compiler.emit(ByteCode::Op::NOT);
-            }
-            else compiler.compilerError("Unexpected binary operator");
-        }
-    }  
+        case Binop::BIT_AND: compiler.emit(ByteCode::Op::BIT_AND); break;
+        case Binop::BIT_OR: compiler.emit(ByteCode::Op::BIT_OR); break;
+        case Binop::BIT_XOR: compiler.emit(ByteCode::Op::BIT_XOR); break;
+        case Binop::BITSHIFT_LEFT: compiler.emit(ByteCode::Op::BITSHIFT_LEFT); break;
+        case Binop::BITSHIFT_RIGHT: compiler.emit(ByteCode::Op::BITSHIFT_RIGHT); break;
+
+        case Binop::EQ: compiler.emit(ByteCode::Op::BIT_OR); break;
+        case Binop::NEQ: emit2Op(ByteCode::Op::EQ, ByteCode::Op::NOT); break;
+        case Binop::GT: emit2Op(ByteCode::Op::LS, ByteCode::Op::NOT); break;
+        case Binop::GTE: emit2Op(ByteCode::Op::LSE, ByteCode::Op::NOT); break;
+        case Binop::LS: compiler.emit(ByteCode::Op::LS); break;
+        case Binop::LSE: compiler.emit(ByteCode::Op::LSE); break;
+        default: 
+            compiler.compilerError("Unknown binary operator!");
+    }
 }
 
 void Compiler::ExprVisitor::compileExpression(const ExprHandle &expression, int expectedReturn)
