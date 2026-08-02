@@ -148,10 +148,10 @@ struct TableExpr
         Record, // identifier = expr
         General // [expr] = expr
     };
-        
-    Kind kind;
+
     ExprHandle name; // nullptr if list
     ExprHandle value;
+    Kind kind;
 };
 
 struct TableExprDef 
