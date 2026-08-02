@@ -525,7 +525,7 @@ void Compiler::ExprVisitor::operator()(const VariableExpr &node)
 
 using UnaryOp = UnaryExpr::UnaryOperator;
 
-const std::unordered_map<UnaryExpr::UnaryOperator, ByteCode::Op> Compiler::unaryOp 
+const std::unordered_map<UnaryOp, ByteCode::Op> Compiler::unaryOp 
 {
     {UnaryOp::NEGATE, ByteCode::Op::NEGATE},
     {UnaryOp::NOT, ByteCode::Op::NOT},
