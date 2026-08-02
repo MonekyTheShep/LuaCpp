@@ -304,7 +304,7 @@ class AstPrinter
         struct ExprVisitor 
         {
             public:
-                explicit ExprVisitor(int indentLevel) : indentLevel(indentLevel) {}
+                ExprVisitor(int indentLevel) : indentLevel(indentLevel) {}
             
                 std::string operator()(const NumberLiteralExpr &node) const;
                 std::string operator()(const StringLiteralExpr &node) const;
@@ -333,10 +333,7 @@ class AstPrinter
         struct StmtVisitor
         {
             public:
-                explicit StmtVisitor(int indentLevel) : indentLevel(indentLevel) {}
-
-                [[nodiscard]] std::string visitStmt(const StatementHandle &node);
-                [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
+                StmtVisitor(int indentLevel) : indentLevel(indentLevel) {}
 
                 std::string operator()(const WhileStmt &node);
                 std::string operator()(const ForRangeStmt &node);
@@ -354,6 +351,8 @@ class AstPrinter
                 std::string operator()(const LabelStmt &node);
                 std::string operator()(const BlockStmt &node);
 
+                [[nodiscard]] std::string visitStmt(const StatementHandle &node);
+                [[nodiscard]] std::string addIndentation() const { return std::string(static_cast<size_t>(indentLevel), '\t'); }
             public:
                 int indentLevel;
         };
