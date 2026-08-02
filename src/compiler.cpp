@@ -564,7 +564,7 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
     compileExpression(node.lhs, 1);
     compileExpression(node.rhs, 1);
 
-    auto emit2Op = [this](ByteCode::Op a, ByteCode::Op b) 
+    auto emitTwo = [this](ByteCode::Op a, ByteCode::Op b) 
     {
         compiler.emit(a);
         compiler.emit(b);
@@ -587,9 +587,9 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
         case Binop::BITSHIFT_RIGHT: compiler.emit(ByteCode::Op::BITSHIFT_RIGHT); break;
 
         case Binop::EQ: compiler.emit(ByteCode::Op::BIT_OR); break;
-        case Binop::NEQ: emit2Op(ByteCode::Op::EQ, ByteCode::Op::NOT); break;
-        case Binop::GT: emit2Op(ByteCode::Op::LS, ByteCode::Op::NOT); break;
-        case Binop::GTE: emit2Op(ByteCode::Op::LSE, ByteCode::Op::NOT); break;
+        case Binop::NEQ: emitTwo(ByteCode::Op::EQ, ByteCode::Op::NOT); break;
+        case Binop::GT: emitTwo(ByteCode::Op::LS, ByteCode::Op::NOT); break;
+        case Binop::GTE: emitTwo(ByteCode::Op::LSE, ByteCode::Op::NOT); break;
         case Binop::LS: compiler.emit(ByteCode::Op::LS); break;
         case Binop::LSE: compiler.emit(ByteCode::Op::LSE); break;
         default: 
