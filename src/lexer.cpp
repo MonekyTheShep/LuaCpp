@@ -114,7 +114,7 @@ Token Lexer::lex()
         int startLine = line;
         int startCol = col;
         
-        if (isEof()) return {{Token::Type::TEOF, std::string_view()}, startLine, startCol};
+        if (isEof()) return {{Token::Type::TEOF, ""}, startLine, startCol};
 
         size_t startPos = pos;
         char currentChar = peek();
