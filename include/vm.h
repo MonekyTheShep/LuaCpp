@@ -87,17 +87,6 @@ class VM
 
         std::vector<CallFrame> callFrames;
 
-        struct ErrorHandler 
-        { 
-            size_t sp;
-            size_t frames;
-            size_t callees;
-            size_t tables;
-            int runDepth;
-        };
-
-        std::vector<ErrorHandler> errorHandlers;
-
         std::vector<size_t> callees; // Temporary solution to a bigger problem
         std::vector<size_t> tables; // Temporary solution to a bigger problem
   
@@ -189,9 +178,17 @@ class VM
         // -------------------------
         // Error Handling Functions
         // -------------------------
-        void pushErrorHandler(size_t sp);
-        void popErrorHandler();
-        void recoverVM();
+        struct ErrorHandler 
+        { 
+            size_t sp;
+            size_t frames;
+            size_t callees;
+            size_t tables;
+            int runDepth;
+        };
+
+        ErrorHandler makeErrorHandler(size_t sp);
+        void recoverVM(const ErrorHandler &handler);
         void stackBackTrace();
         [[noreturn]] void runtimeError(const Value &error);
 

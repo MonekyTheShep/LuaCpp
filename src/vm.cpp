@@ -134,11 +134,11 @@ struct CallVisitor
 
 std::expected<int, Value> VM::protectedCall(size_t calleeIndex)
 {
+    ErrorHandler handler = makeErrorHandler(sp);
+
     try 
     {
-        pushErrorHandler(sp);
         callValue(calleeIndex, -1, VM::CallType::CPP);
-        popErrorHandler();
 
         // Insert true infront of returns
         insert(calleeIndex, true);
@@ -149,7 +149,7 @@ std::expected<int, Value> VM::protectedCall(size_t calleeIndex)
     } 
     catch (const VMRuntimeError& error)
     {
-        recoverVM(); 
+        recoverVM(handler); 
         return std::unexpected(error.getObj());
     }
     catch(...)
@@ -166,23 +166,14 @@ void VM::callValue(size_t calleeIndex, int expectedReturn, VM::CallType type)
     std::visit(CallVisitor(calleeIndex, expectedReturn, type, *this), stack[calleeIndex]);
 }
 
-void VM::pushErrorHandler(size_t sp) 
+VM::ErrorHandler VM::makeErrorHandler(size_t sp) 
 {
-    errorHandlers.emplace_back(sp, callFrames.size(), callees.size(), tables.size(), runDepth);
+    return {sp, callFrames.size(), callees.size(), tables.size(), runDepth};
 }
 
-void VM::popErrorHandler() 
-{
-    assert(!errorHandlers.empty());
-    errorHandlers.pop_back();
-}
-
-void VM::recoverVM() 
+void VM::recoverVM(const VM::ErrorHandler &handler) 
 {
     assert(!callFrames.empty());
-    assert(!errorHandlers.empty());
-
-    auto &handler = errorHandlers.back();
 
     closeUpValues(&stack[handler.sp]);
     sp = handler.sp;
@@ -201,8 +192,6 @@ void VM::recoverVM()
     tables.resize(handler.tables);
 
     runDepth = handler.runDepth;
-    
-    errorHandlers.pop_back(); // Make sure to remove the error handler
 }
 
 void VM::stackBackTrace()
