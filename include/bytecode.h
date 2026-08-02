@@ -43,12 +43,12 @@ namespace ByteCode
         NOT,
 
         // BIT OP
-        BIT_AND,
-        BIT_OR,
-        BIT_XOR,
-        BITSHIFT_LEFT,
-        BITSHIFT_RIGHT,
-        BIT_NOT, // Unary
+        BIT_AND, // &
+        BIT_OR, // |
+        BIT_XOR, // ~
+        BITSHIFT_LEFT, // >>
+        BITSHIFT_RIGHT, // <<
+        BIT_NOT, // Unary ~
 
         // TABLE OP
         MAKE_TABLE,
