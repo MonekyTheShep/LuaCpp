@@ -61,12 +61,10 @@ class Parser
         {
             std::string tokensExpected;
 
-            auto it = tokens.begin();
-
-            for (size_t i = 0; i < tokens.size(); i++)
+            for (auto it = tokens.begin(); it < tokens.end(); it++)
             {
-                tokensExpected += std::format("`{}`", Token::toString(it[i]));
-                if (i < tokens.size() - 1)
+                tokensExpected += std::format("`{}`", Token::toString(*it));
+                if (it < tokens.end() - 1)
                 {
                     tokensExpected += " or ";
                 }
