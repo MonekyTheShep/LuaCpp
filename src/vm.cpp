@@ -160,7 +160,6 @@ std::expected<int, Value> VM::protectedCall(size_t calleeIndex)
     }
 }
 
-
 void VM::callValue(size_t calleeIndex, int expectedReturn, VM::CallType type)
 {
     std::visit(CallVisitor(calleeIndex, expectedReturn, type, *this), stack[calleeIndex]);
@@ -385,44 +384,33 @@ bool VM::tryMetaMethod(std::initializer_list<Value> values, Meta::Method method,
 
 UpValueHandle VM::captureUpValue(Value *location)
 {
-    UpValueHandle prevUpvalue = nullptr;
-    UpValueHandle upValue = openUpvalues;
+    auto it = openUpValues.begin();
 
-    while (upValue != nullptr && upValue->location > location)
+    while (it != openUpValues.end() && it->get()->location > location)
     {
-        prevUpvalue = upValue;
-        upValue = upValue->next;
+        it++;
     }
 
-    if (upValue != nullptr && upValue->location == location)
+    if (it != openUpValues.end() && it->get()->location == location)
     {
-        return upValue;
+        return *it;
     }
 
     UpValueHandle newUpValue = std::make_shared<UpValue>(location);
 
-    newUpValue->next = upValue;
-
-    if (prevUpvalue == nullptr)
-    {
-        openUpvalues = newUpValue;
-    } 
-    else
-    {
-        prevUpvalue->next = newUpValue;
-    }
+    openUpValues.insert(it, newUpValue);
 
     return newUpValue;
 }
 
 void VM::closeUpValues(Value *last)
 {
-    while (openUpvalues != nullptr && openUpvalues->location >= last)
+    while (!openUpValues.empty() && openUpValues.front()->location >= last)
     {
-        auto& upvalue = openUpvalues;
-        upvalue->closed = *upvalue->location;
-        upvalue->location = &upvalue->closed;
-        openUpvalues = upvalue->next;
+        auto upValue = openUpValues.front();
+        upValue->closed = *upValue->location;
+        upValue->location = &upValue->closed;
+        openUpValues.pop_front();
     }
 }
 

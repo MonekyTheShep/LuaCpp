@@ -9,6 +9,7 @@
 #include <expected>
 #include <format>
 #include <initializer_list>
+#include <list>
 #include <optional>
 #include <span>
 #include <string>
@@ -120,7 +121,7 @@ class VM
 
         LuaTableHandle loaded; // Stores a reference to the loaded modules table
 
-        UpValueHandle openUpvalues;
+        std::list<UpValueHandle> openUpValues;
          
         Lua &lua;
 

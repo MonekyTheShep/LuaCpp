@@ -72,9 +72,8 @@ using UpValueHandle = std::shared_ptr<UpValue>;
 
 struct UpValue 
 {
-    UpValue(Value* location): next(nullptr), location(location), closed(Value(LUA_NIL_VALUE)) {}
+    UpValue(Value* location): location(location), closed(Value(LUA_NIL_VALUE)) {}
 
-    UpValueHandle next;
     Value *location;
     Value closed;
 };
