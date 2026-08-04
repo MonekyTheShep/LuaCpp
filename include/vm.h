@@ -279,9 +279,9 @@ class VM
             Value *end = &stack[sp];
 
             assert(start >= by);
-            std::move(begin, end, begin - by);
-
             sp -= by;
+            
+            std::move(begin, end, begin - by);
         }
 
         void shiftRight(size_t start, size_t by)

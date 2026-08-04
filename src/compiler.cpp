@@ -589,7 +589,7 @@ void Compiler::ExprVisitor::operator()(BinaryExpr &node)
         case Binop::BITSHIFT_LEFT: compiler.emit(ByteCode::Op::BITSHIFT_LEFT); break;
         case Binop::BITSHIFT_RIGHT: compiler.emit(ByteCode::Op::BITSHIFT_RIGHT); break;
 
-        case Binop::EQ: compiler.emit(ByteCode::Op::BIT_OR); break;
+        case Binop::EQ: compiler.emit(ByteCode::Op::EQ); break;
         case Binop::NEQ: emitTwo(ByteCode::Op::EQ, ByteCode::Op::NOT); break;
         case Binop::LS: case Binop::GT: compiler.emit(ByteCode::Op::LS); break;
         case Binop::LSE: case Binop::GTE: compiler.emit(ByteCode::Op::LSE); break;
