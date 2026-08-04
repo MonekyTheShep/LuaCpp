@@ -552,7 +552,7 @@ void Compiler::ExprVisitor::compileLogicalOp(ByteCode::Op op, const ExprHandle &
 	compiler.patchJump(skip);
 }
 
-void Compiler::ExprVisitor::operator()(BinaryExpr &node)
+void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
 {
     using Binop = BinaryExpr::BinaryOperator;
 
@@ -568,10 +568,8 @@ void Compiler::ExprVisitor::operator()(BinaryExpr &node)
         return compileLogicalOp(ByteCode::Op::JUMP_IF_FALSE, node.lhs, node.rhs);
 
     const bool flipOperand = (node.op == Binop::GT || node.op == Binop::GTE);
-    if (flipOperand) std::swap(node.lhs, node.rhs);
-
-    compileExpression(node.lhs, 1);
-    compileExpression(node.rhs, 1);
+    compileExpression((flipOperand) ? node.rhs : node.lhs, 1);
+    compileExpression((flipOperand) ? node.lhs : node.rhs, 1);
 
     switch (node.op)
     {
