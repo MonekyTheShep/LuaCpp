@@ -86,18 +86,18 @@ int Compiler::resolveUpValue(const std::string &name)
 
 int Compiler::addUpvalue(uint8_t index, bool isLocal)
 {
+    if (upvalues.size() == UINT8_MAX) 
+    {
+        compilerError("Too many closure variables in function.");
+        return -1;
+    }
+
     for (size_t i = 0; i < upvalues.size(); i++) 
     {
         if (upvalues[i].index == index && upvalues[i].isLocal == isLocal)
         {
             return static_cast<int>(i);
         }
-    }
-
-    if (upvalues.size() == UINT8_MAX) 
-    {
-        compilerError("Too many closure variables in function.");
-        return -1;
     }
 
     upvalues.emplace_back(index, isLocal);
