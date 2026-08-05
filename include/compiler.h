@@ -124,7 +124,7 @@ class Compiler
         // --------------------
         // Compiling Functions
         // --------------------
-        FunctionHandle makeFunction();
+        FunctionHandle endFunction();
         void compileFunction(const std::string &name, bool isVarArg, const std::vector<std::string> &args, const std::vector<StmtWithPos> &stmts);
 
         // --------------------

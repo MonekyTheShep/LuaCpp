@@ -348,7 +348,7 @@ void Compiler::ExprVisitor::operator()(const FunctionExpr &node)
     compiler.compileFunction("<anonymous>", node.isVarArg, node.args, node.body);
 }
 
-FunctionHandle Compiler::makeFunction()
+FunctionHandle Compiler::endFunction()
 {
     if (!unresolvedGoto.empty()) compilerError(std::format("No visible label for goto `{}`", unresolvedGoto.back().name));
 
@@ -371,10 +371,9 @@ void Compiler::compileFunction(const std::string &name, bool isVarArg, const std
     
     inner.emitReturn();
 
-    FunctionHandle function = inner.makeFunction();
-    emitWithArg(ByteCode::Op::MAKE_CLOSURE, static_cast<uint8_t>(makeConstant(function)));
+    emitWithArg(ByteCode::Op::MAKE_CLOSURE, static_cast<uint8_t>(makeConstant(inner.endFunction())));
 
-    for (size_t i = 0; i < function->upValueCount; i++) 
+    for (size_t i = 0; i < inner.upvalues.size(); i++) 
     {
         emit(inner.upvalues[i].isLocal ? 1 : 0);
         emit(inner.upvalues[i].index);
@@ -974,5 +973,5 @@ FunctionHandle Compiler::compile(const Ast &stmts)
 
     emitReturn();
 
-    return makeFunction();
+    return endFunction();
 }
