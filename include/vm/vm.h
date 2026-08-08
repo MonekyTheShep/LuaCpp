@@ -137,25 +137,25 @@ class VM
             runtimeError(std::format("Bad argument #{} expected {}!", argIndex + 1, msg));
         }
 
-        bool validArgIndex(std::span<Value> args, size_t index) { return index < args.size(); }
+        bool isValidArg(std::span<Value> args, size_t index) { return index < args.size(); }
 
         Value argCheckAny(std::span<Value> args, size_t argIndex)
         {
-            if (!validArgIndex(args, argIndex)) argError(argIndex, "value");
+            if (!isValidArg(args, argIndex)) argError(argIndex, "value");
 
             return args[argIndex];
         }
 
         Value argOptAny(std::span<Value> args, size_t argIndex, const Value &fallback)
         {
-            if (!validArgIndex(args, argIndex)) return fallback;
+            if (!isValidArg(args, argIndex)) return fallback;
             return args[argIndex];
         }
 
         template<typename... Ts>
         void argCheck(std::span<Value> args, size_t argIndex, const char *msg)
         {
-            if (!validArgIndex(args, argIndex)) argError(argIndex, msg);
+            if (!isValidArg(args, argIndex)) argError(argIndex, msg);
             if (!(std::holds_alternative<Ts>(args[argIndex]) || ...)) 
             {
                 argError(argIndex, msg);
@@ -165,7 +165,7 @@ class VM
         template <typename T>
         T argEnsure(std::span<Value> args, size_t argIndex, const char *msg)
         {
-            if (!validArgIndex(args, argIndex)) argError(argIndex, msg);
+            if (!isValidArg(args, argIndex)) argError(argIndex, msg);
             if (!std::holds_alternative<T>(args[argIndex])) argError(argIndex, msg);
             return std::get<T>(args[argIndex]);
         }
@@ -173,7 +173,7 @@ class VM
         template <typename T>
         T argOpt(std::span<Value> args, size_t argIndex, T fallback, const char *msg)
         {
-            if (!validArgIndex(args, argIndex)) return fallback;
+            if (!isValidArg(args, argIndex)) return fallback;
             if (!std::holds_alternative<T>(args[argIndex])) argError(argIndex, msg);
             return std::get<T>(args[argIndex]);
         }
