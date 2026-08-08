@@ -1,7 +1,5 @@
 #pragma once
 
-#include "bytecode.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -13,6 +11,8 @@
 #include <utility>
 #include <variant>
 #include <vector>
+
+#include "compiler/bytecode.h"
 
 using LUA_NIL_TYPE = std::monostate;
 inline constexpr LUA_NIL_TYPE LUA_NIL_VALUE = std::monostate{};

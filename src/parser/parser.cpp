@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "parser/parser.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -7,9 +7,9 @@
 #include <utility>
 #include <vector>
 
-#include "ast.h"
-#include "lexer.h"
-#include "token.h"
+#include "parser/ast.h"
+#include "lexer/lexer.h"
+#include "lexer/token.h"
 
 Ast Parser::parse()
 {

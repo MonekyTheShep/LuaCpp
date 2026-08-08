@@ -1,4 +1,4 @@
-#include "stdlib/iolib.h"
+#include "vm/stdlib/iolib.h"
 
 #include <array>
 #include <iostream>
@@ -7,9 +7,9 @@
 #include <string>
 #include <utility>
 
-#include "stdlib/library.h"
-#include "value.h"
-#include "vm.h"
+#include "vm/stdlib/library.h"
+#include "vm/types/value.h"
+#include "vm/vm.h"
 
 int IoLib::read(VM &vm, std::span<Value>)
 {

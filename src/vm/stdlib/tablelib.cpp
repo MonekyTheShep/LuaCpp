@@ -1,14 +1,14 @@
-#include "stdlib/tablelib.h"
+#include "vm/stdlib/tablelib.h"
 
 #include <array>
 #include <cstddef>
 #include <memory>
 #include <span>
 
-#include "stdlib/library.h"
-#include "value.h"
-#include "vm.h"
-#include "lua_table.h"
+#include "vm/stdlib/library.h"
+#include "vm/types/value.h"
+#include "vm/vm.h"
+#include "vm/types/lua_table.h"
 
 int TableLib::pack(VM &vm, std::span<Value> args)
 {

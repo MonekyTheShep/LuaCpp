@@ -1,4 +1,4 @@
-#include "value.h"
+#include "vm/types/value.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -10,7 +10,7 @@
 #include <variant>
 #include <vector>
 
-#include "bytecode.h"
+#include "compiler/bytecode.h"
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;

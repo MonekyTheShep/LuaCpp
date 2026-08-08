@@ -13,9 +13,9 @@
 #include <format>
 #include <unordered_map>
 
-#include "value.h"
+#include "vm/types/value.h"
 #include "bytecode.h"
-#include "ast.h"
+#include "parser/ast.h"
 
 class Compiler 
 {

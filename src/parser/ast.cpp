@@ -1,4 +1,4 @@
-#include "ast.h"
+#include "parser/ast.h"
 
 #include <cassert>
 #include <cstddef>

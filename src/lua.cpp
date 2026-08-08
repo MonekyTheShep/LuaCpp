@@ -7,14 +7,14 @@
 #include <string>
 #include <utility>
 
-#include "bytecode.h"
-#include "parser.h"
-#include "compiler.h"
-#include "value.h"
-#include "vm.h"
+#include "compiler/bytecode.h"
+#include "parser/parser.h"
+#include "compiler/compiler.h"
+#include "vm/types/value.h"
+#include "vm/vm.h"
 
-#include "ast.h"
-#include "disassembler.h"
+#include "parser/ast.h"
+#include "compiler/debug/disassembler.h"
 
 void Lua::run(std::string code)
 {

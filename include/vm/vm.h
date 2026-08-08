@@ -18,9 +18,9 @@
 #include <variant>
 #include <vector>
 
-#include "bytecode.h"
-#include "meta.h"
-#include "value.h"
+#include "compiler/bytecode.h"
+#include "types/meta.h"
+#include "types/value.h"
 #include "stdlib/stdlib.h"
 
 class VM;

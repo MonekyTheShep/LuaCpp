@@ -4,16 +4,16 @@
 #include <span>
 
 #include "library.h"
-#include "value.h"
+#include "vm/types/value.h"
 
 class VM;
 
-class StringLib : public Library 
+class IoLib : public Library 
 {
     public:
         LuaTableHandle openLibrary(VM &vm) override;
     private:
-        static int upper(VM &vm, std::span<Value> args);
+        static int read(VM &vm, std::span<Value> args);
     private:
         static std::array<Library::Method, 1> methods;
 };

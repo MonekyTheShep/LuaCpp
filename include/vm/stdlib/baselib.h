@@ -4,7 +4,7 @@
 #include <span>
 
 #include "library.h"
-#include "value.h"
+#include "vm/types/value.h"
 
 class VM;
 

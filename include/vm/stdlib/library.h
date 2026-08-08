@@ -4,8 +4,8 @@
 #include <span>
 #include <string>
 
-#include "value.h"
-#include "lua_table.h"
+#include "vm/types/value.h"
+#include "vm/types/lua_table.h"
 
 class VM;
 

@@ -1,4 +1,4 @@
-#include "stdlib/baselib.h"
+#include "vm/stdlib/baselib.h"
 
 #include <array>
 #include <cstddef>
@@ -7,10 +7,10 @@
 #include <utility>
 #include <variant>
 
-#include "meta.h"
-#include "stdlib/library.h"
-#include "value.h"
-#include "vm.h"
+#include "vm/types/meta.h"
+#include "vm/stdlib/library.h"
+#include "vm/types/value.h"
+#include "vm/vm.h"
 
 int BaseLib::print(VM &vm, std::span<Value> args)
 {

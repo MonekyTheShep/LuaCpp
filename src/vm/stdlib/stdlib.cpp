@@ -1,17 +1,17 @@
-#include "stdlib/stdlib.h"
+#include "vm/stdlib/stdlib.h"
 
 #include <array>
 #include <memory>
 
-#include "stdlib/library.h"
+#include "vm/stdlib/library.h"
 
-#include "stdlib/tablelib.h"
-#include "stdlib/stringlib.h"
-#include "stdlib/iolib.h"
-#include "stdlib/baselib.h"
+#include "vm/stdlib/tablelib.h"
+#include "vm/stdlib/stringlib.h"
+#include "vm/stdlib/iolib.h"
+#include "vm/stdlib/baselib.h"
 
-#include "value.h"
-#include "vm.h"
+#include "vm/types/value.h"
+#include "vm/vm.h"
 
 std::array<StdLib::Lib, 4> StdLib::libraries =
 {{

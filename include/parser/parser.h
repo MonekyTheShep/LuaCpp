@@ -12,9 +12,9 @@
 #include <variant>
 #include <vector>
 
-#include "token.h"
 #include "ast.h"
-#include "lexer.h"
+#include "lexer/token.h"
+#include "lexer/lexer.h"
 
 class ParserError : public std::exception 
 {

@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "lua.h"
-#include "fileio.h"
+#include "utils/fileio.h"
 
 int main(int argc, char **argv)
 {

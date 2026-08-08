@@ -1,4 +1,4 @@
-#include "stdlib/stringlib.h"
+#include "vm/stdlib/stringlib.h"
 
 #include <algorithm>
 #include <array>
@@ -9,10 +9,10 @@
 #include <string>
 #include <utility>
 
-#include "meta.h"
-#include "stdlib/library.h"
-#include "value.h"
-#include "vm.h"
+#include "vm/types/meta.h"
+#include "vm/stdlib/library.h"
+#include "vm/types/value.h"
+#include "vm/vm.h"
 
 int StringLib::upper(VM &vm, std::span<Value> args)
 {

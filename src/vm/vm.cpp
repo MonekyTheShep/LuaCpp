@@ -1,8 +1,7 @@
-#include "vm.h"
+#include "vm/vm.h"
 
 #include <algorithm>
 #include <cassert>
-
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -20,11 +19,11 @@
 #include <variant>
 #include <vector>
 
-#include "bytecode.h"
-#include "lua_table.h"
-#include "meta.h"
-#include "stdlib/stdlib.h"
-#include "value.h"
+#include "compiler/bytecode.h"
+#include "vm/types/lua_table.h"
+#include "vm/types/meta.h"
+#include "vm/stdlib/stdlib.h"
+#include "vm/types/value.h"
 
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;

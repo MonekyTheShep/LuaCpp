@@ -1,12 +1,12 @@
-#include "disassembler.h"
+#include "compiler/debug/disassembler.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <format>
 #include <iostream>
 
-#include "value.h"
-#include "bytecode.h"
+#include "vm/types/value.h"
+#include "compiler/bytecode.h"
 
 size_t disassembleInstruction(const Chunk &chunk, size_t offset);
 

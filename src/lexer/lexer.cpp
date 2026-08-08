@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "lexer/lexer.h"
 
 #include <cassert>
 #include <cctype>
@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include "token.h"
+#include "lexer/token.h"
 
 std::unordered_map<Token::Type, std::string_view> tokenNames 
 {
