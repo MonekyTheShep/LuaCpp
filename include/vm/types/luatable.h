@@ -17,8 +17,6 @@ class LuaTable
         LuaTable() = default;
         ~LuaTable() = default;
 
-        LuaTableHandle metaTable;
-
         void set(VM &vm, const Value &key, const Value& value);
 
         Value get(VM &vm, const Value &key);
@@ -39,7 +37,8 @@ class LuaTable
         {
             array.reserve(array.capacity() + amount);
         }
-
+    public:
+        LuaTableHandle metaTable;
     private:
         LuaMap storage;
         std::vector<Value> array; 
