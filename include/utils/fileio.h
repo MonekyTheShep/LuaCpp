@@ -1,20 +1,13 @@
-#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
-#include <utility>
 
 namespace FileIo 
 {
-    enum class FileStatus : uint8_t
-    {
-        FILE_ERROR,
-        FILE_SUCCESS
-    };
-
-    inline std::pair<std::string, FileStatus> readFile(const std::filesystem::path& path)
+    inline std::optional<std::string> readFile(const std::filesystem::path& path)
     {
         std::string file;
         {
@@ -22,7 +15,7 @@ namespace FileIo
             inFile.open(path);
             if (!inFile.good()) 
             {
-                return {"", FileStatus::FILE_ERROR};
+                return std::nullopt;
             }
 
             std::stringstream strStream;
@@ -31,6 +24,6 @@ namespace FileIo
             inFile.close();
         }
 
-        return {file, FileStatus::FILE_SUCCESS};
+        return file;
     }
 }

@@ -13,9 +13,9 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    auto [result, status] = FileIo::readFile(argv[1]);
+    auto file = FileIo::readFile(argv[1]);
 
-    if (status == FileIo::FileStatus::FILE_ERROR)
+    if (!file)
     {
         std::cerr << "Error loading <script>!" << '\n';
         return EXIT_FAILURE;
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 #ifdef NDEBUG
     Lua().run(std::move(result));
 #else
-    Lua().debugRun(std::move(result));
+    Lua().debugRun(std::move(*file));
 #endif
     
 
