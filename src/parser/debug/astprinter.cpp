@@ -1,4 +1,4 @@
-#include "parser/ast.h"
+#include "parser/debug/astprinter.h"
 
 #include <cassert>
 #include <cstddef>
@@ -7,6 +7,8 @@
 #include <string>
 #include <variant>
 #include <vector>
+
+#include "parser/ast.h"
 
 std::string AstPrinter::ExprVisitor::operator()(const NumberLiteralExpr &node) const { return std::to_string(node.value); }
 

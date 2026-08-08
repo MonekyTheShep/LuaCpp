@@ -13,7 +13,7 @@
 #include "vm/types/value.h"
 #include "vm/vm.h"
 
-#include "parser/ast.h"
+#include "parser/debug/astprinter.h"
 #include "compiler/debug/disassembler.h"
 
 void Lua::run(std::string code)
