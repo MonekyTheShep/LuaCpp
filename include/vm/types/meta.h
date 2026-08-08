@@ -63,7 +63,7 @@ namespace Meta
         "__metatable"
     };
 
-    inline std::string getName(Method method)
+    constexpr inline std::string getName(Method method)
     {
         return std::string(names[static_cast<size_t>(method)]);
     }
