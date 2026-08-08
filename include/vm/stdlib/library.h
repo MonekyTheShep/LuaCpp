@@ -5,7 +5,7 @@
 #include <string>
 
 #include "vm/types/value.h"
-#include "vm/types/lua_table.h"
+#include "vm/types/luatable.h"
 
 class VM;
 

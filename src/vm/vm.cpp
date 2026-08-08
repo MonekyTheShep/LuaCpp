@@ -20,7 +20,7 @@
 #include <vector>
 
 #include "compiler/bytecode.h"
-#include "vm/types/lua_table.h"
+#include "vm/types/luatable.h"
 #include "vm/types/meta.h"
 #include "vm/stdlib/stdlib.h"
 #include "vm/types/value.h"

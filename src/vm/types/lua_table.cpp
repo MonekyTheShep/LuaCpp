@@ -1,4 +1,4 @@
-#include "vm/types/lua_table.h"
+#include "vm/types/luatable.h"
 
 #include <cmath>
 #include <cstddef>

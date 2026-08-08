@@ -8,7 +8,7 @@
 #include "vm/stdlib/library.h"
 #include "vm/types/value.h"
 #include "vm/vm.h"
-#include "vm/types/lua_table.h"
+#include "vm/types/luatable.h"
 
 int TableLib::pack(VM &vm, std::span<Value> args)
 {
