@@ -2,6 +2,7 @@
 
 #include <array>
 #include <memory>
+#include <string>
 
 #include "vm/stdlib/library.h"
 
@@ -13,7 +14,13 @@
 #include "vm/types/value.h"
 #include "vm/vm.h"
 
-std::array<StdLib::Lib, 4> StdLib::libraries =
+struct Lib 
+{
+    std::string name;
+    std::unique_ptr<Library> handle;
+};
+
+static std::array<Lib, 4> libraries =
 {{
     {"_G", std::make_unique<BaseLib>()},
     {"table", std::make_unique<TableLib>()},
