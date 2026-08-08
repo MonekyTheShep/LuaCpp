@@ -23,19 +23,19 @@ class Library
             NativeFunctionPointer func;
         };
 
-        static NativeFunctionHandle makeNative(const Method &method) 
-        {
-            return std::make_shared<NativeFunction>(
-                method.func,
-                method.name
-            );
-        }
-
         void setLibraryFunctions(VM &vm, std::span<Method> methods, LuaTableHandle &luaTable)
         {
             for (const Method &method : methods)
             {
                 luaTable->set(vm, method.name, makeNative(method));
             }
+        }
+    private:
+        static NativeFunctionHandle makeNative(const Method &method) 
+        {
+            return std::make_shared<NativeFunction>(
+                method.func,
+                method.name
+            );
         }
 };
