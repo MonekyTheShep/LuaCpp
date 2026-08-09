@@ -30,6 +30,7 @@ class Compiler
             std::string name;
             int depth;
             bool isCaptured;
+            bool konst;
         };
 
         std::vector<Local> locals;
@@ -88,13 +89,13 @@ class Compiler
         // ---------------------
         // Local Variable Functions
         // ---------------------
-        int addLocal(const std::string &name);
-        int resolveLocal(const std::string &name);
+        int addLocal(const std::string &name, bool konst = false);
+        int resolveLocal(const std::string &name, bool assignment = false);
 
         // --------------------
         // Upvalue Functions
         // --------------------
-        int resolveUpValue(const std::string &name);
+        int resolveUpValue(const std::string &name, bool assignment);
         int addUpvalue(uint8_t index, bool isLocal);
 
         // --------------------

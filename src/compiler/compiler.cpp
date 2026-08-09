@@ -44,19 +44,21 @@ void Compiler::endScope()
     }
 }
 
-int Compiler::addLocal(const std::string &name)
+int Compiler::addLocal(const std::string &name, bool konst)
 { 
-    locals.emplace_back(name, scopeDepth, false); 
+    locals.emplace_back(name, scopeDepth, false, konst); 
     if (locals.size() > UINT8_MAX) compilerError("Can only have 255 locals in function");
     return static_cast<int>(locals.size() - 1);
 }
- 
-int Compiler::resolveLocal(const std::string& name)
+
+int Compiler::resolveLocal(const std::string& name, bool assignment)
 {
     for (auto i = locals.size(); i-- > 0;)
     {
         if (name == locals[i].name)
         {
+            if (assignment && locals[i].konst) 
+                compilerError(std::format("Can't modify <const> variable `{}`", locals[i].name));
             return static_cast<int>(i);
         }
     }
@@ -64,18 +66,18 @@ int Compiler::resolveLocal(const std::string& name)
     return -1;
 }
 
-int Compiler::resolveUpValue(const std::string &name)
+int Compiler::resolveUpValue(const std::string &name, bool assignment)
 {
     if (enclosing == nullptr) return -1;
 
-    int local = enclosing->resolveLocal(name);
+    int local = enclosing->resolveLocal(name, assignment);
     if (local != -1)
     {
         enclosing->locals[static_cast<size_t>(local)].isCaptured = true;
         return addUpvalue(static_cast<uint8_t>(local), true);
     }
 
-    int upvalue = enclosing->resolveUpValue(name);
+    int upvalue = enclosing->resolveUpValue(name, assignment);
     if (upvalue != -1) 
     {
         return addUpvalue(static_cast<uint8_t>(upvalue), false);
@@ -108,14 +110,14 @@ void Compiler::namedVariable(const std::string &name, bool assignment)
 {
     ByteCode::Op storeOp, loadOp;
 
-    int arg = resolveLocal(name);
+    int arg = resolveLocal(name, assignment);
 
     if (arg != -1)
     {
         storeOp = ByteCode::Op::STORE_LOCAL;
         loadOp = ByteCode::Op::LOAD_LOCAL;
     }
-    else if ((arg = resolveUpValue(name)) != -1)
+    else if ((arg = resolveUpValue(name, assignment)) != -1)
     {
         storeOp = ByteCode::Op::STORE_UPVALUE;
         loadOp = ByteCode::Op::LOAD_UPVALUE;
@@ -745,9 +747,9 @@ void Compiler::StmtVisitor::operator()(const LocalAssignmentStmt &node)
 {
     compiler.compileAssignment(node.ident.size(), node.value);
     
-    for (const auto &i : node.ident)
+    for (const auto &var : node.ident)
     {
-        compiler.addLocal(i);
+        compiler.addLocal(var.name, var.attr == LocalAssignmentStmt::VariableAttribute::CONST);
     }
 }
 

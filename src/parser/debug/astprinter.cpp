@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <format>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -354,9 +355,26 @@ std::string AstPrinter::StmtVisitor::operator()(const LocalAssignmentStmt &node)
     result += addIndentation();
     result += "local ";
 
+    using VariableAttribute = LocalAssignmentStmt::VariableAttribute;
+
+    auto attributeToString = [](VariableAttribute attr)
+    {
+        switch (attr)
+        {
+            case VariableAttribute::CONST:
+                return "<const>";
+            case VariableAttribute::DEFAULT:
+                return "";
+            default:
+                throw std::runtime_error("Unexpected variable attribute!");
+        }
+    };
+
     for (size_t i = 0; i < node.ident.size(); i++)
     {
-        result += node.ident[i];
+        result += node.ident[i].name;
+        
+        result += std::format(" {} ", attributeToString(node.ident[i].attr));
         if (i < node.ident.size() - 1)
         {
             result += ", ";

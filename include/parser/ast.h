@@ -191,7 +191,19 @@ struct ErrorStmt{};
 
 struct LocalAssignmentStmt 
 {
-    std::vector<std::string> ident;
+    enum class VariableAttribute : uint8_t
+    {
+        CONST,
+        DEFAULT
+    };
+
+    struct Variable
+    {
+        std::string name;
+        VariableAttribute attr;
+    };
+
+    std::vector<Variable> ident;
     std::vector<ExprHandle> value;
 };
 

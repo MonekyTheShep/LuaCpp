@@ -170,6 +170,9 @@ class Parser
         bool isCallExpr(const ExprHandle &expr) { return std::holds_alternative<CallExpr>(*expr) || std::holds_alternative<MethodAccessExpr>(*expr); }
         StatementHandle parseAssignment(ExprHandle firstExpr);
         StatementHandle parseLocalStatement();
+
+        LocalAssignmentStmt::VariableAttribute checkVariableAttribute();
+
         StatementHandle parseLocalAssignmentStatement();
         StatementHandle parseLocalFunctionAssignmentStatement();
         StatementHandle parseFunctionAssignmentStatement();

@@ -98,15 +98,42 @@ StatementHandle Parser::parseLocalStatement()
     }
 }
 
+using VariableAttribute = LocalAssignmentStmt::VariableAttribute;
+
+VariableAttribute Parser::checkVariableAttribute()
+{
+    const char *context = "variable attribute";
+
+    VariableAttribute attr = VariableAttribute::DEFAULT;
+
+    if (match(Token::Type::OP_LESS))
+    {
+        std::string name = expectIdentifier(context);
+
+        if (name == "const")
+        {
+            attr = VariableAttribute::CONST;
+        }
+        else
+        {
+            parserError("Unknown variable attribute", previous());
+        }
+
+        expect(Token::Type::OP_GREATER, context);
+    }
+
+    return attr;
+}
+
 StatementHandle Parser::parseLocalAssignmentStatement()
 {
     const char *context = "local assignment";
 
-    std::vector<std::string> identifiers;
+    std::vector<LocalAssignmentStmt::Variable> variables;
 
     do
     {
-        identifiers.push_back(expectIdentifier(context));
+        variables.emplace_back(expectIdentifier(context), checkVariableAttribute());
     } while (match(Token::Type::COMMA));
 
     std::vector<ExprHandle> exprs;
@@ -119,7 +146,7 @@ StatementHandle Parser::parseLocalAssignmentStatement()
         } while (match(Token::Type::COMMA));
     }
 
-    return makeStmt(LocalAssignmentStmt{std::move(identifiers), std::move(exprs)});
+    return makeStmt(LocalAssignmentStmt{std::move(variables), std::move(exprs)});
 }
 
 StatementHandle Parser::parseLocalFunctionAssignmentStatement()
