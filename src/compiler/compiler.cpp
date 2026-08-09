@@ -58,7 +58,7 @@ int Compiler::resolveLocal(const std::string& name, bool assignment)
         if (name == locals[i].name)
         {
             if (assignment && locals[i].konst) 
-                compilerError(std::format("Can't modify <const> variable `{}`", locals[i].name));
+                compilerError(std::format("Attempt to assign to const variable `{}`", locals[i].name));
             return static_cast<int>(i);
         }
     }
