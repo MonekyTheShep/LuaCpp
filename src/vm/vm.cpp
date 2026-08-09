@@ -69,8 +69,7 @@ VM::VM(Lua &lua)
     : globals(std::make_shared<LuaTable>())
     , lua(lua)
     , sp(0)
-    ,
-    runDepth(0) 
+    , runDepth(0) 
 {
     callFrames.reserve(MAX_FRAMES);
     stack.resize(STACK_SIZE);
