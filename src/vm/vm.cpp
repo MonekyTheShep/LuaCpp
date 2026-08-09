@@ -66,8 +66,7 @@ Value VMRuntimeError::getObj() const noexcept
 }
 
 VM::VM(Lua &lua)
-    : opCounts({})
-    , globals(std::make_shared<LuaTable>())
+    : globals(std::make_shared<LuaTable>())
     , lua(lua)
     , sp(0)
     ,
