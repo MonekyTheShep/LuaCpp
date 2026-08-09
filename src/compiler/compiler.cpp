@@ -749,7 +749,7 @@ void Compiler::StmtVisitor::operator()(const LocalAssignmentStmt &node)
     
     for (const auto &var : node.ident)
     {
-        compiler.addLocal(var.name, var.attr == LocalAssignmentStmt::VariableAttribute::CONST);
+        compiler.addLocal(var.name, (var.attr == LocalAssignmentStmt::VariableAttribute::CONST));
     }
 }
 
