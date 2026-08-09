@@ -1,9 +1,9 @@
 #pragma once
 
-class VM;
+class VMGlobal;
 
 class StdLib 
 {    
     public:
-        static void initLibraries(VM &vm);
+        static void initLibraries(VMGlobal &vmGlobal);
 };

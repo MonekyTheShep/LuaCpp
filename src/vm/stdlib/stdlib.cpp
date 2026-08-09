@@ -20,7 +20,7 @@ struct Lib
     std::unique_ptr<Library> handle;
 };
 
-void StdLib::initLibraries(VM &vm)
+void StdLib::initLibraries(VMGlobal &vmGlobal)
 {
     std::array<Lib, 4> libraries =
     {{
@@ -32,6 +32,6 @@ void StdLib::initLibraries(VM &vm)
 
     for (const Lib &lib : libraries)
     {
-       vm.globals->set(vm, lib.name, lib.handle->openLibrary(vm));
+       vmGlobal.globals->set(vmGlobal.main, lib.name, lib.handle->openLibrary(vmGlobal.main));
     }
 }

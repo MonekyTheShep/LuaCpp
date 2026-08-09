@@ -171,6 +171,6 @@ std::array<Library::Method, 10> BaseLib::methods
 
 LuaTableHandle BaseLib::openLibrary(VM &vm) 
 {
-    setLibraryFunctions(vm, methods, vm.globals);
-    return vm.globals;
+    setLibraryFunctions(vm, methods, vm.vmGlobals.globals);
+    return vm.vmGlobals.globals;
 }

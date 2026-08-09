@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "compiler/bytecode.h"
+#include "parser/ast.h"
 #include "parser/parser.h"
 #include "compiler/compiler.h"
 #include "vm/types/value.h"
@@ -22,6 +23,8 @@ void Lua::run(std::string code)
 
     FunctionHandle function = Compiler::makeTopLevel().compile(ast);
     
+    VM &vm = vmGlobal.main;
+
     vm.execute(function);
 }
 
@@ -46,6 +49,8 @@ void Lua::debugRun(std::string code)
         std::cout << "========= VM OUTPUT ==========" << "\n";
     }
     
+    VM &vm = vmGlobal.main;
+
     auto begin = Time::now();
     vm.execute(function);
     auto end = Time::now();

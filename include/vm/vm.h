@@ -46,11 +46,12 @@ class VMRuntimeError : public std::exception
 };
 
 class Lua;
+class VMGlobal;
 
 class VM
 {
     public:
-        VM(Lua &lua);
+        VM(VMGlobal &vmGlobal);
 
         void execute(const FunctionHandle &code);
     public:
@@ -117,14 +118,10 @@ class VM
         
         std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
 
-        LuaTableHandle globals;
-
-        LuaTableHandle loaded; // Stores a reference to the loaded modules table
-
         std::list<UpValueHandle> openUpValues;
-         
-        Lua &lua;
 
+        VMGlobal &vmGlobals;
+        
         size_t sp;
 
         int runDepth;
@@ -328,4 +325,26 @@ class VM
         friend class BaseLib;
         friend class StdLib;     
 };
- 
+
+class VMGlobal
+{
+    public:
+        // Disable moving/copying
+        VMGlobal(const VMGlobal&) = delete;
+        VMGlobal(VMGlobal&&) = delete;
+        VMGlobal& operator = (const VMGlobal&) = delete;
+        VMGlobal& operator = (VMGlobal&&) = delete;
+
+        static VMGlobal& getInstance()
+        {
+            static VMGlobal instance;
+            return instance;
+        }
+
+    public:
+        LuaTableHandle globals;
+        LuaTableHandle loaded;
+        VM main;
+    private:
+        VMGlobal();
+};

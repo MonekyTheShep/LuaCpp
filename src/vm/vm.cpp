@@ -65,9 +65,8 @@ Value VMRuntimeError::getObj() const noexcept
     }, value);
 }
 
-VM::VM(Lua &lua)
-    : globals(std::make_shared<LuaTable>())
-    , lua(lua)
+VM::VM(VMGlobal &vmGlobal)
+    : vmGlobals(vmGlobal)
     , sp(0)
     , runDepth(0) 
 {
@@ -77,7 +76,12 @@ VM::VM(Lua &lua)
     callees.reserve(20); // Vectors likely to grow
     tables.reserve(20);
     errorHandlers.reserve(5);
+}
 
+VMGlobal::VMGlobal()
+    : globals(std::make_shared<LuaTable>())
+    , main(*this)
+{
     StdLib::initLibraries(*this);
 }
 
@@ -710,7 +714,7 @@ void VM::run()
             } 
             case ByteCode::Op::STORE_GLOBAL:
             {
-                luaTableSet(globals, readConstant(), pop());
+                luaTableSet(vmGlobals.globals, readConstant(), pop());
                 break;
             }
             case ByteCode::Op::STORE_UPVALUE:
@@ -729,7 +733,7 @@ void VM::run()
             }
             case ByteCode::Op::LOAD_GLOBAL:
             {
-                push(luaTableGet(globals, readConstant()));
+                push(luaTableGet(vmGlobals.globals, readConstant()));
                 break;
             }
             case ByteCode::Op::LOAD_UPVALUE:

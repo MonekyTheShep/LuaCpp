@@ -7,10 +7,10 @@
 class Lua 
 {
     public:
-        VM vm;
+        VMGlobal &vmGlobal;
 
         Lua()
-        : vm(*this)
+        : vmGlobal(VMGlobal::getInstance())
         {
         }
 
