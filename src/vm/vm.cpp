@@ -385,12 +385,12 @@ UpValueHandle VM::captureUpValue(Value *location)
 {
     auto it = openUpValues.begin();
 
-    while (it != openUpValues.end() && it->get()->location > location)
+    while (it != openUpValues.end() && (*it)->location > location)
     {
         it++;
     }
 
-    if (it != openUpValues.end() && it->get()->location == location)
+    if (it != openUpValues.end() && (*it)->location == location)
     {
         return *it;
     }
