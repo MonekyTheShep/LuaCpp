@@ -67,7 +67,9 @@ bool LuaTable::exists(const Value &field)
 { 
     if (auto *doubleKey = std::get_if<double>(&field)) 
     {
-        if (floor(*doubleKey) == *doubleKey && static_cast<size_t>(*doubleKey) - 1 < array.size()) return true;
+        if (floor(*doubleKey) == *doubleKey 
+        && static_cast<size_t>(*doubleKey) - 1 < array.size()) 
+            return true;
     }
 
     return storage.contains(field); 
