@@ -1,9 +1,7 @@
 #pragma once
 
-#include <cmath>
 #include <cstddef>
 #include <unordered_map>
-#include <variant>
 #include <vector>
 
 #include "value.h"
@@ -21,22 +19,11 @@ class LuaTable
 
         Value get(VM &vm, const Value &key);
 
-        bool exists(const Value &field)
-        { 
-            if (auto *doubleKey = std::get_if<double>(&field)) 
-            {
-                if (floor(*doubleKey) == *doubleKey && static_cast<size_t>(*doubleKey) - 1 < array.size()) return true;
-            }
-
-            return storage.contains(field); 
-        }
+        bool exists(const Value &field);
 
         double length(VM &) { return static_cast<double>(array.size()); }
 
-        void reserve(size_t amount)
-        {
-            array.reserve(array.capacity() + amount);
-        }
+        void reserve(size_t amount) { array.reserve(array.capacity() + amount); }
     public:
         LuaTableHandle metaTable;
     private:

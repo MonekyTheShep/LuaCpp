@@ -62,3 +62,13 @@ Value LuaTable::get(VM &vm, const Value &key)
     if (it == storage.end()) return LUA_NIL_VALUE;
     return it->second;
 }
+
+bool LuaTable::exists(const Value &field)
+{ 
+    if (auto *doubleKey = std::get_if<double>(&field)) 
+    {
+        if (floor(*doubleKey) == *doubleKey && static_cast<size_t>(*doubleKey) - 1 < array.size()) return true;
+    }
+
+    return storage.contains(field); 
+}
