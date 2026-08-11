@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <format>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -116,7 +117,7 @@ VariableAttribute Parser::checkVariableAttribute()
         }
         else
         {
-            parserError("Unknown variable attribute", previous());
+            parserError(std::format("Unknown variable attribute `{}`", name), previous());
         }
 
         expect(Token::Type::OP_GREATER, context);
