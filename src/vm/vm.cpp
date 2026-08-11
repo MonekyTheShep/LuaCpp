@@ -66,9 +66,9 @@ Value VMRuntimeError::getObj() const noexcept
 }
 
 VM::VM(VMGlobal &vmGlobal)
-    : vmGlobals(vmGlobal)
-    , sp(0)
-    , runDepth(0) 
+: vmGlobals(vmGlobal)
+, sp(0)
+, runDepth(0) 
 {
     callFrames.reserve(MAX_FRAMES);
     stack.resize(STACK_SIZE);
@@ -79,8 +79,8 @@ VM::VM(VMGlobal &vmGlobal)
 }
 
 VMGlobal::VMGlobal()
-    : globals(std::make_shared<LuaTable>())
-    , main(*this)
+: globals(std::make_shared<LuaTable>())
+, main(*this)
 {
     StdLib::initLibraries(*this);
 }
