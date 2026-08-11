@@ -103,7 +103,7 @@ struct CallVisitor
 
     void operator()(const ClosureHandle &closure)
     {
-        if (callType == VM::CallType::CPP && ++vm.runDepth >= 100) vm.runtimeError("C++ stack overflow!");
+        if (callType == VM::CallType::CPP && ++vm.runDepth >= VM::MAX_RECURSION) vm.runtimeError("C++ stack overflow!");
 
         vm.call(closure, calleeIndex, expectedReturn, callType);
 
@@ -116,7 +116,7 @@ struct CallVisitor
 
         if (!function) vm.runtimeError("Attempt to call a table value!");
 
-        if (++depth >= 100) vm.runtimeError("Potential infinite loop within `__call`!");
+        if (++depth >= VM::MAX_RECURSION) vm.runtimeError("Potential infinite loop within `__call`!");
     
         // Insert table infront of args
         size_t argStart = calleeIndex + 1;
@@ -600,7 +600,7 @@ void VM::handleArithmetic(ByteCode::Op op, Meta::Method method)
 
 void VM::luaTableSet(const Value &table, const Value &key, const Value &value, int depth)
 {
-    if (depth >= 100) runtimeError("Potential infinite loop within `__newindex`");
+    if (depth >= MAX_RECURSION) runtimeError("Potential infinite loop within `__newindex`");
 
     std::optional<Value> meta = resolveValueMetaMethod(table, Meta::Method::NEWINDEX);
 
@@ -629,7 +629,7 @@ void VM::luaTableSet(const Value &table, const Value &key, const Value &value, i
 
 Value VM::luaTableGet(const Value &table, const Value &key, int depth)
 {
-    if (depth >= 100) runtimeError("Potential infinite loop within `__index`");
+    if (depth >= MAX_RECURSION) runtimeError("Potential infinite loop within `__index`");
 
     std::optional<Value> meta = resolveValueMetaMethod(table, Meta::Method::INDEX);
 
