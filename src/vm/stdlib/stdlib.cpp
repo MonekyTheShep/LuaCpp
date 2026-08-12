@@ -15,14 +15,14 @@
 #include "vm/types/value.h"
 #include "vm/vm.h"
 
-struct Lib 
-{
-    std::string name;
-    std::unique_ptr<Library> handle;
-};
-
 void StdLib::initLibraries(VMGlobal &vmGlobal)
 {
+    struct Lib 
+    {
+        std::string name;
+        std::unique_ptr<Library> handle;
+    };
+
     std::array<Lib, 4> libraries =
     {{
         {"_G", std::make_unique<BaseLib>()},
