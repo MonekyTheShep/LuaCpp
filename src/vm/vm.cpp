@@ -506,7 +506,8 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
 
         constexpr int NBITS = sizeof(int32_t) * 8;
 
-        #define BIT_OP(op, lhs, rhs) static_cast<int32_t>(static_cast<uint32_t>(lhs) op static_cast<uint32_t>(rhs))
+        #define BIT_OP(op, lhs, rhs) \
+             static_cast<int32_t>(static_cast<uint32_t>(lhs) op static_cast<uint32_t>(rhs))
 
         auto bitShift = [](int32_t a, int32_t b) 
         {
@@ -529,11 +530,16 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
 
         switch (op)
         {
-            case ByteCode::Op::BIT_AND: push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
-            case ByteCode::Op::BIT_OR: push(toDouble(BIT_OP(|, iLhs, iRhs))); break;
-            case ByteCode::Op::BIT_XOR: push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
-            case ByteCode::Op::BITSHIFT_LEFT: push(toDouble(bitShift(iLhs, iRhs))); break;
-            case ByteCode::Op::BITSHIFT_RIGHT: push(toDouble(bitShift(iLhs, -iRhs))); break;
+            case ByteCode::Op::BIT_AND: 
+                push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
+            case ByteCode::Op::BIT_OR: 
+                push(toDouble(BIT_OP(|, iLhs, iRhs))); break;
+            case ByteCode::Op::BIT_XOR: 
+                push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
+            case ByteCode::Op::BITSHIFT_LEFT: 
+                push(toDouble(bitShift(iLhs, iRhs))); break;
+            case ByteCode::Op::BITSHIFT_RIGHT: 
+                push(toDouble(bitShift(iLhs, -iRhs))); break;
             default:
                 assert(false); // Unreachable
         }
