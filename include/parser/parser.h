@@ -42,8 +42,8 @@ class Parser
 
         Ast parse();
     private:
-        static std::unordered_map<Token::Type, BinaryExpr::BinaryOperator> binOps;
-        static std::unordered_map<Token::Type, UnaryExpr::UnaryOperator> unaryOps;
+        const static std::unordered_map<Token::Type, BinaryExpr::BinaryOperator> binOps;
+        const static std::unordered_map<Token::Type, UnaryExpr::UnaryOperator> unaryOps;
 
         Lexer lexer;
         Token currentToken;

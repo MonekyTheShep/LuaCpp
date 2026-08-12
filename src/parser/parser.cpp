@@ -462,7 +462,7 @@ std::pair<int, int> Parser::getPrecedence(Token::Type op)
     }
 }
 
-std::unordered_map<Token::Type, BinaryExpr::BinaryOperator> Parser::binOps = 
+const std::unordered_map<Token::Type, BinaryExpr::BinaryOperator> Parser::binOps = 
 {
     {Token::Type::OR, BinaryExpr::BinaryOperator::OR},
     {Token::Type::AND, BinaryExpr::BinaryOperator::AND},
@@ -495,7 +495,7 @@ BinaryExpr::BinaryOperator Parser::getBinaryOperator(Token::Type op)
     parserError("Unexpected binary operator!", peek());
 }
 
-std::unordered_map<Token::Type, UnaryExpr::UnaryOperator> Parser::unaryOps = 
+const std::unordered_map<Token::Type, UnaryExpr::UnaryOperator> Parser::unaryOps = 
 {
     {Token::Type::OP_SUB, UnaryExpr::UnaryOperator::NEGATE},
     {Token::Type::OP_LENGTH, UnaryExpr::UnaryOperator::LENGTH},
