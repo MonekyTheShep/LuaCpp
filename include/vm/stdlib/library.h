@@ -5,6 +5,7 @@
 #include <string>
 
 #include "vm/types/value.h"
+#include "vm/types/luatable.h"
 #include "vm/vm.h"
 
 class VMGlobal;

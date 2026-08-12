@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 
+#include "vm/types/luatable.h"
 #include "vm/stdlib/library.h"
 #include "vm/types/value.h"
 #include "vm/vm.h"

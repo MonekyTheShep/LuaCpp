@@ -345,11 +345,11 @@ class VMGlobal
     public:
         VM main;
 
-        static constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
-        std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
-
         LuaTableHandle globals;
         LuaTableHandle loaded;
     private:
         VMGlobal();
+
+        static constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
+        std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
 };
