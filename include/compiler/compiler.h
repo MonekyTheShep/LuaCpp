@@ -11,7 +11,6 @@
 #include <variant>
 #include <vector>
 #include <format>
-#include <unordered_map>
 
 #include "vm/types/value.h"
 #include "bytecode.h"
@@ -23,8 +22,6 @@ class Compiler
         FunctionHandle compile(const Ast &stmts);
         static Compiler makeTopLevel() { return Compiler(nullptr, "<main>", 0, true); };
     private:
-        static const std::unordered_map<UnaryExpr::UnaryOperator, ByteCode::Op> unaryOp;
-
         struct Local 
         {
             std::string name;

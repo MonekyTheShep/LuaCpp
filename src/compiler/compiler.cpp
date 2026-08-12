@@ -8,7 +8,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -524,23 +523,23 @@ void Compiler::ExprVisitor::operator()(const VariableExpr &node)
     compiler.namedVariable(node.ident, false);
 }
 
-using UnaryOp = UnaryExpr::UnaryOperator;
 
-const std::unordered_map<UnaryOp, ByteCode::Op> Compiler::unaryOp 
-{
-    {UnaryOp::NEGATE, ByteCode::Op::NEGATE},
-    {UnaryOp::NOT, ByteCode::Op::NOT},
-    {UnaryOp::LENGTH, ByteCode::Op::LENGTH},
-    {UnaryOp::BIT_NOT, ByteCode::Op::BIT_NOT}
-};
 
 void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
 {
+    using UnaryOp = UnaryExpr::UnaryOperator;
+
     compileExpression(node.expr, 1);
 
-    auto it = Compiler::unaryOp.find(node.op);
-    if (it != Compiler::unaryOp.end()) compiler.emit(it->second);
-    else compiler.compilerError("Unexpected unary operator!");
+    switch (node.op)
+    {
+        case UnaryOp::NEGATE: compiler.emit(ByteCode::Op::NEGATE); break;
+        case UnaryOp::NOT: compiler.emit(ByteCode::Op::NOT); break;
+        case UnaryOp::LENGTH: compiler.emit(ByteCode::Op::LENGTH); break;
+        case UnaryOp::BIT_NOT: compiler.emit(ByteCode::Op::BIT_NOT); break;
+        default: 
+            compiler.compilerError("Unknown unary operator!");
+    }
 }
 
 void Compiler::ExprVisitor::compileLogicalOp(ByteCode::Op op, const ExprHandle &lhs, const ExprHandle &rhs)
