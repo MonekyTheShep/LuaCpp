@@ -428,28 +428,27 @@ void VM::handleBinaryError(std::string_view msg, const Value &a, const Value &b,
     runtimeError(std::format("Attempt to perform {} on a {} value", msg, typeStr));
 }
 
-template <typename T>
-void VM::pushCompare(ByteCode::Op op, const T &a, const T &b) 
-{
-    if (op == ByteCode::Op::LS) push(a < b);
-    else if (op == ByteCode::Op::LSE) push(a <= b);
-    else assert(false); // Unreachable
-}
-
 void VM::handleCompare(ByteCode::Op op, Meta::Method method)
 {
     Value b = pop();
     Value a = pop();
 
+    auto pushCompare = [this](ByteCode::Op op, const auto &a, const auto &b)
+    {
+        if (op == ByteCode::Op::LS) push(a < b);
+        else if (op == ByteCode::Op::LSE) push(a <= b);
+        else assert(false); // Unreachable
+    };
+
     std::visit(overloaded 
     {
-        [this, op](const double a, const double b) 
+        [&pushCompare, op](const double a, const double b) 
         {
-            pushCompare<double>(op, a, b);
+            pushCompare(op, a, b);
         },
-        [this, op](const std::string &a, const std::string &b) 
+        [&pushCompare, op](const std::string &a, const std::string &b) 
         {
-            pushCompare<std::string>(op, a, b);
+            pushCompare(op, a, b);
         },
         [this, method](const auto &a, const auto &b)  
         {
@@ -479,28 +478,6 @@ void VM::handleEquality()
     push(a == b);
 }
 
-#define BIT_OP(op, lhs, rhs) static_cast<int32_t>(static_cast<uint32_t>(lhs) op static_cast<uint32_t>(rhs))
-
-namespace 
-{
-    constexpr int NBITS = sizeof(int32_t) * 8;
-
-    int32_t bitShift(int32_t x, int32_t y) 
-    // https://www.lua.org/source/5.3/lvm.c.html#luaV_shiftl
-    {
-        if (y < 0) 
-        {  /* shift right? */
-            if (y <= -NBITS) return 0;
-            else return BIT_OP(>>, x, -y);
-        }
-        else 
-        {  /* shift left */
-            if (y >= NBITS) return 0;
-            else return BIT_OP(<<, x, y);
-        }
-    }  
-}
-
 int32_t VM::doubleToInt(double num)
 {
     const bool valid = 
@@ -527,6 +504,24 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
         int32_t iLhs = doubleToInt(*lhs);
         int32_t iRhs = doubleToInt(*rhs);
 
+        constexpr int NBITS = sizeof(int32_t) * 8;
+
+        #define BIT_OP(op, lhs, rhs) static_cast<int32_t>(static_cast<uint32_t>(lhs) op static_cast<uint32_t>(rhs))
+
+        auto bitShift = [](int32_t a, int32_t b) 
+        {
+            if (b < 0) 
+            {
+                if (b <= -NBITS) return 0;
+                else return BIT_OP(>>, a, -b);
+            }
+            else 
+            {
+                if (b >= NBITS) return 0;
+                else return BIT_OP(<<, a, b);
+            }
+        };
+
         auto toDouble = [](int32_t a) 
         {
             return static_cast<double>(a);
@@ -542,14 +537,14 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
             default:
                 assert(false); // Unreachable
         }
+        
+        #undef BIT_OP
     } 
     else if (!tryMetaMethod({a,b}, method, CallType::LUA))
     {
         handleBinaryError("bitwise operation", a, b, lhs, rhs);
     }
 }
-
-#undef BIT_OP
 
 void VM::handleConcat()
 {

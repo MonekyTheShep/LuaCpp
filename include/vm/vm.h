@@ -198,8 +198,6 @@ class VM
         // -------------------------
         template <typename T>
         void handleBinaryError(std::string_view message, const Value &a, const Value &b, const std::optional<T> &lhs, const std::optional<T> &rhs);
-        template <typename T>
-        void pushCompare(ByteCode::Op op, const T &a, const T &b);
         void handleCompare(ByteCode::Op op, Meta::Method method);
         void handleEquality();
         int32_t doubleToInt(double num);
