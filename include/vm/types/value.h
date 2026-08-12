@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <span>
@@ -119,8 +120,7 @@ struct Coroutine
         }
 };
 
-
-using NativeFunctionPointer = int (*)(VM &vm, std::span<Value> args);
+using NativeFunctionPointer = std::function<int(VM &, std::span<Value>)>;
 struct NativeFunction 
 {
     NativeFunctionPointer function;
