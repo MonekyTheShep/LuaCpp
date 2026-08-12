@@ -530,7 +530,7 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
             case ByteCode::Op::BIT_OR: 
                 push(static_cast<double>(BIT_OP(|, iLhs, iRhs))); break;
             case ByteCode::Op::BIT_XOR: 
-                push(static_cast<double>(BIT_OP(&, iLhs, iRhs))); break;
+                push(static_cast<double>(BIT_OP(^, iLhs, iRhs))); break;
             case ByteCode::Op::BITSHIFT_LEFT: 
                 push(static_cast<double>(bitShift(iLhs, iRhs))); break;
             case ByteCode::Op::BITSHIFT_RIGHT: 
