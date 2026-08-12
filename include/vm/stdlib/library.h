@@ -5,14 +5,14 @@
 #include <string>
 
 #include "vm/types/value.h"
-#include "vm/types/luatable.h"
+#include "vm/vm.h"
 
-class VM;
+class VMGlobal;
 
 class Library 
 {
     public:
-        virtual LuaTableHandle openLibrary(VM &vm) = 0;
+        virtual LuaTableHandle openLibrary(VMGlobal &vmGlobal) = 0;
         
         virtual ~Library() = default;
         
@@ -23,11 +23,11 @@ class Library
             NativeFunctionPointer func;
         };
 
-        void setLibraryFunctions(VM &vm, std::span<Method> methods, LuaTableHandle &luaTable)
+        void setLibraryFunctions(VMGlobal &vmGlobal, std::span<Method> methods, LuaTableHandle &luaTable)
         {
             for (const Method &method : methods)
             {
-                luaTable->set(vm, method.name, makeNative(method));
+                luaTable->set(vmGlobal.main, method.name, makeNative(method));
             }
         }
     private:

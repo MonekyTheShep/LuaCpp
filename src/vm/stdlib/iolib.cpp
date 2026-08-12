@@ -24,9 +24,9 @@ std::array<Library::Method, 1> IoLib::methods
     {"read", &read},
 }};
 
-LuaTableHandle IoLib::openLibrary(VM &vm) 
+LuaTableHandle IoLib::openLibrary(VMGlobal &vmGlobal) 
 {
     LuaTableHandle luaTable = std::make_shared<LuaTable>();
-    setLibraryFunctions(vm, methods, luaTable);
+    setLibraryFunctions(vmGlobal, methods, luaTable);
     return luaTable;
 }

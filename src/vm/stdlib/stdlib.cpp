@@ -11,6 +11,7 @@
 #include "vm/stdlib/iolib.h"
 #include "vm/stdlib/baselib.h"
 
+#include "vm/types/luatable.h"
 #include "vm/types/value.h"
 #include "vm/vm.h"
 
@@ -32,6 +33,6 @@ void StdLib::initLibraries(VMGlobal &vmGlobal)
 
     for (const Lib &lib : libraries)
     {
-       vmGlobal.globals->set(vmGlobal.main, lib.name, lib.handle->openLibrary(vmGlobal.main));
+       vmGlobal.globals->set(vmGlobal.main, lib.name, lib.handle->openLibrary(vmGlobal));
     }
 }

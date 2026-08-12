@@ -49,9 +49,9 @@ std::array<Library::Method, 2> TableLib::methods
     {"unpack",  &unpack},
 }};
         
-LuaTableHandle TableLib::openLibrary(VM &vm) 
+LuaTableHandle TableLib::openLibrary(VMGlobal &vmGlobal) 
 {
     LuaTableHandle luaTable = std::make_shared<LuaTable>();
-    setLibraryFunctions(vm, methods, luaTable);
+    setLibraryFunctions(vmGlobal, methods, luaTable);
     return luaTable;
 }

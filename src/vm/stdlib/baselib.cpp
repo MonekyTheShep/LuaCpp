@@ -169,8 +169,8 @@ std::array<Library::Method, 10> BaseLib::methods
     {"xpcall", &xpcall},
 }};
 
-LuaTableHandle BaseLib::openLibrary(VM &vm) 
+LuaTableHandle BaseLib::openLibrary(VMGlobal &vmGlobal) 
 {
-    setLibraryFunctions(vm, methods, vm.vmGlobals.globals);
-    return vm.vmGlobals.globals;
+    setLibraryFunctions(vmGlobal, methods, vmGlobal.globals);
+    return vmGlobal.globals;
 }

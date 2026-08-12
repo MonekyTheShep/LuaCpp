@@ -79,8 +79,8 @@ VM::VM(VMGlobal &vmGlobal)
 }
 
 VMGlobal::VMGlobal()
-: globals(std::make_shared<LuaTable>())
-, main(*this)
+: main(*this)
+, globals(std::make_shared<LuaTable>())
 {
     StdLib::initLibraries(*this);
 }
@@ -330,7 +330,7 @@ LuaTableHandle VM::getMetaTable(const Value &value)
     {
         [this](const std::string &) -> LuaTableHandle 
         {
-            return primitiveMt[static_cast<size_t>(Primitives::STRING)];
+            return vmGlobals.getPrimitiveMT(VMGlobal::Primitives::STRING);
         },
         [](const LuaTableHandle &table) -> LuaTableHandle 
         {

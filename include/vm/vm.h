@@ -103,21 +103,6 @@ class VM
 
         std::vector<size_t> callees; // Temporary solution to a bigger problem
         std::vector<size_t> tables; // Temporary solution to a bigger problem
-  
-        enum class Primitives : uint8_t 
-        {
-            STRING = 0,
-            COUNT
-        };
-
-        static constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
-
-        void setPrimitiveMt(Primitives primitive, LuaTableHandle table)
-        {
-            primitiveMt[static_cast<size_t>(primitive)] = std::move(table);
-        }
-        
-        std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
 
         std::list<UpValueHandle> openUpValues;
 
@@ -342,10 +327,29 @@ class VMGlobal
             return instance;
         }
 
+        enum class Primitives : uint8_t 
+        {
+            STRING = 0,
+            COUNT
+        };
+
+        void setPrimitiveMt(Primitives primitive, LuaTableHandle table)
+        {
+            primitiveMt[static_cast<size_t>(primitive)] = std::move(table);
+        }
+
+        LuaTableHandle getPrimitiveMT(Primitives primitive)
+        {
+            return primitiveMt[static_cast<size_t>(primitive)];
+        }
     public:
+        VM main;
+
+        static constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
+        std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; // Stores references to meta tables for primites
+
         LuaTableHandle globals;
         LuaTableHandle loaded;
-        VM main;
     private:
         VMGlobal();
 };

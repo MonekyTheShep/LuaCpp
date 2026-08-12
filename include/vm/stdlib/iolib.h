@@ -6,12 +6,12 @@
 #include "library.h"
 #include "vm/types/value.h"
 
-class VM;
+class VMGlobal;
 
 class IoLib : public Library 
 {
     public:
-        LuaTableHandle openLibrary(VM &vm) override;
+        LuaTableHandle openLibrary(VMGlobal &vmGlobal) override;
     private:
         static int read(VM &vm, std::span<Value> args);
     private:

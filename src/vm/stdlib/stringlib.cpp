@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 
+#include "vm/types/luatable.h"
 #include "vm/types/meta.h"
 #include "vm/stdlib/library.h"
 #include "vm/types/value.h"
@@ -35,12 +36,12 @@ std::array<Library::Method, 1> StringLib::methods
     {"upper",  &upper},
 }};
 
-LuaTableHandle StringLib::openLibrary(VM &vm) 
+LuaTableHandle StringLib::openLibrary(VMGlobal &vmGlobal) 
 {
     LuaTableHandle luaTable = std::make_shared<LuaTable>();
-    setLibraryFunctions(vm, methods, luaTable);
+    setLibraryFunctions(vmGlobal, methods, luaTable);
     LuaTableHandle metaTable = std::make_shared<LuaTable>();
-    metaTable->set(vm, Meta::getName(Meta::Method::INDEX), luaTable);
-    vm.setPrimitiveMt(VM::Primitives::STRING, metaTable);
+    metaTable->set(vmGlobal.main, Meta::getName(Meta::Method::INDEX), luaTable);
+    vmGlobal.setPrimitiveMt(VMGlobal::Primitives::STRING, metaTable);
     return luaTable;
 }

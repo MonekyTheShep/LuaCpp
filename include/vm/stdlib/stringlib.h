@@ -6,12 +6,12 @@
 #include "library.h"
 #include "vm/types/value.h"
 
-class VM;
+class VMGlobal;
 
 class StringLib : public Library 
 {
     public:
-        LuaTableHandle openLibrary(VM &vm) override;
+        LuaTableHandle openLibrary(VMGlobal &vmGlobal) override;
     private:
         static int upper(VM &vm, std::span<Value> args);
     private:
