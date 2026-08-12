@@ -537,8 +537,8 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
             case ByteCode::Op::BIT_AND: push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
             case ByteCode::Op::BIT_OR: push(toDouble(BIT_OP(|, iLhs, iRhs))); break;
             case ByteCode::Op::BIT_XOR: push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
-            case ByteCode::Op::BITSHIFT_LEFT: push(toDouble(BIT_OP(<<, iLhs, iRhs))); break;
-            case ByteCode::Op::BITSHIFT_RIGHT: push(toDouble(BIT_OP(>>, iLhs, iRhs))); break;
+            case ByteCode::Op::BITSHIFT_LEFT: push(toDouble(bitShift(iLhs, iRhs))); break;
+            case ByteCode::Op::BITSHIFT_RIGHT: push(toDouble(bitShift(iLhs, -iRhs))); break;
             default:
                 assert(false); // Unreachable
         }
