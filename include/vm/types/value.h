@@ -21,13 +21,15 @@ class LuaTable;
 struct NativeFunction;
 struct FunctionChunk;
 struct Closure;
+struct Coroutine;
 
 using LuaTableHandle = std::shared_ptr<LuaTable>;
 using NativeFunctionHandle = std::shared_ptr<NativeFunction>;
 using FunctionHandle = std::shared_ptr<FunctionChunk>;
 using ClosureHandle = std::shared_ptr<Closure>;
+using CoroutineHandle = std::shared_ptr<Coroutine>;
 
-using Value = std::variant<LUA_NIL_TYPE, double, bool, std::string, LuaTableHandle, NativeFunctionHandle, FunctionHandle, ClosureHandle>;
+using Value = std::variant<LUA_NIL_TYPE, double, bool, std::string, LuaTableHandle, NativeFunctionHandle, FunctionHandle, ClosureHandle, CoroutineHandle>;
 
 namespace ValueHelper 
 {
@@ -88,6 +90,35 @@ struct Closure
 };
 
 class VM;
+
+using VMHandle = std::unique_ptr<VM>;
+
+struct Coroutine
+{
+    public:
+        enum class Status : uint8_t
+        {
+            Pending,
+            Running,
+            Normal,
+            Dead
+        };
+
+        Status status;
+        VMHandle vm;
+    public:
+        std::string statusToString()
+        {
+            switch (status)
+            {   
+                case Status::Pending: return "Pending"; break;
+                case Status::Running: return "Running"; break;
+                case Status::Normal: return "Normal"; break;
+                case Status::Dead: return "Dead"; break;
+            }          
+        }
+};
+
 
 using NativeFunctionPointer = int (*)(VM &vm, std::span<Value> args);
 struct NativeFunction 

@@ -300,7 +300,7 @@ void VM::call(const ClosureHandle &closure, size_t calleeIndex, int expectedRetu
 void VM::moveReturns(size_t firstResult, size_t frameBase, int expectedReturn)
 {
     assert(firstResult <= sp);
-    assert(frameBase <= firstResult);
+    assert(frameBase < firstResult);
 
     Value *start = &stack[firstResult];
     Value *top = &stack[sp];
