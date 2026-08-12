@@ -524,24 +524,24 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
     if ((lhs = ValueHelper::toNumber(a)) && 
     (rhs = ValueHelper::toNumber(b))) 
     {
-
         int32_t iLhs = doubleToInt(*lhs);
         int32_t iRhs = doubleToInt(*rhs);
 
-        int32_t result = 0;
+        auto toDouble = [](int32_t a) 
+        {
+            return static_cast<double>(a);
+        };
 
         switch (op)
         {
-            case ByteCode::Op::BIT_AND: result = BIT_OP(&, iLhs, iRhs); break;
-            case ByteCode::Op::BIT_OR: result =  BIT_OP(|, iLhs, iRhs); break;
-            case ByteCode::Op::BIT_XOR: result = BIT_OP(^, iLhs, iRhs); break;
-            case ByteCode::Op::BITSHIFT_LEFT:  result = bitShift(iLhs, iRhs); break;
-            case ByteCode::Op::BITSHIFT_RIGHT: result = bitShift(iLhs, -iRhs); break;
+            case ByteCode::Op::BIT_AND: push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
+            case ByteCode::Op::BIT_OR: push(toDouble(BIT_OP(|, iLhs, iRhs))); break;
+            case ByteCode::Op::BIT_XOR: push(toDouble(BIT_OP(&, iLhs, iRhs))); break;
+            case ByteCode::Op::BITSHIFT_LEFT: push(toDouble(BIT_OP(<<, iLhs, iRhs))); break;
+            case ByteCode::Op::BITSHIFT_RIGHT: push(toDouble(BIT_OP(>>, iLhs, iRhs))); break;
             default:
                 assert(false); // Unreachable
         }
-
-        push(static_cast<double>(result));
     } 
     else if (!tryMetaMethod({a,b}, method, CallType::LUA))
     {
