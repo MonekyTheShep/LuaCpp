@@ -504,23 +504,17 @@ void VM::handleBitWise(ByteCode::Op op, Meta::Method method)
         int32_t iLhs = doubleToInt(*lhs);
         int32_t iRhs = doubleToInt(*rhs);
 
-        constexpr int NBITS = sizeof(int32_t) * 8;
-
         #define BIT_OP(op, lhs, rhs) \
              static_cast<int32_t>(static_cast<uint32_t>(lhs) op static_cast<uint32_t>(rhs))
 
         auto bitShift = [](int32_t a, int32_t b) 
         {
+            constexpr int NUM_OF_BITS = sizeof(int32_t) * 8;
+
             if (b < 0) 
-            {
-                if (b <= -NBITS) return 0;
-                else return BIT_OP(>>, a, -b);
-            }
+                return (b <= -NUM_OF_BITS) ? 0 : BIT_OP(>>, a, -b);
             else 
-            {
-                if (b >= NBITS) return 0;
-                else return BIT_OP(<<, a, b);
-            }
+                return (b >= NUM_OF_BITS) ? 0 : BIT_OP(<<, a, b);
         };
 
         switch (op)
