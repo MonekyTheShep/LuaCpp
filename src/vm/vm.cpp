@@ -1137,7 +1137,7 @@ void VM::run()
                 break;
             }
             default:
-                return;
+                assert(false);
         }
     }
 }
