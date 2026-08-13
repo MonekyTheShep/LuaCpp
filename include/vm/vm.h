@@ -313,17 +313,7 @@ class VM
 class VMGlobal
 {
     public:
-        // Disable moving/copying
-        VMGlobal(const VMGlobal&) = delete;
-        VMGlobal(VMGlobal&&) = delete;
-        VMGlobal& operator = (const VMGlobal&) = delete;
-        VMGlobal& operator = (VMGlobal&&) = delete;
-
-        static VMGlobal& getInstance()
-        {
-            static VMGlobal instance;
-            return instance;
-        }
+        VMGlobal();
 
         enum class Primitives : uint8_t 
         {
@@ -346,7 +336,5 @@ class VMGlobal
         LuaTableHandle loaded;
     private:
         static constexpr size_t NUM_OF_PRIMITIVES = static_cast<size_t>(Primitives::COUNT);
-        std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt; 
-    private:
-        VMGlobal();
+        std::array<LuaTableHandle, NUM_OF_PRIMITIVES> primitiveMt;      
 };

@@ -66,7 +66,8 @@ Value VMRuntimeError::getObj() const noexcept
 }
 
 VM::VM(VMGlobal &vmGlobal)
-: vmGlobals(vmGlobal)
+: opCounts({})
+, vmGlobals(vmGlobal)
 , sp(0)
 , runDepth(0) 
 {
