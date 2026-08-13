@@ -273,7 +273,7 @@ void Compiler::ExprVisitor::operator()(const TableExprDef &node)
     {
         compiler.emitWithArg(ByteCode::Op::MAKE_TABLE,fieldsMinusOne); 
         compiler.emit(ByteCode::Op::STORE_TABLE);
-        compileExpression(lastField.value, -1);
+        compileExpression(lastField.value, ByteCode::RETURN_ALL);
         if (arrayIndex > UINT8_MAX) compiler.compilerError("Constructor too long!");
         compiler.emitWithArg(ByteCode::Op::SET_LIST, static_cast<uint8_t>(arrayIndex));
     }
@@ -293,7 +293,7 @@ void Compiler::ExprVisitor::compileArgs(const std::vector<ExprHandle> &args)
 
     if (!args.empty())
     {
-        compileExpression(args.back(), -1);
+        compileExpression(args.back(), ByteCode::RETURN_ALL);
     }
 }
 
@@ -831,7 +831,7 @@ void Compiler::StmtVisitor::operator()(const ReturnStmt &node)
 
     if (node.values.size() == 1 && isCallable(node.values.back()))
     {
-        return compiler.compileExpression(node.values.back(), -1, true);
+        return compiler.compileExpression(node.values.back(), ByteCode::RETURN_ALL, true);
     }
     
     for (size_t i = 0; i + 1 < node.values.size(); i++)
@@ -841,7 +841,7 @@ void Compiler::StmtVisitor::operator()(const ReturnStmt &node)
 
     if (!node.values.empty())
     {
-        compiler.compileExpression(node.values.back(), -1, false);
+        compiler.compileExpression(node.values.back(), ByteCode::RETURN_ALL, false);
     }
     
     compiler.emitWithArg(ByteCode::Op::RETURN, static_cast<uint8_t>(compiler.locals.size()));

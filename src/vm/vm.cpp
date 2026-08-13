@@ -139,7 +139,7 @@ std::expected<int, Value> VM::protectedCall(size_t calleeIndex)
     try 
     {
         pushErrorHandler(sp);
-        callValue(calleeIndex, -1, VM::CallType::CPP);
+        callValue(calleeIndex, ByteCode::RETURN_ALL, VM::CallType::CPP);
         popErrorHandler();
 
         // Insert true infront of returns
@@ -308,7 +308,7 @@ void VM::moveReturns(size_t firstResult, size_t frameBase, int expectedReturn)
 
     sp = frameBase;
 
-    if (expectedReturn == RETURN_ALL)
+    if (expectedReturn == ByteCode::RETURN_ALL)
     {
         while (start < top)
         {
@@ -1118,7 +1118,7 @@ void VM::run()
             {       
                 auto expected = readSignedByte();
                
-                if (expected == RETURN_ALL)
+                if (expected == ByteCode::RETURN_ALL)
                 {
                     for (const Value &value : callFrames.back().varArg)
                     {

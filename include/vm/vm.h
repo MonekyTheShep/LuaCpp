@@ -59,8 +59,6 @@ class VM
     private:
         static constexpr size_t MAX_FRAMES = 128;
         static constexpr size_t STACK_SIZE = UINT8_MAX * MAX_FRAMES;
-
-        static constexpr int RETURN_ALL = -1;
         static constexpr int MAX_RECURSION = 100;
 
         std::vector<Value> stack;

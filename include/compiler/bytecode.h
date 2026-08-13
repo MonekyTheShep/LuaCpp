@@ -88,6 +88,8 @@ namespace ByteCode
         COUNT
     };
 
+    static constexpr int RETURN_ALL = -1;
+
     inline constexpr size_t NUM_OF_OPS = static_cast<size_t>(Op::COUNT);
 
     inline std::string toString(Op op)
