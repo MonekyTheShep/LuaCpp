@@ -336,7 +336,7 @@ class VMGlobal
             primitiveMt[static_cast<size_t>(primitive)] = std::move(table);
         }
 
-        LuaTableHandle getPrimitiveMT(Primitives primitive)
+        LuaTableHandle getPrimitiveMt(Primitives primitive)
         {
             return primitiveMt[static_cast<size_t>(primitive)];
         }

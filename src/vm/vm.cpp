@@ -330,7 +330,7 @@ LuaTableHandle VM::getMetaTable(const Value &value)
     {
         [this](const std::string &) -> LuaTableHandle 
         {
-            return vmGlobals.getPrimitiveMT(VMGlobal::Primitives::STRING);
+            return vmGlobals.getPrimitiveMt(VMGlobal::Primitives::STRING);
         },
         [](const LuaTableHandle &table) -> LuaTableHandle 
         {

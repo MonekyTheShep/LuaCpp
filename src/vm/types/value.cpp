@@ -18,7 +18,7 @@ template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 std::optional<int> Chunk::makeConstant(Value value)
 {
     int index = static_cast<int>(constants.size());
-    if (index == UINT8_MAX) return std::nullopt;
+    if (index >= UINT8_MAX) return std::nullopt;
     
     if (auto *string = std::get_if<std::string>(&value))
     {
