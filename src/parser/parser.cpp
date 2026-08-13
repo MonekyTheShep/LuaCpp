@@ -510,11 +510,11 @@ UnaryExpr::UnaryOperator Parser::getUnaryOperator(Token::Type op)
     parserError("Unexpected unary operator!", peek());
 }
 
-constexpr int UNARY_PRIORITY = 120;
-
 ExprHandle Parser::parseExpression(int minBp)
 {
     ExprHandle lhs;
+
+    constexpr int UNARY_PRIORITY = 120;
     
     if(match(Token::Type::OP_SUB, Token::Type::OP_LENGTH, Token::Type::OP_NOT, Token::Type::NOT))
     {
