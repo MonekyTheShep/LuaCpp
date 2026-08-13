@@ -11,7 +11,6 @@
 #include "vm/stdlib/iolib.h"
 #include "vm/stdlib/baselib.h"
 
-#include "vm/types/luatable.h"
 #include "vm/types/value.h"
 #include "vm/vm.h"
 
