@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 #include <vector>
 #include <format>
@@ -20,8 +21,13 @@ class Compiler
 {
     public:
         FunctionHandle compile(const Ast &stmts);
-        static Compiler makeTopLevel() { return Compiler(nullptr, "<main>", 0, true); };
+        static Compiler makeTopLevel() { return Compiler(nullptr, std::make_shared<Global>(), "<main>", 0, true); };
     private:
+        struct Global
+        {
+            size_t stackLevel;
+        };
+    
         struct Local 
         {
             std::string name;
@@ -63,14 +69,16 @@ class Compiler
         FunctionHandle function;
         Chunk &chunk;
         Compiler *enclosing;
+        std::shared_ptr<Global> global;
 
         int scopeDepth;
         int currentLine;
     private:
-        Compiler(Compiler *enclosing, std::string_view name, int arity, bool isVarArg)
+        Compiler(Compiler *enclosing, std::shared_ptr<Global> global, std::string_view name, int arity, bool isVarArg)
         : function(std::make_shared<FunctionChunk>(FunctionChunk{{}, std::string(name), 0, arity, isVarArg}))
         , chunk(function->chunk)
         , enclosing(enclosing)
+        , global(std::move(global))
         , scopeDepth(0)
         , currentLine(1)
         {

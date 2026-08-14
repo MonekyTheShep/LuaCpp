@@ -359,7 +359,7 @@ FunctionHandle Compiler::endFunction()
 
 void Compiler::compileFunction(const std::string &name, bool isVarArg, const std::vector<std::string> &args, const std::vector<StmtWithPos> &stmts) 
 {
-    Compiler inner(this, name, static_cast<int>(args.size()), isVarArg);
+    Compiler inner(this, global, name, static_cast<int>(args.size()), isVarArg);
     
     if (args.size() > UINT8_MAX) compilerError("Can't have more than 255 arguments in function");
 
