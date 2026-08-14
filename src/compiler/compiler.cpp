@@ -381,46 +381,49 @@ void Compiler::compileFunction(const std::string &name, bool isVarArg, const std
     }
 }
 
-template <typename T>
-std::optional<bool> Compiler::tryFoldCompare(BinaryExpr::BinaryOperator op, const T &a, const T &b)
+namespace 
 {
-    switch (op)
+    template <typename T>
+    std::optional<bool> tryFoldCompare(BinaryExpr::BinaryOperator op, const T &a, const T &b)
     {
-        case BinaryExpr::BinaryOperator::EQ: return a == b;
-        case BinaryExpr::BinaryOperator::NEQ: return a != b;
-        case BinaryExpr::BinaryOperator::GT: return a > b;
-        case BinaryExpr::BinaryOperator::GTE: return a >= b;
-        case BinaryExpr::BinaryOperator::LS: return a < b;
-        case BinaryExpr::BinaryOperator::LSE: return a <= b;
+        switch (op)
+        {
+            case BinaryExpr::BinaryOperator::EQ: return a == b;
+            case BinaryExpr::BinaryOperator::NEQ: return a != b;
+            case BinaryExpr::BinaryOperator::GT: return a > b;
+            case BinaryExpr::BinaryOperator::GTE: return a >= b;
+            case BinaryExpr::BinaryOperator::LS: return a < b;
+            case BinaryExpr::BinaryOperator::LSE: return a <= b;
+            default:
+                return std::nullopt;
+        }
+    }
+
+    std::optional<double> tryFoldArithmetic(BinaryExpr::BinaryOperator op, double a, double b)
+    {
+        switch (op)
+        {
+        case BinaryExpr::BinaryOperator::ADD: return a + b;
+        case BinaryExpr::BinaryOperator::SUB: return a - b;
+        case BinaryExpr::BinaryOperator::MUL: return a * b;
+        case BinaryExpr::BinaryOperator::FLOOR_DIV: return floor(a / b);
+        case BinaryExpr::BinaryOperator::DIV: return a / b;
+        case BinaryExpr::BinaryOperator::MOD: return fmod(a, b);
+        case BinaryExpr::BinaryOperator::EXPO: return pow(a, b);
         default:
-            return std::nullopt;
+                return std::nullopt;
+        }
     }
-}
 
-std::optional<double> Compiler::tryFoldArithmetic(BinaryExpr::BinaryOperator op, double a, double b)
-{
-    switch (op)
+    bool constTruthy(const Value &value)
     {
-       case BinaryExpr::BinaryOperator::ADD: return a + b;
-       case BinaryExpr::BinaryOperator::SUB: return a - b;
-       case BinaryExpr::BinaryOperator::MUL: return a * b;
-       case BinaryExpr::BinaryOperator::FLOOR_DIV: return floor(a / b);
-       case BinaryExpr::BinaryOperator::DIV: return a / b;
-       case BinaryExpr::BinaryOperator::MOD: return fmod(a, b);
-       case BinaryExpr::BinaryOperator::EXPO: return pow(a, b);
-       default:
-            return std::nullopt;
+        return std::visit(overloaded 
+        {
+            [](const bool value) -> bool { return value; },
+            [](const LUA_NIL_TYPE) -> bool { return false; },
+            [](const auto&) -> bool { return true; }
+        }, value);
     }
-}
-
-bool Compiler::constTruthy(const Value &value)
-{
-    return std::visit(overloaded 
-    {
-        [](const bool value) -> bool { return value; },
-        [](const LUA_NIL_TYPE) -> bool { return false; },
-        [](const auto&) -> bool { return true; }
-    }, value);
 }
 
 std::optional<Value> Compiler::tryFoldConstant(const ExprHandle &expression) 

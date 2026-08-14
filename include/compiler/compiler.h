@@ -23,11 +23,6 @@ class Compiler
         FunctionHandle compile(const Ast &stmts);
         static Compiler makeTopLevel() { return Compiler(nullptr, std::make_shared<Global>(), "<main>", 0, true); };
     private:
-        struct Global
-        {
-            size_t stackLevel;
-        };
-    
         struct Local 
         {
             std::string name;
@@ -69,6 +64,12 @@ class Compiler
         FunctionHandle function;
         Chunk &chunk;
         Compiler *enclosing;
+
+        struct Global
+        {
+            size_t stackLevel;
+        };
+    
         std::shared_ptr<Global> global;
 
         int scopeDepth;
@@ -136,13 +137,6 @@ class Compiler
         // --------------------
         // Constant Folding
         // --------------------
-        template <typename T>
-        static std::optional<bool> tryFoldCompare(BinaryExpr::BinaryOperator op, const T &a, const T &b);
-
-        static std::optional<double> tryFoldArithmetic(BinaryExpr::BinaryOperator op, double a, double b);
-
-        static bool constTruthy(const Value &value);
-
         static std::optional<Value> tryFoldConstant(const ExprHandle &expression);
 
         // --------------------
