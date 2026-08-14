@@ -99,8 +99,8 @@ class VM
 
         std::vector<ErrorHandler> errorHandlers;
 
-        std::vector<size_t> callees; // Temporary solution to a bigger problem
-        std::vector<size_t> tables; // Temporary solution to a bigger problem
+        std::vector<size_t> callees; 
+        std::vector<size_t> tables;
 
         std::list<UpValueHandle> openUpValues;
 
