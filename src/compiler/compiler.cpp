@@ -942,23 +942,26 @@ void Compiler::StmtVisitor::operator()(const BlockStmt &node)
 
 void Compiler::compileExpression(const ExprHandle &expression, int expectedReturn, bool isTailCall)
 {
-    if (auto folded = tryFoldConstant(expression))
+    if (global->options.constFolding)
     {
-        return std::visit(overloaded 
+        if (auto folded = tryFoldConstant(expression))
         {
-            [this](const bool a)
+            return std::visit(overloaded 
             {
-                emit(a ? ByteCode::Op::LOAD_TRUE : ByteCode::Op::LOAD_FALSE);
-            },
-            [this](const LUA_NIL_TYPE)
-            {
-                emit(ByteCode::Op::LOAD_NULL);
-            },
-            [this](const auto &a) 
-            {
-                emitConstant(a);
-            },
-        } , *folded);
+                [this](const bool a)
+                {
+                    emit(a ? ByteCode::Op::LOAD_TRUE : ByteCode::Op::LOAD_FALSE);
+                },
+                [this](const LUA_NIL_TYPE)
+                {
+                    emit(ByteCode::Op::LOAD_NULL);
+                },
+                [this](const auto &a) 
+                {
+                    emitConstant(a);
+                },
+            } , *folded);
+        }
     }
 
     std::visit(ExprVisitor(expectedReturn, isTailCall, *this), *expression);

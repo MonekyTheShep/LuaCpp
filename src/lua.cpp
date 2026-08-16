@@ -21,7 +21,7 @@ void Lua::run(std::string code)
 {
     Ast ast = Parser(std::move(code)).parse();
 
-    FunctionHandle function = Compiler::makeTopLevel().compile(ast);
+    FunctionHandle function = Compiler::makeTopLevel({true}).compile(ast);
     
     VM &vm = vmGlobal.main;
 
@@ -36,7 +36,7 @@ void Lua::debugRun(std::string code)
         AstPrinter::printStmts(ast);
     }
 
-    FunctionHandle function = Compiler::makeTopLevel().compile(ast);
+    FunctionHandle function = Compiler::makeTopLevel({true}).compile(ast);
     {
         std::cout << "========= BYTECODE DEBUGGING ==========" << "\n";
         Disassembler::disassemble(function->chunk);

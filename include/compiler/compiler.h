@@ -22,14 +22,12 @@ class Compiler
     public:
         FunctionHandle compile(const Ast &stmts);
 
-        static Compiler makeTopLevel() { return Compiler(nullptr, std::make_shared<Global>(), "<main>", 0, true); };
-    public:   
         struct Options
         {
             bool constFolding;
         };
 
-        inline static Options options = {};
+        static Compiler makeTopLevel(Options options) { return Compiler(nullptr, std::make_shared<Global>(options, 0), "<main>", 0, true); };
     private:
         struct Local 
         {
@@ -75,6 +73,7 @@ class Compiler
 
         struct Global
         {
+            Options options;
             size_t stackLevel;
         };
     
