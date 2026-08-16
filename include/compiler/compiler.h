@@ -21,7 +21,15 @@ class Compiler
 {
     public:
         FunctionHandle compile(const Ast &stmts);
+
         static Compiler makeTopLevel() { return Compiler(nullptr, std::make_shared<Global>(), "<main>", 0, true); };
+    public:   
+        struct Options
+        {
+            bool constFolding;
+        };
+
+        inline static Options options = {};
     private:
         struct Local 
         {
@@ -60,7 +68,7 @@ class Compiler
 
         std::vector<LabelContext> unresolvedGoto;
         std::vector<LabelContext> labels;
-        
+
         FunctionHandle function;
         Chunk &chunk;
         Compiler *enclosing;
@@ -218,16 +226,16 @@ class Compiler
                 Compiler &compiler;
         };
 
-        void compileStmt(const StatementHandle &stmt)
+        void compileStmt(const StmtWithPos &stmt)
         {
-            std::visit(StmtVisitor{*this}, *stmt);
+            currentLine = stmt.line;
+            std::visit(StmtVisitor{*this}, *stmt.stmt);
         }
 
         void compileStmts(const std::vector<StmtWithPos> &stmts)
         {
-            for (const auto &[stmt, line, col] : stmts)
+            for (const auto &stmt : stmts)
             {
-                currentLine = line;
                 compileStmt(stmt);
             }
         }
