@@ -1196,20 +1196,20 @@ std::string VM::type(const Value &value)
 
 std::string VM::toString(const Value &value)
 {
-    auto pointerToString = [](const std::shared_ptr<T> &pointer)
+    auto pointerToString = [](const auto &pointer)
     {
         return std::format("{:p}", static_cast<const void*>(pointer.get()));
-    }
+    };
 
     return std::visit(overloaded 
     {
         [](const double a) -> std::string { return std::format("{:.14g}", a); },
         [](const std::string &a) -> std::string  { return a; },
         [](const bool a) -> std::string { return (a) ? "true" : "false"; },
-        [](const NativeFunctionHandle &native) -> std::string { return "function: " + pointerToString(native);},
-        [](const ClosureHandle &closure) -> std::string { return "function: " + pointerToString(closure);},
+        [&pointerToString](const NativeFunctionHandle &native) -> std::string { return "function: " + pointerToString(native);},
+        [&pointerToString](const ClosureHandle &closure) -> std::string { return "function: " + pointerToString(closure);},
         [](const LUA_NIL_TYPE) -> std::string { return "nil"; },
-        [this](const LuaTableHandle &table) -> std::string 
+        [this, &pointerToString](const LuaTableHandle &table) -> std::string 
         {
             if (tryMetaMethod({table}, Meta::Method::TOSTRING, CallType::CPP))
             {
