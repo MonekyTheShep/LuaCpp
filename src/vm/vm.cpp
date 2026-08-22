@@ -1194,17 +1194,13 @@ std::string VM::type(const Value &value)
     }, value);
 }
 
-namespace 
+std::string VM::toString(const Value &value)
 {
-    template <typename T>
-    std::string pointerToString(const std::shared_ptr<T> &pointer)
+    auto pointerToString = [](const std::shared_ptr<T> &pointer)
     {
         return std::format("{:p}", static_cast<const void*>(pointer.get()));
     }
-}
 
-std::string VM::toString(const Value &value)
-{
     return std::visit(overloaded 
     {
         [](const double a) -> std::string { return std::format("{:.14g}", a); },
