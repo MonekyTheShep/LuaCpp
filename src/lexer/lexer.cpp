@@ -109,12 +109,12 @@ Token Lexer::lex()
 {
     for(;;)
     {
-        skipWhiteSpace();
+        if (isEof()) return {{Token::Type::TEOF, ""}, line, col};
 
         int startLine = line;
         int startCol = col;
-        
-        if (isEof()) return {{Token::Type::TEOF, ""}, startLine, startCol};
+
+        skipWhiteSpace();
 
         size_t startPos = pos;
         char currentChar = peek();
