@@ -84,7 +84,7 @@ std::unordered_map<Token::Type, std::string_view> tokenNames
     {Token::Type::IDENTIFIER, "IDENTIFIER"},
 };
 
-std::string Lexer::getTokenTypeName(const Token::Type &type)
+std::string Lexer::getTokenTypeName(Token::Type type)
 {
     auto it = tokenNames.find(type);
     return it == tokenNames.end() ? "UNKNOWN" : std::string(it->second);

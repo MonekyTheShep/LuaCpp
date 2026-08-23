@@ -25,7 +25,7 @@ class Lexer
 
         static std::string makeFormattedString(std::string_view lexeme);
 
-        static std::string getTokenTypeName(const Token::Type &type);
+        static std::string getTokenTypeName(Token::Type type);
     private:
         std::optional<Token> lookAhead;
 
