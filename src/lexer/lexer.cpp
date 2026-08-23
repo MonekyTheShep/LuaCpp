@@ -101,8 +101,7 @@ Token Lexer::nextToken()
 Token Lexer::lookAheadToken()
 {
     if (lookAhead) return *lookAhead;
-    lookAhead = lex();
-    return *lookAhead;
+    return (lookAhead = lex()).value();
 }
 
 Token Lexer::lex()
