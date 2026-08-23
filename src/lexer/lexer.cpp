@@ -111,12 +111,12 @@ Token Lexer::lex()
     {
         if (isEof()) return {{Token::Type::TEOF, ""}, line, col};
 
-        int startLine = line;
-        int startCol = col;
-
         skipWhiteSpace();
 
+        int startLine = line;
+        int startCol = col;
         size_t startPos = pos;
+
         char currentChar = peek();
 
         if (currentChar == '\n')
