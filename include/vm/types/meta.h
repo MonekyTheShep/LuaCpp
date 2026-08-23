@@ -35,7 +35,7 @@ namespace Meta
         METATABLE
     };
 
-    constexpr inline std::string_view names[] = 
+    const inline std::string_view names[] = 
     {
         "__add",
         "__sub",
@@ -63,7 +63,7 @@ namespace Meta
         "__metatable"
     };
 
-    constexpr inline std::string getName(Method method)
+    inline std::string getName(Method method)
     {
         return std::string(names[static_cast<size_t>(method)]);
     }
