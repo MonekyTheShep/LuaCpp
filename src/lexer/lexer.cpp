@@ -124,7 +124,8 @@ Token Lexer::lex()
             incLine(); 
             continue;
         }
-        else if (currentChar == '-')
+        
+        if (currentChar == '-')
         {
             advance();
             if (peek() == '-')
@@ -133,19 +134,23 @@ Token Lexer::lex()
             }
             return {{Token::Type::OP_SUB, "-"}, startLine, startCol};
         }
-        else if (isAlpha(currentChar) || currentChar == '_')
+        
+        if (isAlpha(currentChar) || currentChar == '_')
         {
             return {readIdentifier(), startLine, startCol};
         }
-        else if (isDigit(currentChar))
+        
+        if (isDigit(currentChar))
         {
             return {readNumber(), startLine, startCol};
         }
-        else if (currentChar == '\'' || currentChar == '"')
+        
+        if (currentChar == '\'' || currentChar == '"')
         {
             return {readString(), startLine, startCol};
         }
-        else if (currentChar == '[')
+        
+        if (currentChar == '[')
         {
             int prefix = isLongStringSequence();
             if (prefix >= 2)
