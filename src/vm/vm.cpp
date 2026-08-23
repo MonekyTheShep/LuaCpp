@@ -398,7 +398,9 @@ UpValueHandle VM::captureUpValue(Value *location)
         return *it;
     }
 
-    openUpValues.insert(it, std::make_shared<UpValue>(location));
+    UpValueHandle newUpValue = std::make_shared<UpValue>(location);
+
+    openUpValues.insert(it, newUpValue);
 
     return newUpValue;
 }
