@@ -358,9 +358,7 @@ std::optional<Value> VM::resolveMetaMethod(const LuaTableHandle &metatable, Meta
 
 std::optional<Value> VM::resolveValueMetaMethod(const Value &value, Meta::Method method)
 {
-    LuaTableHandle metatable = getMetaTable(value);
-
-    return resolveMetaMethod(metatable, method);
+    return resolveMetaMethod(getMetaTable(value), method);
 }
 
 bool VM::tryMetaMethod(std::initializer_list<Value> values, Meta::Method method, CallType callType)
