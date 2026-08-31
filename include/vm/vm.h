@@ -133,11 +133,11 @@ class VM
             return args[argIndex];
         }
 
-        template<typename... Ts>
+        template<typename... T>
         void argCheck(std::span<Value> args, size_t argIndex, const char *msg)
         {
             if (!isValidArg(args, argIndex)) argError(argIndex, msg);
-            if (!(std::holds_alternative<Ts>(args[argIndex]) || ...)) 
+            if (!(std::holds_alternative<T>(args[argIndex]) || ...)) 
             {
                 argError(argIndex, msg);
             }
