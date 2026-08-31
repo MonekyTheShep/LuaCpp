@@ -348,7 +348,7 @@ std::optional<Value> VM::resolveMetaMethod(const LuaTableHandle &metatable, Meta
 {
     if (!metatable) return std::nullopt;
 
-    const std::string name = Meta::getName(method);
+    const std::string &name = Meta::getName(method);
 
     if (!metatable->exists(name)) return std::nullopt;
 
