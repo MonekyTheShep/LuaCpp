@@ -161,8 +161,8 @@ struct Token
             // BITWISE OPERATORS
             OP_AND, // &
             OP_OR, // |
-            OP_BITSHIFT_RIGHT, // >>
             OP_BITSHIFT_LEFT, // <<
+            OP_BITSHIFT_RIGHT, // >>
             OP_NOT, // ~
 
             // MISC OPERATOR

@@ -46,8 +46,8 @@ namespace ByteCode
         BIT_AND, // &
         BIT_OR, // |
         BIT_XOR, // ~
-        BITSHIFT_LEFT, // >>
-        BITSHIFT_RIGHT, // <<
+        BITSHIFT_LEFT, // <<
+        BITSHIFT_RIGHT, // >>
         BIT_NOT, // Unary ~
 
         // TABLE OP
@@ -86,6 +86,12 @@ namespace ByteCode
         VARARG,
         RETURN,
         COUNT
+    };
+
+    struct StackDelta
+    {
+        int push;
+        int pop;
     };
 
     static constexpr int RETURN_ALL = -1;
