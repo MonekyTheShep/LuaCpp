@@ -468,7 +468,6 @@ const std::unordered_map<Token::Type, BinaryExpr::BinaryOperator> Parser::binOps
     {Token::Type::AND, BinaryExpr::BinaryOperator::AND},
     {Token::Type::OP_NOT_EQUAL, BinaryExpr::BinaryOperator::NEQ},
     {Token::Type::OP_EQUAL, BinaryExpr::BinaryOperator::EQ},
-    {Token::Type::OP_NOT_EQUAL, BinaryExpr::BinaryOperator::NEQ},
     {Token::Type::OP_GREATER, BinaryExpr::BinaryOperator::GT},
     {Token::Type::OP_GREATER_EQUAL, BinaryExpr::BinaryOperator::GTE},
     {Token::Type::OP_LESS, BinaryExpr::BinaryOperator::LS},
