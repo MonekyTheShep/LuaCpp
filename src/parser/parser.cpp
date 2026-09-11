@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <format>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -295,7 +296,7 @@ StatementHandle Parser::parseForCountStatement(std::string firstIdentifier)
     expect(Token::Type::COMMA, context);
     ExprHandle end = parseExpression();
 
-    ExprHandle step;
+    std::optional<ExprHandle> step;
     if (match(Token::Type::COMMA))
     {
         step = parseExpression();

@@ -641,7 +641,7 @@ void Compiler::StmtVisitor::operator()(const ForRangeStmt &node)
     compiler.compileExpression(node.stop, 1, false);
     compiler.addLocal("(stop)");
 
-    if (node.step != nullptr) compiler.compileExpression(node.step, 1, false);
+    if (node.step) compiler.compileExpression(*node.step, 1, false);
     else compiler.emitConstant(1.0);
     compiler.addLocal("(step)");
 

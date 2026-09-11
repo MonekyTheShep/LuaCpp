@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <variant>
@@ -262,7 +263,7 @@ struct ForRangeStmt
     std::string variable;
     ExprHandle start;
     ExprHandle stop;
-    ExprHandle step; // nullptr defaults to value of 1.0
+    std::optional<ExprHandle> step;
     std::vector<StmtWithPos> forStmts;
 };
 
