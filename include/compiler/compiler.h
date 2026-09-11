@@ -162,7 +162,7 @@ class Compiler
                 , expectedReturn(expectedReturn)
                 , isTailCall(isTailCall) 
                 {
-                    assert(expectedReturn >= -1);
+                    assert(expectedReturn >= ByteCode::RETURN_ALL);
                     assert(expectedReturn <= INT8_MAX);
                 }
 
