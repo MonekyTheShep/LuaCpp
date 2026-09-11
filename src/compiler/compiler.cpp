@@ -526,8 +526,6 @@ void Compiler::ExprVisitor::operator()(const VariableExpr &node)
     compiler.namedVariable(node.ident, false);
 }
 
-
-
 void Compiler::ExprVisitor::operator()(const UnaryExpr &node)
 {
     using UnaryOp = UnaryExpr::UnaryOperator;
@@ -581,6 +579,7 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
         case Binop::MUL: compiler.emit(ByteCode::Op::MUL); break;
         case Binop::FLOOR_DIV: compiler.emit(ByteCode::Op::FLOOR_DIV); break;
         case Binop::DIV: compiler.emit(ByteCode::Op::DIV); break;
+        case Binop::MOD: compiler.emit(ByteCode::Op::MOD); break;
         case Binop::EXPO: compiler.emit(ByteCode::Op::EXPO); break;
         case Binop::CONCAT: compiler.emit(ByteCode::Op::CONCAT); break; 
 
@@ -595,7 +594,7 @@ void Compiler::ExprVisitor::operator()(const BinaryExpr &node)
         case Binop::LS: case Binop::GT: compiler.emit(ByteCode::Op::LS); break;
         case Binop::LSE: case Binop::GTE: compiler.emit(ByteCode::Op::LSE); break;
         default: 
-            compiler.compilerError("Unknown binary operator!");
+            compiler.compilerError("Unknown binary operator");
     }
 }
 
@@ -912,22 +911,15 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
             }
 
             const auto &gtLocals = gt.locals.value();
-            if (!gtLocals.empty() && gtLocals.back().depth > lb.currentScope) // Locals to close
-            {
-                size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
-                compiler.patchJumpAt(gt.pos, lb.pos);
+            size_t fallthrough = compiler.emitJump(ByteCode::Op::JUMP);
+            compiler.patchJumpAt(gt.pos, compiler.chunk.code.size());
 
-                for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > lb.currentScope;)
-                {
-                    compiler.emit(gtLocals[i].isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
-                }
-           
-                compiler.patchJump(fallthrough);
-            }
-            else 
+            for (size_t i = gtLocals.size(); i-- > 0 && gtLocals[i].depth > lb.currentScope;)
             {
-                compiler.patchJumpAt(gt.pos, lb.pos);
+                compiler.emit(gtLocals[i].isCaptured ? ByteCode::Op::CLOSE_UPVALUE : ByteCode::Op::POP);
             }
+           
+            compiler.patchJump(fallthrough);
 
             compiler.unresolvedGoto.erase(compiler.unresolvedGoto.begin() + 
             static_cast<std::ptrdiff_t>(i));
