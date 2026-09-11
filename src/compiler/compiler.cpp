@@ -894,20 +894,31 @@ void Compiler::StmtVisitor::operator()(const LabelStmt &node)
         }
     }
 
-    compiler.labels.emplace_back(std::nullopt, node.label, compiler.chunk.code.size(), compiler.locals.size(), compiler.scopeDepth);
+    compiler.labels.emplace_back (
+        std::nullopt, node.label, 
+        compiler.chunk.code.size(), 
+        compiler.locals.size(), 
+        compiler.scopeDepth
+    );
 
     const auto &lb = compiler.labels.back();
 
-    for (size_t i = compiler.unresolvedGoto.size(); i-- > 0 && compiler.unresolvedGoto[i].currentScope >= lb.currentScope;) // Resolve forward jumps
+    for (size_t i = compiler.unresolvedGoto.size(); i-- > 0 
+    && compiler.unresolvedGoto[i].currentScope >= lb.currentScope;) // Resolve forward jumps
     {
         const auto &gt = compiler.unresolvedGoto[i];
         if (gt.name == node.label)
         {
-            if (node.isLastStmt) compiler.locals.resize(gt.currentLocals); // Those locals after the goto dont exist
+            if (node.isLastStmt) 
+                compiler.locals.resize(gt.currentLocals); // Those locals after the goto dont exist
 
             if (lb.currentLocals > gt.currentLocals)
             {
-                compiler.compilerError(std::format("Goto `{}` jumps over scope of local `{}`", gt.name, compiler.locals.back().name));
+                compiler.compilerError (
+                    std::format("Goto `{}` jumps over scope of local `{}`", 
+                    gt.name, 
+                    compiler.locals.back().name)
+                );
             }
 
             const auto &gtLocals = gt.locals.value();
