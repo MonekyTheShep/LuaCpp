@@ -238,7 +238,7 @@ std::string AstPrinter::StmtVisitor::operator()(const ForRangeStmt &node)
     result += "for " + node.variable + " = ";
     result += ExprVisitor.visit(node.start) + ", ";
     result += ExprVisitor.visit(node.stop);
-    if (node.step != nullptr) result += ", " + ExprVisitor.visit(node.step);
+    if (node.step) result += ", " + ExprVisitor.visit(*node.step);
 
     result += " do\n";
 

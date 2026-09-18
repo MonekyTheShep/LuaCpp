@@ -367,7 +367,8 @@ bool VM::tryMetaMethod(std::initializer_list<Value> values, Meta::Method method,
 
     for (const Value &value : values)
     {
-        if ((function = resolveValueMetaMethod(value, method))) break; 
+        if ((function = resolveValueMetaMethod(value, method))) 
+            break; 
     }
 
     if (!function) return false;

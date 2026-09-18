@@ -49,7 +49,7 @@ void Lua::debugRun(std::string code)
         std::cout << "========= VM OUTPUT ==========" << "\n";
     }
     
-    VM &vm = vmGlobal.main;
+   VM &vm = vmGlobal.main;
 
     auto begin = Time::now();
     vm.execute(function);
