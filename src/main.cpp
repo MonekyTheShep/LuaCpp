@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     }
 
 #ifdef NDEBUG
-    Lua().run(std::move(result));
+    Lua().run(std::move(*file));
 #else
     Lua().debugRun(std::move(*file));
 #endif
