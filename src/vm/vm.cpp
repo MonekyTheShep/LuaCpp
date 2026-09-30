@@ -468,6 +468,12 @@ void VM::handleEquality()
     if (std::holds_alternative<LuaTableHandle>(a) 
     && std::holds_alternative<LuaTableHandle>(b))
     {
+        if (std::get<LuaTableHandle>(a) == std::get<LuaTableHandle>(b))
+        {
+            push(true);
+            return;
+        }
+
         if (tryMetaMethod({a,b}, Meta::Method::EQ, CallType::CPP))
         {
             push(isTruthy(pop()));
