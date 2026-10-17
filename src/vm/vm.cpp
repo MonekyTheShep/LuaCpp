@@ -104,7 +104,7 @@ struct CallVisitor
 
     void operator()(const ClosureHandle &closure)
     {
-        if (callType == VM::CallType::CPP && ++vm.runDepth >= VM::MAX_RECURSION) vm.runtimeError("C++ stack overflow!");
+        if (callType == VM::CallType::CPP && ++vm.runDepth >= VM::MAX_RECURSION) vm.runtimeError("C++ stack overflow!"); //gay gay im so gay meow meow
 
         vm.call(closure, calleeIndex, expectedReturn, callType);
 
