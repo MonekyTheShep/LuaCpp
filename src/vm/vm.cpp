@@ -120,7 +120,7 @@ struct CallVisitor
         if (++depth >= VM::MAX_RECURSION) vm.runtimeError("Potential infinite loop within `__call`!");
     
         // Insert table infront of args
-        size_t argStart = calleeIndex + 1;
+        size_t argStart {calleeIndex + 1};
         vm.insert(argStart, table);
 
         vm.stack[calleeIndex] = *function;
@@ -242,12 +242,11 @@ void VM::nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeInd
 {
     assert(calleeIndex < sp);
 
-    size_t argStart = calleeIndex + 1;
-    size_t argEnd = sp;
+    size_t argStart  {calleeIndex + 1};
+    size_t argEnd  {sp};
 
     auto args = std::span<Value>(stack).subspan(argStart, argEnd - argStart);
-
-    int numOfReturn = nativeFunction->function(*this, args);
+    int numOfReturn {nativeFunction->function(*this, args)};
     moveReturns(sp - static_cast<size_t>(numOfReturn), calleeIndex, expectedReturn);
 }
 
@@ -261,7 +260,7 @@ void VM::call(const ClosureHandle &closure, size_t calleeIndex, int expectedRetu
     int argc = static_cast<int>(sp - calleeIndex - 1);
     auto &function = closure->function;
 
-    int argDiff = function->arity - argc;
+    int argDiff  {function->arity - argc};
 
     if (argDiff < 0) 
     {
@@ -306,7 +305,7 @@ void VM::moveReturns(size_t firstResult, size_t frameBase, int expectedReturn)
     Value *start = &stack[firstResult];
     Value *top = &stack[sp];
 
-    sp = frameBase;
+    sp {frameBase};
 
     if (expectedReturn == ByteCode::RETURN_ALL)
     {
