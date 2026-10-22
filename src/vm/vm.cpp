@@ -653,7 +653,7 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
 void VM::execute(const FunctionHandle &code)
 {
     auto closure = std::make_shared<Closure>(code);
-    size_t calleeIndex {push(closure)};
+    size_t calleeIndex  {push(closure)};
     callValue(calleeIndex, 0, CallType::LUA);
     run();
 }
@@ -882,7 +882,7 @@ void VM::run()
             {
                 auto fieldc = readByte();
 
-                const size_t values {fieldc * 2};
+                const size_t values = fieldc * 2;
 
                 Value *start = &stack[sp - values];
                 Value *top = &stack[sp];
@@ -932,7 +932,7 @@ void VM::run()
 
                 auto &table = std::get<LuaTableHandle>(value);
 
-                size_t count {sp - listStart};
+                size_t count = sp - listStart;
                 sp = listStart;
                
                 table->reserve(count);
@@ -983,7 +983,7 @@ void VM::run()
                 auto expectedReturn = readSignedByte();
 
                 assert(!callees.empty());
-                size_t calleeIndex = callees.back(); callees.pop_back();
+                size_t calleeIndex {callees.back()}; callees.pop_back();
 
                 callValue(calleeIndex, expectedReturn, CallType::LUA);
                 break;
@@ -993,9 +993,9 @@ void VM::run()
                 [[maybe_unused]] auto argc = readByte();
                 [[maybe_unused]] auto expectedReturn = readSignedByte();
 
-                size_t calleeIndex = callees.back(); callees.pop_back();
-                size_t frameBase = callFrames.back().frameBase;
-                int expected = callFrames.back().expectedReturn;
+                size_t calleeIndex {callees.back()}; callees.pop_back();
+                size_t frameBase  {callFrames.back().frameBase};
+                int expected {callFrames.back().expectedReturn};
 
                 closeUpValues(&stack[frameBase]); 
                 callFrames.pop_back();
@@ -1104,8 +1104,8 @@ void VM::run()
                 auto numOfLocals = readByte();
 
                 auto &frame = callFrames.back();
-                size_t frameBase  {frame.frameBase};
-                int expectedReturn  {frame.expectedReturn};
+                size_t frameBase {frame.frameBase};
+                int expectedReturn {frame.expectedReturn};
                 CallType callType = frame.callType;
 
                 closeUpValues(&stack[frameBase]);
