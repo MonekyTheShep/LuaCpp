@@ -120,7 +120,7 @@ struct CallVisitor
         if (++depth >= VM::MAX_RECURSION) vm.runtimeError("Potential infinite loop within `__call`!");
     
         // Insert table infront of args
-        size_t argStart = calleeIndex + 1;
+        size_t argStart {calleeIndex + 1};
         vm.insert(argStart, table);
 
         vm.stack[calleeIndex] = *function;
@@ -242,12 +242,11 @@ void VM::nativeCall(const NativeFunctionHandle &nativeFunction, size_t calleeInd
 {
     assert(calleeIndex < sp);
 
-    size_t argStart = calleeIndex + 1;
-    size_t argEnd = sp;
+    size_t argStart  {calleeIndex + 1};
+    size_t argEnd  {sp};
 
     auto args = std::span<Value>(stack).subspan(argStart, argEnd - argStart);
-
-    int numOfReturn = nativeFunction->function(*this, args);
+    int numOfReturn {nativeFunction->function(*this, args)};
     moveReturns(sp - static_cast<size_t>(numOfReturn), calleeIndex, expectedReturn);
 }
 
@@ -261,7 +260,7 @@ void VM::call(const ClosureHandle &closure, size_t calleeIndex, int expectedRetu
     int argc = static_cast<int>(sp - calleeIndex - 1);
     auto &function = closure->function;
 
-    int argDiff = function->arity - argc;
+    int argDiff  {function->arity - argc};
 
     if (argDiff < 0) 
     {
@@ -373,7 +372,7 @@ bool VM::tryMetaMethod(std::initializer_list<Value> values, Meta::Method method,
 
     if (!function) return false;
         
-    size_t calleeIndex = push(*function);
+    size_t calleeIndex {push(*function)};
     for (const Value &value : values)
     {
         push(value);
@@ -612,7 +611,7 @@ void VM::luaTableSet(const Value &table, const Value &key, const Value &value, i
 
     if (isCallable(*meta))
     {
-        size_t calleeIndex = push(*meta);
+        size_t calleeIndex {push(*meta)};
         push(table);
         push(key);
         push(value);
@@ -641,7 +640,7 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
 
     if (isCallable(*meta))
     {
-        size_t calleeIndex = push(*meta);
+        size_t calleeIndex {push(*meta)};
         push(table);
         push(key);
         callValue(calleeIndex, 1, CallType::CPP); 
@@ -654,7 +653,7 @@ Value VM::luaTableGet(const Value &table, const Value &key, int depth)
 void VM::execute(const FunctionHandle &code)
 {
     auto closure = std::make_shared<Closure>(code);
-    size_t calleeIndex = push(closure);
+    size_t calleeIndex  {push(closure)};
     callValue(calleeIndex, 0, CallType::LUA);
     run();
 }
@@ -984,7 +983,7 @@ void VM::run()
                 auto expectedReturn = readSignedByte();
 
                 assert(!callees.empty());
-                size_t calleeIndex = callees.back(); callees.pop_back();
+                size_t calleeIndex {callees.back()}; callees.pop_back();
 
                 callValue(calleeIndex, expectedReturn, CallType::LUA);
                 break;
@@ -994,9 +993,9 @@ void VM::run()
                 [[maybe_unused]] auto argc = readByte();
                 [[maybe_unused]] auto expectedReturn = readSignedByte();
 
-                size_t calleeIndex = callees.back(); callees.pop_back();
-                size_t frameBase = callFrames.back().frameBase;
-                int expected = callFrames.back().expectedReturn;
+                size_t calleeIndex {callees.back()}; callees.pop_back();
+                size_t frameBase  {callFrames.back().frameBase};
+                int expected {callFrames.back().expectedReturn};
 
                 closeUpValues(&stack[frameBase]); 
                 callFrames.pop_back();
@@ -1105,8 +1104,8 @@ void VM::run()
                 auto numOfLocals = readByte();
 
                 auto &frame = callFrames.back();
-                size_t frameBase = frame.frameBase;
-                int expectedReturn = frame.expectedReturn;
+                size_t frameBase {frame.frameBase};
+                int expectedReturn {frame.expectedReturn};
                 CallType callType = frame.callType;
 
                 closeUpValues(&stack[frameBase]);
