@@ -4,3 +4,7 @@ Lua Parser written in C++
 
 TODO:
 Fix initialising of variables to be consistent.
+
+Add Lua custom for loop iterators
+
+Add mark and sweep garbage collector
