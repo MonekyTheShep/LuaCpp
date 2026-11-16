@@ -1,5 +1,5 @@
 # LuaCpp
-Lua Parser written in C++ following Lua 5.3 specification 
+Lua Compiler written in C++ following Lua 5.3 specification 
 
 
 TODO:
