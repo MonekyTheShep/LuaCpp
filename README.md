@@ -1,7 +1,7 @@
 # LuaCpp
 Lua Compiler written in C++ following Lua 5.3 specification 
 
-Compile the project with through CMake using Clang. Have not thought about compiler compatibility yet.
+Compile the project with CMake using Clang. Have not thought about compiler compatibility yet.
 
 TODO:
 Fix initialising of variables to be consistent.
